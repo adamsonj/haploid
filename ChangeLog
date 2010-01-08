@@ -1,0 +1,288 @@
+2010-01-08  Joel James Adamson  <adamsonj@email.unc.edu>
+
+	* configure.in: added m4 directory (see Makefile.am); replaced
+	AC_PROG_RANLIB with AC_PROG_LIBTOOL
+
+	* Makefile.am (LDADD): made adjustments for building and
+	installing as a shared library
+	(ACLOCAL_AMFLAGS): added m4 directory to this variable
+	(haploid_TEXINFOS): added dependency for building info file; this
+	builds haploid.info just fine, but will not include
+	fdl-$VERSION.texi into the distribution with `make dist'.
+	Therefore `make distcheck' fails
+
+	* tests/tlta.c (main): changed header to two newlines to
+	facilitate graphing with gnuplot
+
+2010-01-07  Joel James Adamson  <adamsonj@email.unc.edu>
+
+	* haplib/haplib.h: inserted include for bithacks
+
+	* Makefile.am (info_TEXINFOS): changed filename to reflect new
+	name of TeXinfo file
+
+	* haplib/haplibpriv.h: added fenv.h
+
+	* haplib/recomb.c (set_rec_table): added a test for a NAN such
+	that if we get garbage for zygote_prob we return FE_INVALID after
+	obtaining zygote_prob
+
+2010-01-04  Joel James Adamson  <adamsonj@email.unc.edu>
+
+	* doc/haploid.texinfo: skeleton of texinfo file
+
+	* doc: added doc directory 
+
+	* tlta.c: adjusted calls to library functions to reflect new
+	prototypes
+
+	* haplib: library functions now take variable-length arrays as
+	arguments.  Removed declarations of GENO and NLOCI from
+	haplibpriv.h
+
+2010-01-03  Joel James Adamson  <adamsonj@email.unc.edu>
+
+	* tests/tlta.c: moved functions to library (now this file only
+	needs two functions of its own)
+
+	* haplib/haplib.h: added prototypes for functions in mating.c and
+	geno_func.c
+
+	* Makefile.am (libhaplib_a_SOURCES): added sources for mating.c
+	and geno_func.c
+
+	* haplib/mating.c: added this file for creating mating tables;
+	only entry now is rmtable ()
+
+	* haplib/geno_func.c: added this file for special genetic
+	functions
+
+	* haplib/bithacks.h: moved to ./haplib
+
+	* tests/tlta.c: declared rect outside main
+	(main): initialized rect here.  Everything appears to be working
+	now.
+
+	* haplib/haplibpriv.h: fixed some headers
+
+	* Makefile.am (LDADD): removed links to gsl
+
+	* haplib/spec_func.c (euclid_dist): removed call to malloc; not
+	needed; just initialize array with len
+
+	* haplib/haplibpriv.h: removed dependence on gsl as it was just
+	hangin' things up
+
+	* haplib/recomb.c (set_rec_table): changed over to array notation
+	completely; I realized that these are not variable length arrays,
+	since GENO and NLOCI are known at compile time (they are
+	preprocessed!).  Did away with troubling, potentially time-saving
+	trick of setting a single element equal to one and the rest to
+	zero.  Just make sure that (manually) uninitialized entries are
+	indeed set to zero; still mirroring the cases for j < i.
+	(recombination): changed arguments to array notation
+
+	* tests/tlta.c (main): initialized srand () with a literal so as
+	to make a good test
+	(genotype_to_allele): added this function to generate allele
+	frequencies from genotypes
+	(rmtable): switched to array notation
+
+	* haplib/spec_func.c (gen_mean): switched to array notation; not
+	sure if this was really the problem, but the code is much clearer
+
+2010-01-01  Joel James Adamson  <adamsonj@email.unc.edu>
+
+	* tests/tlta.c (main): changed scheme for generating initial
+	conditions; now generated on-the-fly instead of once at the
+	beginning
+	(allele_to_genotype): added this function (could be transferred to
+	library); only useful for initial frequencies!
+
+	* tests/bithacks.h: added this file for tlta; 
+
+2009-12-31  Joel James Adamson  <adamsonj@email.unc.edu>
+
+	* tests/tlta.c (next_gen): changed some objects from pointers to
+	arrays; since we have variable-length arrays we don't need dynamic
+	allocation really
+
+	* haplib/recomb.c (set_rec_table): zyg is now a 2-member array, as
+	I realized that for each mask you get two genotypes (or you dont
+	because mask 0 represents no recombination).  Also changed
+	mask_lim back to 2^(NLOCI - 1)
+	(recombination): put this back into array notation; compiles but
+	still segfaults (same line?)
+	(recombination): changed formal parameter F from double * F[GENO]
+	to double F[GENO][GENO]; made corresponding change in haplib.h
+
+2009-12-30  Joel James Adamson  <adamsonj@email.unc.edu>
+
+	* haplib/recomb.c (get_bit): changed order of arguments, as
+	Kirkpatrick's version seemed unnatural (the index should come
+	second)
+
+	* tests/tlta.c (next_gen): populated 2d array of double * with
+	calloc before passing to set_rec_table
+
+	* tests/sim_stop.c (GENO): defined GENO before including haplib.h
+
+	* haplib/haplib.h: changed prototype of set_rec_table to accept
+	double * 2d array; same change to recombination prototype.
+	haplib.h  must come after a definition of GENO and NLOCI (how
+	non-standard is this?); otherwise we create incomplete element
+	type definitions for rec_table
+
+2009-12-29  Joel James Adamson  <adamsonj@email.unc.edu>
+
+	* haplib/spec_func.c (sim_stop_ck): no longer makes non-local
+	exit; that doesn't make sense when we want to return to main for a
+	new set of initial conditions; now returns 0 or 1
+
+	* haplib/recomb.c (set_rec_table): changed to reflect algorithm
+	detailed in BUGS (see entry for recomb.c:194)
+
+	* Makefile.am (AM_CFLAGS): added -ggdb; be sure to use
+	CFLAGS='-O0' on the command line to disable optimization when
+	debugging
+
+2009-12-26  Joel James Adamson  <adamsonj@email.unc.edu>
+
+	* haplib/haplib.h: same changes as for haplibpriv.h (see below)
+
+	* configure.in: reconciled version numbers to 0.01
+	Added system extension macro for _GNU_SOURCE
+
+	* haplib/haplibpriv.h: removed _GNU_SOURCE macro from this file;
+	put it into configure.in
+
+2009-12-16  Joel J. Adamson  <adamsonj@email.unc.edu>
+
+	* haplib/haplibpriv.h: added default definitions for NLOCI and
+	GENO using #ifndef; conditional compilation is not called for in
+	this case (see TODO)
+
+2009-12-15  Joel J. Adamson  <adamsonj@email.unc.edu>
+
+	* tests/sim_stop.c (main): added another condition to the while
+	loop, so that if the iteration goes for more than a million the
+	test fails (i.e. sim_stop_ck isn't kicking in); this will be more
+	important once sim_stop_ck can accept other functions for its
+	distance criterion
+
+	* Makefile.am (AM_CFLAGS): added this variable to enforce gnu99
+	standard
+
+	* haplib/haplibpriv.h: none of the (function) declarations in this
+	file were necessary; recombination might be necessary later, but
+	as of now, nothing calls it.  
+
+	* haplib/recomb.c: switched around order of functions so that
+	helper functions are clearly before their callers, this way they
+	don't clutter the header file
+	(zygote_genotypes): changed type; added much commentary; removed
+	double for-loop (no need to initialize all of bit to zero; if we
+	really needed to do that we could use calloc)
+	(set_rec_table): removed zyg_ck commensurate with void type of
+	zygote_genotypes (); this may be totally irresponsible
+	programming, but I can't think of what (semantically) will go
+	wrong with zygote_genotypes ()!
+
+2009-12-11  Joel J. Adamson  <adamsonj@email.unc.edu>
+
+	* haplib/recomb.c (set_rec_table): set length of *zyg using calloc
+	to 2; checking the value of zygote_genotypes; this check still
+	doesn't do anything: zygote_genotypes only returns 0.  I'm trying
+	to think of things that could go wrong.  The function should still
+	return int.
+
+2009-12-10  Joel J. Adamson  <adamsonj@email.unc.edu>
+
+	* tests/sim_stop.c (main): made this a while loop instead of a
+	do-while loop; the reason the test (semantically) failed is
+	because is started with n = 1.  1^2 is still 1, thus oldarray and
+	simarray were identical to start with.  This now compiles and runs
+	successfully
+
+	* Makefile.am (TESTS): removed subdirectory from filename
+
+2009-12-09  Joel J. Adamson  <adamsonj@email.unc.edu>
+
+	* Makefile.am (sim_stop_LDADD): added this variable and made
+	sim_stop link properly (see 2009-11-30)
+
+2009-11-30  Joel James Adamson  <adamsonj@email.unc.edu>
+
+	* tests/sim_stop.c (main): changed a few things to fit with GNU
+	Coding standards.  This is not linking.
+
+	* haplib/haplib.h: moved a few headers from haplibpriv.h to haplib.h
+
+	* Makefile.am (check_PROGRAMS): added this target; sim_stop still
+	not linking
+
+2009-11-26  Joel James Adamson  <adamsonj@email.unc.edu>
+
+	* haplib/recomb.c (set_rec_table): calculating position to augment
+	in rec_table by pointer arithmetic; this is superior to using
+	arrays for a few reasons.  
+
+2009-11-24  Joel J. Adamson  <adamsonj@email.unc.edu>
+
+	* haplib/recomb.c: put all "doc string" comments inside function
+	tags, and indented; added page breaks including a page break at
+	the end.
+	(recombination): reformatted do-while loop to conform to GNU CS
+	(recombination): added postfix increment operator to rec_table in
+	line 212
+	(zygote_genotypes): added integer return value to zygote_genotypes ()
+	(set_rec_table): checking return value of zygote_genotypes ()
+
+2009-11-19  Joel J. Adamson  <adamsonj@email.unc.edu>
+
+	* haplib/haplib.h: removed prototypes internal to library; added
+	an external prototype for sim_stop_ck
+
+	* Makefile.am (libhaplib_a_SOURCES): setting up for library
+	with tests instead a single binary
+
+	* haplib/recomb.c (recombination): completely redid iteration, so
+	that now the whole process takes place in one += call.  This
+	routine now compiles without syntactic error.  Put a test case in
+	TODO. 
+
+2009-11-18  Joel J. Adamson  <adamsonj@email.unc.edu>
+
+	* haplib/recomb.c (rec_prob): added r as an argument to this
+	function.  Kirkpatrick sez: /* The pairwise recombination rates
+	r[0],r[1],...,r[nLoci-1] are declared and initialized external to
+	this routine.  */  They should not be, so that we can use this
+	function on multiple r tables in a single program.
+	(get_bit): made static inline
+	(get_bit): casted calls to pow as integers; I still feel like
+	there must be a library function for this somewhere, something
+	that has already been debugged.  Put a test case in TODO
+
+2009-11-17  Joel J. Adamson  <adamsonj@email.unc.edu>
+
+	* haplib/tests/sim_stop.c (main): created test for sim_stop_ck;
+	not tested yet!!!!
+
+	* haplib/spec_func.c (sim_stop_ck): added first testing version of this
+	function.  Uses an internal function to check for closeness then
+	exits if below tolerance.  This is to stop having to code this
+	every damn time.
+	
+2009-11-13  Joel J. Adamson  <adamsonj@email.unc.edu>
+
+	* func.h: removed Xstate_t definition; the new paradigm doesn't
+	justify it
+
+	* recomb.c (recombination ()): changed indices to variables and
+	macros (len in L162) and gave recombination two arguments, double
+	* rec_table and double * F.  Allocating xt using calloc () and
+	made a fatal error for a failed return from calloc ().
+
+	(set_rec_table (double * rec_table)): now accepts a pointer to the
+	recombination table; removed debugging code (should be part of
+	test, not in function itself)

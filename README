@@ -1,0 +1,42 @@
+$Id$
+
+This file describes how to compile and install Haploid, a C library
+for haploid population genetic simulations.
+
+Compiling
+=========
+
+Compiling Haploid follows the usual autotools routine:
+
+# ./configure 
+# make
+
+If you obtained development code from the Subversion repository, then
+run
+
+# automake -a
+# autoconf
+
+before running ./configure.
+
+You really should use gcc to compile the library.  The library makes use
+of some GNU extensions and some C99 features, such as variable-length arrays.
+
+To install the library, use
+
+# make install
+
+Usually you need root privileges to use make install.
+
+Configure options
+=================
+
+Debugging
+=========
+
+To compile a version of the library for debugging use
+
+# make -k CFLAGS=-O0
+
+This command disables optimization so the debugger can read symbols
+within library functions.

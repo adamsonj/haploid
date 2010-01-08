@@ -1,0 +1,58 @@
+# -*-mode:org; org-todo-keywords: '((sequence "todo" "done"))-*-
+# file:line author email date
+# $Id$
+* done recomb.c:194 Joel James Adamson  <adamsonj@email.unc.edu> <2009-12-28 Mon> :CLOSED:
+  - local zyg contains only 0 as its index (is this wrong?) when
+    running tlta: i.e. every entry is 0
+  - therefore we just add to the first entry of rec_table
+  - of course, this produces a segfault
+  - the problem appears to be in zygote_genotypes (): this function
+    doesn't do _anything_ as of now;  I may have misunderstood what
+    this function is supposed to do
+
+** Solution
+   - Instead of a single pointer, use a 2D array of pointers: each
+     element of the array is an array (passed as a pointer), and under
+     each (i,j) pair we can deal with a single array and index it.
+   - Other helpful things:
+     1. If i == j, the array is all zero except for array[0] = 1.  All
+	we need is 1 such pointer, and we can use the same one for every
+	[i,i] entry
+     2. all we need is the "upper triangle" of the rec_table (j < i).
+        Since this is haploid, there is no parent-of-origin effect, so
+        we can just use the other rec_table[j,i] = rec_table[i,j]
+        (where rec_table[i,j] is a pointer to the array in the
+        [i,j]-th position of rec_table) when j > i in the first case.
+        We have thus eliminated half the calculation!
+   - we still need the same algorithm of calculating the index and
+     placing the probability there;
+** Algorithm
+   1. Loop over mothers (i from 0 to GENO)
+      - Loop over fathers 
+	+ if (i == j) then set the current entry to point to zygii =
+          {1,0,0,...,0}
+	+ if (j > i)
+	  * else loop over recombination masks, determining the genotype
+	    from each potential recombination mask, adding the
+	    probability to the entry in that position
+	    1. each recombination mask yields two recombinant genotypes
+	    2. plus each parental (non-recombinant) genotype
+	    3. this makes an array of four genotypes: e.g. zygotes =
+	       {0010,0100,0000,0110}.  Then we fill rec_table[2,4] with
+	       { r/2, 0, (1-r)/2, 0, (1-r)/2, r/2}.
+	+ if (j < i) rec_table[j,i] = rec_table[i,j]
+   2. Do a consistency check --- nothing should be over 1.0.  Should
+      this be built in to the program?  No.  Do it in the debugger
+* done tlta.c Joel James Adamson  <adamsonj@email.unc.edu> <2009-12-31 Thu> :CLOSED:
+  - returns from main () after one run
+  - *should* test with another initial condition 
+* done tlta.c  Joel James Adamson  <adamsonj@email.unc.edu> <2010-01-01 Fri> :CLOSED:
+  - funny return values from degenerate cases
+  - these corners should be equilibrium values, but they change after
+    a single step
+  - isolated to recombination
+    + probably due to the INCORRECT specification of rec_table in set_rec_table
+    + rec_table should be global as well; declaring it within next_gen
+      means it is calculated every time; this is hugely wasteful
+* done ./haplib Joel James Adamson  <adamsonj@email.unc.edu> <2010-01-03 Sun> :CLOSED:
+  Library functions need runtime array dimensions

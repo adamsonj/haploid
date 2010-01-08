@@ -1,0 +1,165 @@
+# -*-mode:org;  org-todo-keywords: '((sequence "todo" "done"))-*-
+* In the near future
+** todo Manual
+   - As soon as TLTA works, we need a manual to keep all this straight
+** todo Big fat test
+   - I'm thinkin' like 32 loci or so
+   - perhaps no recombination (r = 0.0) or no selection
+** todo Return values
+   - some functions return integers but they do no error-checking
+     (e.g. set_rec_table)
+   - set_rec_table does error-checking, but is still error-prone;
+     there is no guarantee that over-reaching r[] will return NaN for
+     zygote_prob; is there just some way to check the size of the array?
+** Archive							    :ARCHIVE:
+*** done Stop function
+    :PROPERTIES:
+    :ARCHIVE_TIME: 2009-12-10 Thu 14:04
+    :END:
+    Write a generalized function that will execute a non-local exit
+    when two vectors have converged.  That will avoid having to code
+    the same damn thing every time.  It should also take an argument of
+    a tolerance.
+**** <2009-12-10 Thu>
+     The test case now works, and returns success, but is clearly
+     semantically wrong.  The iteration only runs once.  The sense of
+     logic may be reversed in sim_stop_ck ().  Run it in gdb and
+     determine how the loop progresses.
+*** done GNU99 std
+    :PROPERTIES:
+    :ARCHIVE_TIME: 2009-12-15 Tue 16:41
+    :END:
+    this should go in Makefile.am; look up how to do it
+*** done Fix up set_rec_table
+    :PROPERTIES:
+    :ARCHIVE_TIME: 2009-12-15 Tue 16:41
+    :END:
+**** Pointer arithmetic
+     This function should be internal and we can use indexed pointers
+     instead of 3d array.
+
+     This algorithm is set, however we need to find out how exactly the
+     elements of unsigned int * zyg are assigned.  zygotes[] is
+     initialized at size 4, however zygote_genotypes () only assigns
+     two positions in the array (through * zyg).  Why not assign all
+     four?  There must be some shortcut.  This seems like a piece of
+     heavily K&R style coding, courtesy of MK.
+*** done Use conditional compilation
+    CLOSED: [2009-12-16 Wed 13:39]
+    :PROPERTIES:
+    :ARCHIVE_TIME: 2009-12-16 Wed 13:39
+    :END:
+    Use #if and so on for two-sex numbers of genotypes and so on: in
+    recombination () you could set #if GENO != FGENO to define length
+    of arrays; i.e. user should define numbers of genotypes and
+    alleles, loci, etc.
+
+    <2009-12-16 Wed>
+
+    Conditional compilation just doesn't make sense.  Males and females
+    need to always have the same numbers of loci for recombination to
+    work (unless we're dealing with non-autosomal inheritance, which we
+    won't for a while).
+
+    The better solution is to calculate GENO from some other quantity,
+    rather than defining it as a macro.  This way we can have mutations
+    crop up and change the number of genotypes on the fly (or bird, as
+    the case may be).
+
+    For now the solution is that the user (application programmer)
+    needs to define NLOCI and GENO
+*** done Drop non-local exit from sim_stop_ck ()
+    :PROPERTIES:
+    :ARCHIVE_TIME: 2009-12-29 Tue 21:35
+    :END:
+    - totally doesn't make sense in a program with multiple starting
+      values
+*** Test case for recombination
+    :PROPERTIES:
+    :ARCHIVE_TIME: 2010-01-03 Sun 21:06
+    :END:
+**** done TLTA
+***** done Change to reporting allele frequencies and D instead of genotype frequencies
+***** Basic design
+      1. Generate a fitness function for the four genotypes.  
+      2. Have them mate randomly (define a mating table full of ones)
+         to generate next generation numbers (relative frequencies)
+      3. get new frequencies from new numbers divided by the sum of all
+         new numbers
+
+***** Life cycle
+      zygote => selection => adult => mating => recombination => zygote
+**** done Fix recombination algorithm
+     - it's not giving me the right values under [[TLTA]]
+     - something about the diagonal entries ...
+     - I'm getting values over 1
+*** done Qualifiers
+    :PROPERTIES:
+    :ARCHIVE_TIME: 2010-01-03 Sun 21:06
+    :END:
+    - mask_lim et al can be const
+    - we may wan tto use restrict for rec_table
+*** done Promote functions to library
+    :PROPERTIES:
+    :ARCHIVE_TIME: 2010-01-03 Sun 21:33
+    :END:
+    - take functions from tlta that are generalizable
+    - create some new header files
+    - wait on bithacks until it can be extended to include more useful
+      operations
+*** done Library functions need runtime array lengths
+    :PROPERTIES:
+    :ARCHIVE_TIME: 2010-01-04 Mon 15:52
+    :END:
+    - the only reason tlta worked is because haplibpriv sets GENO and
+      NLOCI to the right values
+    - C99 (GNU99?) allows array declarations in formal parameters with
+      other formal parameters as dimensions; this may be the way out.
+    - All library functions will therefore need a "len" argument, a la
+      gen_mean ()
+    - other options:
+      + leave array dimension unspecified
+      + use pointer notation in formal parameters and array notation in function
+      + we still need the dimensions for iteration purposes
+* In the future
+** todo Make sim_stop_ck () accept a function
+** todo Mating step wrapper code
+   recombination () is so simple it should be inlined, however since
+   it is now external, I cannot inline it.  Then there will be only
+   one library function for recomb.c
+** todo Bit-twiddling library
+   - I should study bit-twiddling and add a library file for it
+   - bithack.h does some good, but does not include some things that
+     could replace get_bit and so on
+   - this sort of programming is essential to diallelic models; I
+     should master it
+** Incorporate graphing utilities
+* Things to think about
+** The user should define
+   1. transmission probabilities
+   2. selection scheme 
+   3. non-random mating (mating table)
+   4. recombination scheme
+   5. number of loci
+   6. alleles
+   7. mutation rates
+   8. I/O
+
+   Library routines should
+   1. Help users define the above quantities
+   2. take these as inputs and produce routine simulations
+
+   (1) are features; (2) are essential.  
+** Finalize algorithm
+
+   Take Maria's suggestions about how to do this; she knows what she
+   is talking about!  The algorithm needs to take phenogenotypes and
+   1. perform selection
+   2. perform non-random mating
+   3. perform recombination 
+   4. advance any "life-stages" to the next "life-stage" (which may be
+      death).
+
+   In other words, this is going to need to model a huge dynamical
+   system flexibly (defined by the user).  Learn how to take functions
+   as arguments and call them.

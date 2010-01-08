@@ -1,0 +1,419 @@
+\input texinfo                  @c -*-texinfo-*-
+@comment $Id$
+@comment %**start of header
+@setfilename haploid.info
+@include version.texi
+@settitle Numerical Library for Haploid Genetics 
+@syncodeindex pg cp
+@comment %**end of header
+@copying
+This manual is for Haploid (version @value{VERSION}, @value{UPDATED}), a
+C library for haploid population genetic simulations.
+
+Copyright @copyright{} 2009 Joel J. Adamson
+
+@quotation
+Permission is granted to copy, distribute and/or modify this document
+under the terms of the GNU Free Documentation License, Version 1.3 or
+any later version published by the Free Software Foundation; with
+Invariant Sections, with the Front-Cover Texts being ``A GNU Manual,''
+and with the Back-Cover Texts as in (a) below.  A copy of the license is
+included in the section entitled ``GNU Free Documentation License.''
+
+(a) The FSF's Back-Cover Text is: ``You have the freedom to
+copy and modify this GNU manual.''
+@end quotation
+@end copying
+
+@dircategory Libraries
+@direntry
+* Haploid: (haploid). Numerical Library for Haploid Genetics.
+@end direntry
+
+@titlepage
+@title  Numerical Library for Haploid Genetics
+@subtitle for version @value{VERSION}, @value{UPDATED}
+@author Joel J. Adamson (@email{adamsonj@@email.unc.edu})
+@page
+@vskip 0pt plus 1filll
+@insertcopying
+@end titlepage
+
+@contents
+
+@ifnottex
+@node Top
+@top Numerical Library for Haploid Genetics
+
+This manual covers Haploid (version @value{VERSION}, @value{UPDATED}), a
+C library for haploid population genetic simulations.
+
+@menu
+* Introduction::                
+* Development::                 
+* Representation::              
+* Simulation functions::        
+* GNU Free Documentation License::  
+* Index::                       
+@end menu
+@end ifnottex
+
+@comment  node-name,  next,  previous,  up
+@node Introduction
+@chapter Introduction
+Haploid is a library of C functions useful to simulating haploid
+population genetics.  Haploid simulations are often used for theoretical
+studies of sexual selection, migration and speciation.  The base code
+was written by Mark Kirkpatrick and Maria Servedio.
+
+Haploid follows the GNU Coding Standards and is managed by the GNU
+Autotools in a @url{http://subversion.tigris.org, Subversion} version
+control repository.
+
+To use the library, use @code{#include <haploid.h>} at the top of your
+files.  You may also want to use macros from @file{bithacks.h}, so
+include it as well.  To link with the library, pass @code{-lhaplib} to
+the linker.  For example:
+
+@example
+# gcc -std=gnu99 -ggdb  -g -O2   -o sim_stop sim_stop.o -lm -lhaplib 
+@end example
+
+Haploid is Free Software released under the terms of the GNU General
+Public License Version 3.
+
+Send bug reports to Joel J. Adamson (@email{adamsonj@@email.unc.edu}).
+
+@node Development
+@chapter Development
+
+@comment Some details of developing Haploid.
+
+Please read the GNU Coding Standards before adding any code to Haploid
+or developing a test. @xref{Writing C, Writing C, Writing C, standards,
+GNU Coding Standards}, for details of GNU style.  I strongly recommend
+using GNU Emacs for development, as the tools available in Emacs are
+widely understood and comprehensive (@pxref{Top,Emacs,Emacs,emacs, GNU
+Emacs Manual}).  The accompanying files @file{TODO}, @file{BUGS} and
+@file{ChangeLog} also use Emacs modes which make them more readable.
+
+Haploid makes use of extensions in the GNU C Library and the C99
+Standard; by default compilation makes use of the @code{-std=gnu99} flag.
+
+@menu
+* ChangeLog::                   
+* Subversion::                  
+* TODO file::                   
+* BUGS::                        
+@end menu
+
+@node ChangeLog
+@section ChangeLog
+
+There is a single @file{ChangeLog} for the library and tests in the
+toplevel directory.  The @file{ChangeLog} follows the GNU Coding
+Standards (@pxref{Change Logs, Change Logs, Change Logs, standards, GNU
+Coding Standards}).  Only make a change log entry after testing a
+change, when you are ready to commit a change to the repository.  Be as
+specific as possible and use general terminology: the point of a
+@file{ChangeLog} is so one could reconstruct changes that are lost from
+a description of the changes.
+
+@comment  node-name,  next,  previous,  up
+@node Subversion
+@section Subversion
+
+Haploid uses @url{http://subversion.tigris.org, Subversion} for version
+control.  The @url{http://chondestes.bio.unc.edu/svn/haploid/code,
+canonical repository for Haploid development} is open for viewing.  You
+can also view changes, create diffs and download snapshots using
+@url{http://viewvc.tigris.org, ViewVC} on
+@url{http://chondestes.bio.unc.edu/viewvc, chondestes}.  You will need a
+password for committing changes, so please ask me
+(@email{adamsonj@@email.unc.edu}) for one.
+
+Patches are also accepted for testing.  The best way to make a patch
+from your working copy is with the command
+
+@example
+# svn diff -x -u <filename> > PATCHFILE
+@end example
+
+Such a diff contains enough information for @command{patch} to apply it
+with
+
+
+@example
+# patch -i -p0 < PATCHFILE
+@end example
+
+
+@node TODO file
+@section TODO file
+
+The file @file{TODO} in the top-level directory contains all planned
+developments in three levels: ``In the near future,'' ``In the future,''
+and ``Things to think about.''  Items for the near future are currently
+developing; items in the future are good ideas that might work but are
+placed at a lower priority because of (a) higher priorities in the near
+future, or because they will take a long time to implement.  ``Things to
+think about'' are generally ideas about restructuring, development ideas
+or fanciful ideas that I (you) haven't sat down and thought about very
+much.
+
+@file{TODO} is written in Emacs' Org-Mode, a hierarchical organizational
+mode that can make timestamps for particular items, contain hyperlinks
+and many other useful features (@pxref{Top, Org Mode,, org, Org Mode
+Manual}).  When an item from ``In the near future'' is completed, mark
+it with the keyword @strong{done} and move it to the archive sibling
+(@kbd{C-c C-x A}).  Although items (sub-headings of ``In the near
+future'') are not marked with priorities, they are roughly in order of
+priority.
+
+@node BUGS
+@section BUGS
+
+Bugs are failures of the library to do what you want, either because
+they cause a compile-time error (syntax error), a run-time error
+(e.g. running out of memory) in a program, or because tests produce
+incorrect output @footnote{any program you write with the library that
+you know the results of, i.e. is not exploratory, should be added as a
+test.}.  @emph{Anything else} is @emph{not} a bug.  If a program doesn't
+work the way you think it should, put that item in @file{TODO}.
+
+@file{BUGS} is written in Org-Mode: each bug is a header line containing the
+@strong{todo} keyword, the file (and line number, if possible) of the
+bug, the author of the bug report along with contact info, and a date
+the bug was opened.  Bugs may have subheadings containing specific
+solutions or brainstorming.  When a bug is fixed (verified by a test),
+mark it with the tag @strong{CLOSED} (@kbd{C-c C-c CLOSED: @key{RET}}), the keyword
+@strong{done} and leave it where it is.  New bugs should appear at the
+bottom of the file.
+
+
+@node Representation
+@chapter Representation
+
+Haploid represents two kinds of objects: diallelic genotypes (integers),
+which can be considered atomic (they can be created and destroyed easily
+and there is no need to save them) and compound objects that represent
+interactions of genotypes.  Many functions use variable length arrays
+internally, hence the GNU99 standard.  All functions documented here are
+defined in @file{haplib/haplib.h}.
+
+@menu
+* Genotypes::                   
+* Compound Objects::            
+@end menu
+
+@node Genotypes
+@section Genotypes
+
+Haploid represents diallelic genomes with C integers: a single locus
+(position) is represented by a bit of an integer.  An n-locus genotype
+therefore has @math{2^n} possible genotypes.  We can therefore represent
+All interactions of genotypes (e.g. mating, mutation, etc) as changes to
+bits of integers.  The frequency assigned to a particular locus is the
+frequency of the set bit (1), and one minus the frequency of an unset
+bit.
+
+This makes iterating over genotypes @strong{very} convenient, as you can
+start iterating at 0, and stop before a genotype equals the maximum
+number of genotypes.  For a genome with @math{n} loci, you will
+therefore iterate over @math{2^n} genotypes.
+
+@menu
+* Genome Size::                 
+* Manipulating Genotypes::      
+* Genotype functions::          
+@end menu
+
+@node Genome Size
+@subsection Genome Size
+
+The simplest way to represent the size of a genome and the number of
+alleles is to define the macros GENO and NLOCI.  These macros are
+mnemonic and not required by the library.  Here's an example of their
+use from @file{tests/tlta.c}:
+@example
+
+@verbatim
+#define NLOCI 2			/* NLOCI */
+#define GENO 4			/* GENO */
+
+int
+next_gen (double * freqs, double * W)
+{
+  /* selection step: Multiply each genotype frequency by its
+     respective fitness, then divide by the mean fitness  */
+
+  /* new frequencies after selection step */
+  double new0[GENO];
+  double wbar = gen_mean (freqs, W, GENO);
+  int i, j;
+  for (i = 0; i < GENO; i++)
+    new0[i] = freqs[i] * W[i] / wbar;
+
+  /* mating step: generate mating table, then send to recombination */
+
+  /* new frequencies after mating step */
+  /* populate the arrays with zeros */
+  double new[GENO] = {[0] = 0};
+  /* use frequencies in freqs to generate mating table: */
+  double F[GENO][GENO];
+  
+  /* random mating: rmtable initializes F and recombination performs
+     sex*/
+  rmtable (GENO, new0, F);
+  recombination (GENO, rect, F, new);
+      
+  /* update freqs with new frequencies */
+  for (i = 0; i < GENO; i++)
+    freqs[i] = new[i];
+  return 0;
+}
+@end verbatim
+@end example
+
+
+@node Manipulating Genotypes
+@subsection Manipulating Genotypes
+@comment  node-name,  next,  previous,  up
+
+Prior to developing our own bit-hacking library, Haploid includes
+@url{http://www.catonmat.net/blog/bit-hacks-header-file, bithacks.h} for
+manipulating specific bits of genotypes.  The macros in this header will
+check if specific bits are set, and allows you to set specific bits.
+Although these operations are possible with bitwise operators and
+integer arithmetic, using the bit-hacking macros is mnemonically and
+programatically superior (i.e. the bithacks.h macros are faster and
+it's easier to remember what they mean).  bithacks.h has its own
+documentation within the header file, so please read it.
+
+@node Genotype functions
+@subsection Genotype functions
+
+@deftypefn {Library Function} void allele_to_genotype @
+(double * allele_freqs, double * geno_freqs, int nloci, int geno)
+
+@code{allele_to_genotype} takes an array of allele frequencies
+@var{allele_freqs} and assigns values of random-union-of-gametes
+genotype frequencies to @var{geno_freqs}.  The integers @var{nloci} and
+@var{geno} serve as array bounds for @var{allele_freqs} and
+@var{geno_freqs}, respectively.  The allele frequencies in
+@var{allele_freqs} are the frequencies of set bits for the @math{0}
+(first) to @math{n-1} (nth) loci of an n-locus genome.  This function
+only returns valid results for randomly mating populations, so it is
+only useful for certain cases, e.g. producing initial frequencies of
+genotypes when it is most convenient to assign to alleles instead of
+genotypes.
+
+@example
+@verbatim
+#define NLOCI 2			/* NLOCI */
+#define GENO 4			/* GENO */
+
+double freq[GENO];
+double allele[NLOCI];
+
+srand48 (0);
+for (j = 0; j < NLOCI; j++)
+  allele[j] = drand48 ();
+
+allele_to_genotype (allele, freq, NLOCI, GENO);
+@end verbatim
+@end example
+
+@end deftypefn
+
+@deftypefn {Library Function} void genotype_to_allele @
+(double * allele_freqs, double * geno_freqs, int nloci, int geno)
+
+@code{genotype_to_allele} takes an array of genotype frequencies
+@var{geno_freqs} and uses it to store allele frequencies in
+@var{allele_freqs}.  The formal parameters have the same meaning as in
+@code{allele_to_genotype}.  @code{genotype_to_allele} is valid in all
+contexts.
+@end deftypefn
+
+
+@node Compound Objects
+@section Compound Objects
+
+Compound objects represent interactions of genotypes, especially mating.
+The library represents all compound objects as arrays, either single- or
+multi-dimensional.
+
+
+@deftypefn {Library Function} int set_rec_table @
+(int nloci, int geno, double rec_table[geno][geno][geno], double * r)
+
+@code{set_rec_table} populates the three dimensional array
+@var{rec_table} with entries corresponding to the probability of
+producing the k-th genotype from mating the i-th father and the j-th
+mother.  @var{r} is a pointer to the recombination map (an array of
+recombination probabilities between adjacent sites).  @var{r} should
+have @math{@var{nloci} - 1} entries (or the first @math{@var{nloci} - 1}
+entries will be used).  If there are too few entries in @var{r},
+@code{set_rec_table} could return @code{FE_INVALID} (@pxref{Examining
+the FPU status word, FPU Status, GNU Libc, libc, The GNU C Library
+Reference Manual}).  As of yet, there is no way to ensure this behavior,
+but you should still check the return value of @code{set_rec_table}.
+@end deftypefn
+
+@deftypefn {Library Function} int recombination @
+(int geno, double rec_table[geno][geno][geno], @
+double F[geno][geno], double xt[geno])
+
+@code{recombination} produces new values of genotype frequencies in
+@var{xt}.  @var{F} is the @dfn{mating table}, which specifies the
+frequency with which matings between genotypes occur.  All other formal
+parameters are as elsewhere.
+@end deftypefn
+
+
+@deftypefn {Library Function} void rmtable (int geno, double * freq, @
+double table[geno][geno])
+
+@code{rmtable} sets the entries of @var{table} to reflect random mating,
+i.e. products of the entries in @var{freq}.  @var{geno} provides the
+dimensions of @var{table}.
+@end deftypefn
+
+
+@node Simulation functions
+@chapter Simulation functions
+
+
+@deftypefn {Library Function} int sim_stop_ck (double * p1, double * p2, @
+int len, long double tol)
+
+@code{sim_stop_ck} compares the values of @var{p1} and @var{p2} by
+finding their Euclidean distance @math{d(p1, p2) = (\sum_{i = 0}^n p_{1i}
+- p_{2i})^{1 \over 2}}, where @math{n = @var{len}}.  When @math{d <
+@var{tol}} @code{sim_stop_ck} returns 0, otherwise it returns 1.
+
+@end deftypefn
+
+@deftypefn {Library Function} double gen_mean (double * props, @
+double * vals, int len)
+
+@code{gen_mean} returns the generalized mean @math{\sum_{i = 0}^{n} x
+p(x)} given a pointer to proportions @var{props} and a pointer to values
+@var{x}.  @var{len} gives array dimensions.
+
+@end deftypefn
+
+
+
+@node GNU Free Documentation License
+@appendix GNU Free Documentation License
+
+@include fdl-1.3.texi
+
+@node Index
+@unnumbered Index
+
+@printindex cp
+
+@bye

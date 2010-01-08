@@ -1,0 +1,21 @@
+# additive opposing selection on males and females
+# males gain a fitness unit \alpha^m for each "1" allele at each locus
+# 
+# females gain a fitness unit \alpha^f for each "2" allele at each
+# locus
+# 
+# initial condition
+x: 0.25 0.25 0.25 0.25
+w: 3.0 2.0 2.0 1.0
+w: 1.0 2.0 2.0 3.0
+r: 0.000001
+
+w: 1.2 1.1 1.1 1.0
+
+
+# x: 0.25 0.1 0.1 0.55
+# x: 0.25 0.25 0.26 0.24
+# x: 0.0 0.5 0.5 0.0
+
+
+r: 0.5
