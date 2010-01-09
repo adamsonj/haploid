@@ -1,4 +1,0 @@
-2009-11-13  Joel J. Adamson  <adamsonj@email.unc.edu>
-
-	* sim.c: (euclid_dist) removed function and put it in haplib file
-
