@@ -21,13 +21,13 @@
 # You should have received a copy of the GNU General Public License
 # along with haploid.  If not, see <http://www.gnu.org/licenses/>.
 
-lib_LTLIBRARIES = libhaplib.la
-libhaplib_la_SOURCES = haplib/recomb.c haplib/spec_func.c \
-	haplib/mating.c haplib/geno_func.c
-include_HEADERS = haplib/haplib.h haplib/bithacks.h
-noinst_HEADERS = haplib/haplibpriv.h
-INCLUDES = -Ihaplib 
-LDADD = -lm $(PWD)/libhaplib.la
+lib_LTLIBRARIES = libhaploid.la
+libhaploid_la_SOURCES = src/recomb.c src/spec_func.c \
+	src/mating.c src/geno_func.c
+include_HEADERS = src/src.h src/bithacks.h
+noinst_HEADERS = src/srcpriv.h
+INCLUDES = -I.
+LDADD = -lm $(PWD)/libhaploid.la
 AM_CFLAGS = -std=gnu99 -ggdb
 ACLOCAL_AMFLAGS = -I m4 
 

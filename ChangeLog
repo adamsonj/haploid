@@ -1,3 +1,8 @@
+2010-01-09  Joel James Adamson  <adamsonj@email.unc.edu>
+
+	* Makefile.am (lib_LTLIBRARIES): changing the name of the library
+	to "libhaploid"
+
 2010-01-08  Joel James Adamson  <adamsonj@email.unc.edu>
 
 	* configure.in: added m4 directory (see Makefile.am); replaced
