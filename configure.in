@@ -1,5 +1,5 @@
-AC_INIT([haplib], [0.01])
-AM_INIT_AUTOMAKE(haplib,0.01)
+AC_INIT([haploid], [0.01])
+AM_INIT_AUTOMAKE(haploid,0.01)
 AC_CONFIG_MACRO_DIR([m4])
 AC_PROG_CC
 AC_PROG_LIBTOOL

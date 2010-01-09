@@ -29,7 +29,7 @@
 */
 
 /* includes */
-#include "haplibpriv.h"
+#include "haploidpriv.h"
 #include "bithacks.h"
 
 void

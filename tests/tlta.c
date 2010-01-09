@@ -38,8 +38,8 @@
 #define R 0.0374		/* R */
 
 /* includes */
-#include "../haplib/haplib.h"
-#include "../haplib/bithacks.h"
+#include "../src/haploid.h"
+#include "../src/bithacks.h"
 
 int
 next_gen (double * freqs, double * W);

@@ -1,8 +1,8 @@
-#ifndef HAPLIB_H
-#define HAPLIB_H
+#ifndef HAPLOID_H
+#define HAPLOID_H
 /*
 
-  haplib.h: Public header for haplib
+  haploid.h: Public header for haploid
 
   Copyright 2009 Joel J. Adamson 
   

@@ -24,8 +24,8 @@
 lib_LTLIBRARIES = libhaploid.la
 libhaploid_la_SOURCES = src/recomb.c src/spec_func.c \
 	src/mating.c src/geno_func.c
-include_HEADERS = src/src.h src/bithacks.h
-noinst_HEADERS = src/srcpriv.h
+include_HEADERS = src/haploid.h src/bithacks.h
+noinst_HEADERS = src/haploidpriv.h
 INCLUDES = -I.
 LDADD = -lm $(PWD)/libhaploid.la
 AM_CFLAGS = -std=gnu99 -ggdb
@@ -36,7 +36,7 @@ info_TEXINFOS = doc/haploid.texi
 haploid_TEXINFOS = doc/fdl-1.3.texi
 
 # Tests and checks
-# each check must be a standalone program that uses libhaplib
+# each check must be a standalone program that uses libhaploid
 check_PROGRAMS = sim_stop tlta
 sim_stop_SOURCES = tests/sim_stop.c
 sim_stop_LDADD = $(LDADD)

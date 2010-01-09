@@ -28,7 +28,7 @@
 
 */
 
-#include "haplibpriv.h"
+#include "haploidpriv.h"
 
 void
 rmtable (int geno, double * freq, double table[geno][geno])

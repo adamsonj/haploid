@@ -29,7 +29,7 @@
   along with haploid.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "haplibpriv.h"
+#include "haploidpriv.h"
 
 /*
 

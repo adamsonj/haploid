@@ -72,11 +72,11 @@ control repository.
 
 To use the library, use @code{#include <haploid.h>} at the top of your
 files.  You may also want to use macros from @file{bithacks.h}, so
-include it as well.  To link with the library, pass @code{-lhaplib} to
+include it as well.  To link with the library, pass @code{-lhaploid} to
 the linker.  For example:
 
 @example
-# gcc -std=gnu99 -ggdb  -g -O2   -o sim_stop sim_stop.o -lm -lhaplib 
+# gcc -std=gnu99 -ggdb  -g -O2   -o sim_stop sim_stop.o -lm -lhaploid 
 @end example
 
 Haploid is Free Software released under the terms of the GNU General
@@ -199,7 +199,7 @@ which can be considered atomic (they can be created and destroyed easily
 and there is no need to save them) and compound objects that represent
 interactions of genotypes.  Many functions use variable length arrays
 internally, hence the GNU99 standard.  All functions documented here are
-defined in @file{haplib/haplib.h}.
+defined in @file{haploid.h}.
 
 @menu
 * Genotypes::                   

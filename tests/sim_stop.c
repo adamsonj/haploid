@@ -1,6 +1,6 @@
 #define GENO 4
 
-#include "../haplib/haplib.h"
+#include "../src/haploid.h"
 
 #define LEN 2
 

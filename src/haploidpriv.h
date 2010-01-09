@@ -1,7 +1,7 @@
-#ifndef HAPLIBPRIV_H
-#define HAPLIBPRIV_H
+#ifndef HAPLOIDPRIV_H
+#define HAPLOIDPRIV_H
 /*
-  haplibpriv.h: functions for numerical analysis of haploid genetics
+  haploidpriv.h: functions for numerical analysis of haploid genetics
   Copyright 2009 Joel J. Adamson 
   
   $Id: func.h 497 2009-06-20 00:23:00Z joel $$

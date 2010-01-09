@@ -1,5 +1,5 @@
 /* declarations */
-#include "haplibpriv.h"
+#include "haploidpriv.h"
 
 
 /* note: this should be replaced with a bit-hacking macro */
