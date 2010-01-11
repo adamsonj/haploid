@@ -33,9 +33,9 @@
 (defgroup haploid nil
   "Haploid genetics library project management."
   :group 'programming
-  :prefix 'haploid-bug-collect)
+  :prefix 'haploid-bug)
 
-(defcustom haploid-bug-collect-working-bugs-file nil
+(defcustom haploid-bug-bugs-file nil
   "Your working copy's BUGS file (full path name)"
   :group 'haploid
   :type '(file :must-match t))
@@ -46,5 +46,48 @@ bug report"
   :group 'haploid
   :type 'hook)
 
+;; algorithm:
+;; 1. create a buffer *haploid-bug* for the bug report
+;; 
+;; 2. collect the headline information; use the From: and Subject:
+;; fields
+;;
+;; example:
+;;   * Makefile.am:46 Joel J. Adamson <adamsonj@email.unc.edu>
+;;   
+;; 3. collect any body information
+;; 
+;; 4. assemble the headline and body:
+;; 
+;; 5. insert the bug report
+
+;; this function does nothing now:
+(defun haploid-bug-get-bug
+  "Scan the current buffer and collect headline and body
+information for bug"
+  (let ((local-regexps '("From:" "Subj\(ect\)?:" "--+")))
+    nil))
+
+(defun haploid-insert-bug (file buf)
+  ;; get the file FILE and insert buffer BUF
+  "Insert collected and formatted bug info from BUF into file
+FILE"
+  nil)
+
+(defun haploid-bug-collect (&optional buf)
+  "Collect bug information from current buffer.  With optional
+argument BUF switch to buffer and collect bug information
+there."
+  (interactive "P")
+  (cond ((= buf (current-buffer))
+	 (with-temp-buffer
+	   (haploid-get-bug)
+	   (haploid-insert-bug haploid-bug-bugs-file)))
+	(t
+	 (with-current-buffer *haploid-bug*
+	   (haploid-get-bug)
+	   (haploid-insert-bug haploid-bug-bugs-file)))))
+  
+
 (provide 'haploid-bug-collect)
-;;; haploid-bug-collect.el ends here
+;;; haploid-bug.el ends here
