@@ -60,13 +60,43 @@ bug report"
 ;; 4. assemble the headline and body:
 ;; 
 ;; 5. insert the bug report
+(defvar haploid-bug-header-list
+  '("^From:" 
+    "^Subject:"
+    "^$"
+    "\\(^[Vv]ersion\\|^trunk\\)")
+  "List of header regular expressions to pass to the outermost
+run of haploid-bug-get-bug")
 
-;; this function does nothing now:
-(defun haploid-bug-get-bug
-  "Scan the current buffer and collect headline and body
-information for bug"
-  (let ((local-regexps '("From:" "Subj\(ect\)?:" "--+")))
-    nil))
+(defun haploid-bug-get-bug (regexps)
+  "Return a pair of markers to the car of REGEXPS; if (car
+REGEXPS) is an empty line, set the cdr marker at the next empty
+line (i.e. select whole paragraph).  CDR down REGEXPS until
+REGEXPS is nil (Scheme style)."
+  (goto-char -1)
+  ;; a few cases deserve special attention:
+  (cond ((null regexps) nil)
+	((re-search-forward (car regexps)
+			    (point-max) t 1)
+	 (let ((m1 (make-marker))
+	       (m2 (make-marker)))
+	   (setq m1 (point-marker))
+	   (if (eolp)
+	       ;; if we are at the end of the line then we will mark
+	       ;; the next empty line to mark the beginning and end of
+	       ;; a paragraph
+	       (progn
+		 (forward-char 1)
+		 (set-marker m2 (re-search-forward (car regexps)
+						   (point-max) t 1)))
+	     ;; otherwise just take the rest of the line
+	     (set-marker m2 (line-end-position)))
+	   (cons (cons m1 m2)
+		 (haploid-bug-get-bug (cdr regexps)))))
+	;; this is not an error, i.e. it should not bring up the
+	;; debugger, which it currently does; and it should display
+	;; without quotation marks
+	(t (message-or-box "No bug data found in current buffer: %s" (current-buffer)))))
 
 (defun haploid-insert-bug (file buf)
   ;; get the file FILE and insert buffer BUF
@@ -82,11 +112,13 @@ there."
   (cond ((= buf (current-buffer))
 	 (with-temp-buffer
 	   (haploid-get-bug)
-	   (haploid-insert-bug haploid-bug-bugs-file)))
+	   (haploid-insert-bug haploid-bug-bugs-file)
+	   (run-hook haploid-bug-collect-hook)))
 	(t
 	 (with-current-buffer *haploid-bug*
 	   (haploid-get-bug)
-	   (haploid-insert-bug haploid-bug-bugs-file)))))
+	   (haploid-insert-bug haploid-bug-bugs-file)
+	   (run-hook haploid-bug-collect-hook)))))
   
 
 (provide 'haploid-bug-collect)

@@ -1,0 +1,6 @@
+2010-01-14  Joel James Adamson  <adamsonj@email.unc.edu>
+
+	* haploid-bug.el (haploid-bug-get-bug): this function now works;
+	the error message in the t-clause displays with quotation marks,
+	this is a bug in itself!
+
