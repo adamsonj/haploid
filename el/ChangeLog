@@ -3,6 +3,8 @@
 	* haploid-bug.el (haploid-bug-get-bug): changed searching
 	procedure so that we now include the whole body up to "^Version";
 	this will allow us to include patches in bug reports
+	(nil): added a menu item as a submenu of tools; Customize group
+	now works just fine
 
 2010-01-15  Joel James Adamson  <adamsonj@email.unc.edu>
 

@@ -171,5 +171,8 @@ there."
    (haploid-bug-get-bug haploid-bug-header-list))
   (run-hooks haploid-bug-collect-hook))
 
+;; make a menu item in the tools menu:
+(easy-menu-add-item nil '("tools") ["Collect Haploid Bug"
+				    haploid-bug-collect t])
 (provide 'haploid-bug-collect)
 ;;; haploid-bug.el ends here

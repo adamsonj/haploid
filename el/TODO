@@ -1,6 +1,11 @@
 -*-mode:org-*-
-* Add GUI features
+* In the near future
+** Archive							    :ARCHIVE:
+*** done Add GUI features
+    :PROPERTIES:
+    :ARCHIVE_TIME: 2010-01-15 Fri 14:41
+    :END:
 
-  Add a submenu or item ("File Haploid Bug") of tools, so that you can
-  file bug reports while eating breakfast; it may be good to have a
-  submenu for accessing the Customize group
+    Add a submenu or item ("File Haploid Bug") of tools, so that you can
+    file bug reports while eating breakfast; it may be good to have a
+    submenu for accessing the Customize group
