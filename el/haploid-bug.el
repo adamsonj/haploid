@@ -38,7 +38,7 @@
 (defcustom haploid-bug-bugs-file nil
   "Your working copy's BUGS file (full path name)"
   :group 'haploid
-  :type '(file :must-match t))
+  :type 'file)
 
 (defcustom haploid-bug-collect-hook nil
   "Hook to call after collecting bug information and inserting
@@ -68,6 +68,7 @@ bug report"
   "List of header regular expressions to pass to the outermost
 run of haploid-bug-get-bug")
 
+;;;###autoload
 (defun haploid-bug-get-bug (regexps)
   "Return a pair of markers to the car of REGEXPS; if (car
 REGEXPS) is an empty line, set the cdr marker at the next empty
@@ -86,7 +87,7 @@ REGEXPS is nil (Scheme style)."
 	       ;; the next empty line to mark the beginning and end of
 	       ;; a paragraph
 	       (progn
-		 (forward-char 1)
+		 (skip-chars-forward " \t\n")
 		 (set-marker m2 (re-search-forward (car regexps)
 						   (point-max) t 1)))
 	     ;; otherwise just take the rest of the line
@@ -96,30 +97,75 @@ REGEXPS is nil (Scheme style)."
 	;; this is not an error, i.e. it should not bring up the
 	;; debugger, which it currently does; and it should display
 	;; without quotation marks
-	(t (message-or-box "No bug data found in current buffer: %s" (current-buffer)))))
+	(t (message-or-box "No bug data found in current buffer: %s"
+			   (current-buffer)))))
 
-(defun haploid-insert-bug (file buf)
-  ;; get the file FILE and insert buffer BUF
+(defun marker-substrings (marker-list)
+  "Return a list of strings defined by pairs of markers in the
+current buffer."
+  (cond ((null marker-list) nil)
+	((not (integer-or-marker-p (caar marker-list)))
+	 (error "Invalid element in %s" (car mark-list)))
+	(t (let ((startpos (marker-position (caar marker-list)))
+		 (endpos (marker-position (cdar marker-list))))
+	     (cons (buffer-substring startpos endpos)
+		   (marker-substrings (cdr marker-list)))))))
+
+(defun haploid-insert-bug (buf lis)
   "Insert collected and formatted bug info from BUF into file
-FILE"
-  nil)
+FILE.  Takes list of markers and collects marked strings and
+inserts them into buffer BUF
 
+  Order of elements in the list is: From Subject Body Version
+  
+  Format is
+  
+  * Subject From <Date>
+  
+  Body
+  
+  Version
+
+  Filed by: "
+  ;; First build the headline:
+  ;;
+  (let ((headline-text
+	 (let ((strings-list (marker-substrings lis)))
+	   (concat "*"
+		   (nth 1 strings-list)
+		   (nth 0 strings-list))))
+	(body-text (concat (nth 2 (marker-substrings lis))
+			   "\n"
+			   "Version: " (nth 3 (marker-substrings lis))
+			   "\n"
+			   "Filed by: "
+			   (user-full-name)
+			   " <" user-mail-address ">")))
+    (with-current-buffer buf
+      (goto-char (point-max))
+      (if (not (bolp))
+	  (goto-char (line-beginning-position))
+	nil)
+      (insert headline-text)
+      (haploid-bug-insert-current-date-time)
+      (insert "\n" body-text))))
+
+(defun haploid-bug-insert-current-date-time nil
+  "Insert the current date and time at point."
+  (interactive "*")
+  (insert (format-time-string "<%Y-%m-%d %H:%M >"  (current-time))))    
+
+
+;;;###autoload
 (defun haploid-bug-collect (&optional buf)
   "Collect bug information from current buffer.  With optional
 argument BUF switch to buffer and collect bug information
 there."
   (interactive "P")
-  (cond ((= buf (current-buffer))
-	 (with-temp-buffer
-	   (haploid-get-bug)
-	   (haploid-insert-bug haploid-bug-bugs-file)
-	   (run-hook haploid-bug-collect-hook)))
-	(t
-	 (with-current-buffer *haploid-bug*
-	   (haploid-get-bug)
-	   (haploid-insert-bug haploid-bug-bugs-file)
-	   (run-hook haploid-bug-collect-hook)))))
-  
+  (haploid-insert-bug
+   (find-buffer-visiting haploid-bug-bugs-file)
+   (haploid-bug-get-bug haploid-bug-header-list))
+  (run-hook haploid-bug-collect-hook))
 
 (provide 'haploid-bug-collect)
 ;;; haploid-bug.el ends here
