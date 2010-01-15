@@ -75,7 +75,6 @@ REGEXPS) is an empty line, set the cdr marker at the next empty
 line (i.e. select whole paragraph).  CDR down REGEXPS until
 REGEXPS is nil (Scheme style)."
   (goto-char -1)
-  ;; a few cases deserve special attention:
   (cond ((null regexps) nil)
 	((re-search-forward (car regexps)
 			    (point-max) t 1)
@@ -86,10 +85,11 @@ REGEXPS is nil (Scheme style)."
 	       ;; if we are at the end of the line then we will mark
 	       ;; the next empty line to mark the beginning and end of
 	       ;; a paragraph
-	       (progn
+	       (let ((next (cadr regexps)))
 		 (skip-chars-forward " \t\n")
-		 (set-marker m2 (re-search-forward (car regexps)
-						   (point-max) t 1)))
+		 (re-search-forward (concat "[ \n]" next)
+				    (point-max) t 1)
+		 (set-marker m2 (line-beginning-position)))
 	     ;; otherwise just take the rest of the line
 	     (set-marker m2 (line-end-position)))
 	   (cons (cons m1 m2)
@@ -152,20 +152,24 @@ inserts them into buffer BUF
 
 (defun haploid-bug-insert-current-date-time nil
   "Insert the current date and time at point."
-  (interactive "*")
-  (insert (format-time-string "<%Y-%m-%d %H:%M >"  (current-time))))    
-
+  (insert (format-time-string
+	   "<%Y-%m-%d %H:%M >" (current-time))))
 
 ;;;###autoload
-(defun haploid-bug-collect (&optional buf)
+(defun haploid-bug-collect nil
   "Collect bug information from current buffer.  With optional
 argument BUF switch to buffer and collect bug information
 there."
-  (interactive "P")
+  (interactive)
+  ;; test to see if the buffer exists
   (haploid-insert-bug
-   (find-buffer-visiting haploid-bug-bugs-file)
+   (let ((filebuf (find-buffer-visiting haploid-bug-bugs-file)))
+     (if filebuf filebuf
+       (save-window-excursion
+	 (find-file-other-window haploid-bug-bugs-file)
+	 (find-buffer-visiting haploid-bug-bugs-file))))
    (haploid-bug-get-bug haploid-bug-header-list))
-  (run-hook haploid-bug-collect-hook))
+  (run-hooks haploid-bug-collect-hook))
 
 (provide 'haploid-bug-collect)
 ;;; haploid-bug.el ends here
