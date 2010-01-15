@@ -37,9 +37,11 @@ haploid_TEXINFOS = doc/fdl-1.3.texi
 
 # Tests and checks
 # each check must be a standalone program that uses libhaploid
-check_PROGRAMS = sim_stop tlta
+check_PROGRAMS = sim_stop tlta pop_ck
 sim_stop_SOURCES = tests/sim_stop.c
 sim_stop_LDADD = $(LDADD)
 tlta_SOURCES = tests/tlta.c
 tlta_LDADD = $(LDADD)
-TESTS = sim_stop tlta
+pop_ck_SOURCES = tests/pop_ck.c
+pop_ck_LDADD = $(LDADD)
+TESTS = sim_stop tlta pop_ck

@@ -1,3 +1,9 @@
+2010-01-15  Joel James Adamson  <adamsonj@email.unc.edu>
+
+	* tests/pop_ck.c (main): added a test for POP
+
+	* src/haploid.h: POP computes the number of set bits of an integer
+
 2010-01-11  Joel James Adamson  <adamsonj@email.unc.edu>
 
 	* el/haploid-bug-collect.el (haploid-bug-collect): this function

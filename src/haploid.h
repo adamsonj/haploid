@@ -38,6 +38,17 @@
 #include <math.h>
 #include "bithacks.h"
 
+/* POP(x) yields the number of set bits of an integer.
+
+   Based on HS Warren. 2003.  Hacker's Delight.  Addison-Wesley,
+   Reading, MA, pg 73
+
+   */
+#define POP(x) ((((( x ) * 0x0002000400080010ULL) \
+		  & 0x1111111111111111ULL )	  \
+		 * 0x1111111111111111ULL )	  \
+		>> 60)
+
 /* spec_funcs.c */
 int
 sim_stop_ck (double * p1, double * p2, int len, long double tol);
