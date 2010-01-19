@@ -1,5 +1,8 @@
 2010-01-19  Joel James Adamson  <adamsonj@email.unc.edu>
 
+	* Makefile.am: eliminated INCLUDES or its modern alternative
+	AM_CPPFLAGS as DEFAULT_INCLUDES already defined as -I.  
+
 	* src/haploidpriv.h: added an #include directive for bithacks.h.
 	Note: this is a compile-time directive for the library; the
 	directive in haploid.h is for compile-time of applications, and
