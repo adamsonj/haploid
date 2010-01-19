@@ -174,5 +174,5 @@ there."
 ;; make a menu item in the tools menu:
 (easy-menu-add-item nil '("tools") ["Collect Haploid Bug"
 				    haploid-bug-collect t])
-(provide 'haploid-bug-collect)
+(provide 'haploid-bug)
 ;;; haploid-bug.el ends here
