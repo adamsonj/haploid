@@ -40,4 +40,5 @@
 #include <stdbool.h>
 #include <time.h>
 #include <fenv.h>
+#include "bithacks.h"
 #endif

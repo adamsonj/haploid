@@ -36,7 +36,7 @@
 #include <stdio.h>
 #include <unistd.h>
 #include <math.h>
-#include "bithacks.h"
+#include <bithacks.h>
 
 /* POP(x) yields the number of set bits of an integer.
 

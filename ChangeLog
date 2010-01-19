@@ -1,3 +1,11 @@
+2010-01-19  Joel James Adamson  <adamsonj@email.unc.edu>
+
+	* src/haploidpriv.h: added an #include directive for bithacks.h.
+	Note: this is a compile-time directive for the library; the
+	directive in haploid.h is for compile-time of applications, and
+	therefore the directive in haploid.h uses brackets instead of
+	quotation marks
+
 2010-01-15  Joel James Adamson  <adamsonj@email.unc.edu>
 
 	* tests/pop_ck.c (main): added a test for POP
