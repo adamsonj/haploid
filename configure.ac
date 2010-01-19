@@ -1,7 +1,7 @@
 #                                               -*- Autoconf -*-
 # Process this file with autoconf to produce a configure script.
 AC_PREREQ([2.63])
-AC_INIT([haploid], [svn], [adamsonj@email.unc.edu])
+AC_INIT([haploid], [svn], [haploid-bugs@unc.edu])
 AM_INIT_AUTOMAKE(haploid,svn)
 AC_CONFIG_MACRO_DIR([m4])
 AC_CONFIG_SRCDIR([src/recomb.c])

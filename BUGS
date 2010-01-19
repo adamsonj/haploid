@@ -63,7 +63,7 @@ do not use INCLUDE as per Automake manual
 
 
 Version: trunk
-* configure.ac "Joel J. Adamson" <adamsonj@email.unc.edu><2010-01-19 10:25 >
+* done configure.ac "Joel J. Adamson" <adamsonj@email.unc.edu><2010-01-19 10:25 > :CLOSED:
 
 bug report email address should be haploid-bugs@unc.edu
 * Makefile.am "Joel J. Adamson" <adamsonj@email.unc.edu><2010-01-19 10:25 >

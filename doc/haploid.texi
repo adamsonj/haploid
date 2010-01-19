@@ -82,7 +82,7 @@ the linker.  For example:
 Haploid is Free Software released under the terms of the GNU General
 Public License Version 3.
 
-Send bug reports to Joel J. Adamson (@email{adamsonj@@email.unc.edu}).
+Send bug reports to Joel J. Adamson (@email{haploid-bugs@@unc.edu}).
 
 @node Development
 @chapter Development
@@ -181,14 +181,14 @@ you know the results of, i.e. is not exploratory, should be added as a
 test.}.  @emph{Anything else} is @emph{not} a bug.  If a program doesn't
 work the way you think it should, put that item in @file{TODO}.
 
-@file{BUGS} is written in Org-Mode: each bug is a header line containing the
-@strong{todo} keyword, the file (and line number, if possible) of the
-bug, the author of the bug report along with contact info, and a date
-the bug was opened.  Bugs may have subheadings containing specific
+@file{BUGS} is written in Org-Mode: each bug is a header line containing
+the @strong{todo} keyword, the file (and line number, if possible) of
+the bug, the author of the bug report along with contact info, and a
+date the bug was opened.  Bugs may have subheadings containing specific
 solutions or brainstorming.  When a bug is fixed (verified by a test),
-mark it with the tag @strong{CLOSED} (@kbd{C-c C-c CLOSED: @key{RET}}), the keyword
-@strong{done} and leave it where it is.  New bugs should appear at the
-bottom of the file.
+mark it with the tag @strong{CLOSED} (@kbd{C-c C-c CLOSED: @key{RET}}),
+the keyword @strong{done} and leave it where it is.  New bugs should
+appear at the bottom of the file.
 
 You may find the Emacs Lisp library @file{haploid-bug.el} useful for
 filing bugs before committing the BUGS file.  To add a bug to BUGS,
