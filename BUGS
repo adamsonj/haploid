@@ -66,7 +66,7 @@ Version: trunk
 * done configure.ac "Joel J. Adamson" <adamsonj@email.unc.edu><2010-01-19 10:25 > :CLOSED:
 
 bug report email address should be haploid-bugs@unc.edu
-* Makefile.am "Joel J. Adamson" <adamsonj@email.unc.edu><2010-01-19 10:25 >
+* done Makefile.am "Joel J. Adamson" <adamsonj@email.unc.edu><2010-01-19 10:25 > :CLOSED:
 
 Use AM_LDFLAGS instead of LDADD
 
@@ -74,3 +74,7 @@ Use AM_LDFLAGS instead of LDADD
 Version: trunk
 
 Filed by: Joel James Adamson <adamsonj@email.unc.edu>
+** Change not made
+   This change was not completed because it causes a weird error and
+   seems unnecessary, i.e. having LDADD instead of AM_LDFLAGS doesn't
+   cause any actual problems
