@@ -56,3 +56,23 @@
       means it is calculated every time; this is hugely wasteful
 * done ./haplib Joel James Adamson  <adamsonj@email.unc.edu> <2010-01-03 Sun> :CLOSED:
   Library functions need runtime array dimensions
+* haplib.h:39 "Joel J. Adamson" <adamsonj@email.unc.edu><2010-01-19 10:24 >
+`#include "bithacks.h"' should use brackets instead of quotation marks
+
+Version:  0.01
+* Makefile.am "Joel J. Adamson" <adamsonj@email.unc.edu><2010-01-19 10:24 >
+do not use INCLUDE as per Automake manual
+
+
+Version: trunk
+* configure.ac "Joel J. Adamson" <adamsonj@email.unc.edu><2010-01-19 10:25 >
+
+bug report email address should be haploid-bugs@unc.edu
+* Makefile.am "Joel J. Adamson" <adamsonj@email.unc.edu><2010-01-19 10:25 >
+
+Use AM_LDFLAGS instead of LDADD
+
+
+Version: trunk
+
+Filed by: Joel James Adamson <adamsonj@email.unc.edu>
