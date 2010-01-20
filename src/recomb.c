@@ -30,35 +30,21 @@
 /* declarations */
 #include "haploidpriv.h"
 
-
-/* note: this should be replaced with a bit-hacking macro */
-static inline int
-get_bit (int integer, int i)
-{
-  /*  get_bit returns the ith bit of integer, i = 0,1,... */
-  int pw21 = (int) pow (2, i+1);
-  int pw2 = (int) pow (2,i);
-  return (integer % pw21) / pw2;
-}
-
 static double
-rec_prob (int mask, int nloci, double * r)
+rec_prob (unsigned int mask, int nloci, double * r)
 {
   /*  rec_prob calculates the probability of a given recombination pattern. */
   /*  The pairwise recombination rates r[0],r[1],...,r[nLoci-1] are
       declared and initialized external to this routine.  */
-  /*  M.K., II-96.  */
-  /*  DEBUGGED */
-  double prob = 1.0;
+
+  double prob;
   int i;
 
+  prob = 1.0;
+
   for (i = 0; i < nloci - 1; i++)
-    {
-      if (get_bit (mask, i) == get_bit (mask, i + 1))
-	prob *= (1.0 - r[i]);
-      else
-	prob *= r[i];
-    }
+    prob *= (((B_IS_SET (mask, i)) == (B_IS_SET (mask, i + 1))))?
+      (1.0 - r[i]):r[i];
   return prob;
 }
 
@@ -84,7 +70,7 @@ zygote_genotypes (unsigned int i,
   for (k = 0; k < nloci; k++)
     {
 
-      powk = pow (2, k);
+      powk = 1 << k;
 
       /* does the mask call for this bit to come from the mother? */
       bit[k] = mask & powk;
@@ -111,9 +97,8 @@ zygote_genotypes (unsigned int i,
 	}
     }
   /* creates the zygotes  */
-  *zyg = zyg1;
-  zyg++;
-  *zyg = zyg2;
+  zyg[0] = zyg1;
+  zyg[1] = zyg2;
 }
 
 int
@@ -128,7 +113,7 @@ set_rec_table (int nloci, int geno,
 
   /* rec_table [mom's genotype, dad's genotype, zygote's genotype] */ 
   unsigned int zyg[2] = { 0, 0 };
-  const int mask_lim = (int) pow (2, nloci - 1);
+  const unsigned int mask_lim = (1 << (nloci - 1));
   double zygote_prob;
 
   /* counters for iteration */

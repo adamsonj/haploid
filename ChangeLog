@@ -1,5 +1,10 @@
 2010-01-20  Joel James Adamson  <adamsonj@email.unc.edu>
 
+	* src/recomb.c (rec_prob): removed get_bit () and replaced its
+	only call with B_IS_SET
+	(rec_prob): changed this to ? notation to get a single line
+	(zygote_genotypes): removed gratuitous use of pointer
+
 	* Makefile.am: eliminated target-specific LDADD variables
 
 	* src/bits.c (printbits): new file and new function that displays
