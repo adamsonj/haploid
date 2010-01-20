@@ -37,6 +37,7 @@
 #include <unistd.h>
 #include <math.h>
 #include <bithacks.h>
+#include <limits.h>
 
 /* POP(x) yields the number of set bits of an integer.
 
@@ -48,6 +49,12 @@
 		  & 0x1111111111111111ULL )	  \
 		 * 0x1111111111111111ULL )	  \
 		>> 60)
+
+/* ISO(a,x,y) isolates the y bits of a that start at x; COUNT FROM THE
+   RIGHT!  */
+#define ISO(a, x, y) ((a >> x)					\
+		      & (( ULLONG_MAX )				\
+			 >> (64 - y)))
 
 /* spec_funcs.c */
 int
@@ -79,5 +86,9 @@ genotype_to_allele (double * allele_freqs, double * geno_freqs,
 /* mating.c */
 void
 rmtable (int geno, double * freq, double table[geno][geno]);
+
+/* bits.c: useful functions for debugging integer arithmetic */
+char *
+printbits (unsigned int n);
   
 #endif

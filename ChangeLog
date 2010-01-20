@@ -1,3 +1,11 @@
+2010-01-20  Joel James Adamson  <adamsonj@email.unc.edu>
+
+	* Makefile.am: eliminated target-specific LDADD variables
+
+	* src/bits.c (printbits): new file and new function that displays
+	a printed binary representation of an unsigned integer; this
+	should be useful in debugging; see also tests/pop_ck.c
+
 2010-01-19  Joel James Adamson  <adamsonj@email.unc.edu>
 
 	* Makefile.am: eliminated INCLUDES or its modern alternative

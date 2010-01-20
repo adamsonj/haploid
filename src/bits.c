@@ -1,6 +1,6 @@
 /*
 
-  pop_ck: tests bit-oriented operations
+  bits.c: manipulating bits and debugging integer arithmetic
   Copyright 2009 Joel J. Adamson 
 
   $Id$
@@ -25,20 +25,34 @@
 
   You should have received a copy of the GNU General Public License
   along with haploid.  If not, see <http://www.gnu.org/licenses/>.
+
+
 */
 
-#include "../src/haploid.h"
+#include "haploidpriv.h"
 
+#ifndef BUFSIZE
+#define BUFSIZE sizeof (unsigned int)
+#endif
 
-int
-main (void)
+char *
+printbits (unsigned int n)
 {
+
+  /* returns a string with a binary representation of unsigned integer
+     n */
+
   unsigned int i;
-  /* First print a header row: */
-  printf ("i   |i/b   |POP(i) | ISO (i,2,2)\n");
-  for (i = 0; i < 0xF; i++)
-    /* print the data on the integer i */
-    printf ("%-3i |%-3s | %-5d | %-3s\n", i, printbits (i),
-	    POP (i), printbits(ISO (i, 2, 2)));
-  return 0;
+
+  char * buf = malloc (BUFSIZE * CHAR_BIT + 1);
+  if (buf == NULL)
+    perror ("Null pointer");
+  else
+    {
+      for (i = 0; i < BUFSIZE + 1; i++)
+	buf[i] = (B_IS_SET(n, BUFSIZE - i)) ? '1' : '0';
+  
+      buf[BUFSIZE + 1] = '\0';
+      return buf;
+    }
 }
