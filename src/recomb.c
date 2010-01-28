@@ -37,6 +37,8 @@ rec_prob (unsigned int mask, int nloci, double * r)
   /*  The pairwise recombination rates r[0],r[1],...,r[nLoci-1] are
       declared and initialized external to this routine.  */
 
+  /* written by Mark Kirkpatrick */
+
   double prob;
   int i;
 
@@ -60,6 +62,8 @@ zygote_genotypes (unsigned int i,
 
   /* forms the 2 zygote genotypes resulting from a Mom, a Dad &
      particular recombination mask */
+
+  /* written by Mark Kirkpatrick */
 
   unsigned int zyg1 = 0, zyg2 = 0;
   unsigned int bit[nloci];

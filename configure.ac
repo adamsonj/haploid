@@ -6,7 +6,7 @@ AM_INIT_AUTOMAKE(haploid,svn)
 AC_CONFIG_MACRO_DIR([m4])
 AC_CONFIG_SRCDIR([src/recomb.c])
 AC_CONFIG_HEADERS([config.h])
-
+AC_PREFIX_DEFAULT(/usr)
 # Checks for programs.
 # 
 # don't need C++ right now
