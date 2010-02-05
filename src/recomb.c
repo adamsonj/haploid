@@ -188,3 +188,11 @@ recombination (int geno, double rec_table[geno][geno][geno],
 	xt[k] += F[i][j] * rec_table[i][j][k];
   return 0;
 }
+
+/*
+
+  Erroneous output:
+
+  00011 X 00011:0.125  0.000  0.000  1.000  
+
+ */
