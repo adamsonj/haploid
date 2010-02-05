@@ -44,16 +44,16 @@
    Based on HS Warren. 2003.  Hacker's Delight.  Addison-Wesley,
    Reading, MA, pg 73
 
-   */
-#define POP(x) ((((( x ) * 0x0002000400080010ULL) \
-		  & 0x1111111111111111ULL )	  \
-		 * 0x1111111111111111ULL )	  \
+*/
+#define POP(x) ((((( x ) * 0x0002000400080010ULL)	\
+		  & 0x1111111111111111ULL )		\
+		 * 0x1111111111111111ULL )		\
 		>> 60)
 
 /* ISO(a,x,y) isolates the y bits of a that start at x; COUNT FROM THE
    RIGHT!  */
-#define ISO(a, x, y) ((a >> x)					\
-		      & (( ULLONG_MAX )				\
+#define ISO(a, x, y) ((a >> x)			\
+		      & (( ULLONG_MAX )		\
 			 >> (64 - y)))
 
 /* spec_funcs.c */
@@ -67,7 +67,7 @@ gen_mean (double * props, double * vals, int geno);
 int
 recombination (int geno, double rec_table[geno][geno][geno],
 	       double F[geno][geno],
-	       double xt[geno]);;
+	       double xt[geno]);
 
 int
 set_rec_table (int nloci, int geno,
@@ -89,6 +89,8 @@ rmtable (int geno, double * freq, double table[geno][geno]);
 
 /* bits.c: useful functions for debugging integer arithmetic */
 char *
-printbits (unsigned int n);
+debug_printbits (unsigned int n);
   
+void
+debug_print_array_double (int len, double * arr, char * buf[len]);
 #endif

@@ -36,7 +36,7 @@
 #endif
 
 char *
-printbits (unsigned int n)
+debug_printbits (unsigned int n)
 {
 
   /* returns a string with a binary representation of unsigned integer
@@ -53,6 +53,18 @@ printbits (unsigned int n)
 	buf[i] = (B_IS_SET(n, BUFSIZE - i)) ? '1' : '0';
   
       buf[BUFSIZE + 1] = '\0';
-      return buf;
+    }
+  return buf;
+}
+
+void
+debug_print_array_double (int len, double * arr, char * buf[len])
+{
+  /* this hard-codes the width of the output; what's the more flexible
+     solution? */
+
+  for (int i = 0; i < len; i++)
+    {
+      snprintf (buf[i], 6, "%-5.4f ", arr[i]);
     }
 }
