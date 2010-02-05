@@ -87,3 +87,40 @@ precision as the user demands (perhaps %9.8g would do it).
 
 Version: : trunk
 Filed by: Joel James Adamson <adamsonj@email.unc.edu>
+* recomb.c: set_rec_table produces wrong values "Joel J. Adamson" <adamsonj@email.unc.edu><2010-02-05 11:26 >
+
+Two loci, r=0.15:
+00011 X 00011:0.150  0.000  0.000  1.000  
+
+Three loci, r = { 0.15, 0.1 }:
+00011 X 00101:0.000  0.050  -nan   0.450  0.000  0.450  0.000  -nan   
+00011 X 00101:0.000  0.050  -nan   0.450  0.000  0.450  0.000  -nan   
+00100 X 00001:0.110  0.390  0.000  0.000  -nan   0.110  0.000  0.000  
+00100 X 00010:0.050  -nan   0.450  0.000  0.450  0.000  0.050  0.000  
+00100 X 00110:0.000  0.000  -0.00  0.000  -nan   0.000  0.500  0.000  
+00100 X 00111:0.000  -nan   0.000  0.000  0.425  0.075  0.075  0.425  
+00101 X 00010:0.007  0.042  0.382  0.067  0.067  0.382  -nan   0.007  
+00101 X 00011:0.000  0.050  0.000  -nan   0.000  0.450  0.000  0.050  
+00101 X 00100:0.000  -nan   0.000  0.000  0.500  0.500  0.000  0.000  
+00101 X 00111:0.000  0.000  0.000  0.000  -nan   0.500  0.000  0.500  
+00110 X 00000:0.450  -nan   0.050  -0.00  0.050  0.000  0.450  0.000  
+00110 X 00100:-nan   0.000  0.000  0.000  0.500  0.000  0.500  0.000  
+00110 X 00111:0.000  0.000  2.500  0.000  0.000  0.000  0.500  0.500  
+00111 X 00100:0.000  0.000  0.000  0.000  23158  0.075  0.075  0.425  
+
+There are three types of incorrect values:
+1) those that should be zero and are non-zero (e.g. Table 2, row 6,
+column 2)
+2) those are within range but the wrong values (e.g. nan or -nan instead
+of 0.5: Table 2, row 3, column 5)
+
+Potential trouble spots are
+1) recomb.c:48 (rec_prob ())
+2) recomb.c:104: if zyg[i] is greater than geno, we've got a problem
+(zygote_genotypes ())
+3) recomb.c:110: if double * r is not of the right dimensions, or
+contains junk, we will get junk out of set_rec_table ()
+
+
+Version: : trunk
+Filed by: Joel James Adamson <adamsonj@email.unc.edu>
