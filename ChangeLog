@@ -1,5 +1,11 @@
 2010-02-05  Joel James Adamson  <adamsonj@email.unc.edu>
 
+	* src/recomb.c (set_rec_table): fixed an erroneous call to
+	zygote_genotypes (), that had geno as the last argument instead of
+	nloci; this fixes one of the bugs in the output rec_tables
+	(producing positive values where they should be 0); still need to
+	take care of nans
+
 	* src/debug.c (debug_print_array_double): this function returns a
 	formatted string of a double precisions number referenced in an
 	array; this function is arbitrarily limited by the size of the

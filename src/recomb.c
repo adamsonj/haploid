@@ -130,65 +130,39 @@ set_rec_table (int nloci, int geno,
       for (j = 0; j < geno; j++)
 	{
 
-	  /* if j != i, then we have two cases */
-
-	  /* if j < i then we can mirror the above-diagonal entries */
-	  if (j < i)
+	  /* iterate over recombination possibilities */
+	  for (mask = 0; mask < mask_lim; mask++)
 	    {
-	      for (k = 0; k < geno; k++)
-		rec_table[i][j][k] = rec_table[j][i][k];
-	    }
-	  /* if j > i then we need to calculate the entry; oh darn! */
-	  else
-	    {
+	      /* probability of recombination at a particular site;
+		 mask corresponds to a set of recombination locations;
+		 r is the recombination map  */
 
-	      /* iterate over recombination possibilities */
-	      for (mask = 0; mask < mask_lim; mask++)
-		{
-		  /* probability of recombination at a particular site;
-		     mask corresponds to a set of recombination locations;
-		     r is the recombination map  */
+	      /* the probability of producing either of the two
+		 zygotes from the particular recombination event
+		 specified by mask  */
 
-		  /* the probability of producing either of the two
-		     zygotes from the particular recombination event
-		     specified by mask  */
-
-		  zygote_prob = (0.5) * rec_prob (mask, nloci, r);
-		  /* if there are not enough entries in r, zygote_prob
-		     could return nan */
-		  if (isunordered (zygote_prob, 0.0))
-		    {
-		      perror ("zygote_prob is not a number\n");
-		      return FE_INVALID;
-		    }
-		  else
-		    {
+	      zygote_prob = (0.5) * rec_prob (mask, nloci, r);
 		    
-
-		      /* Generate zygote genotypes
+	      /* Generate zygote genotypes
 		 
-			 We should get two out of using any particular mask:
-			 the one from specified directly by mask, and the one
-			 specified by its its bitwise complement; store the
-			 result in zyg  */
+		 We should get two out of using any particular mask:
+		 the one from specified directly by mask, and the one
+		 specified by its its bitwise complement; store the
+		 result in zyg  */
 
-		      zygote_genotypes (i, j, mask, zyg, geno);
+	      zygote_genotypes (i, j, mask, zyg, nloci);
 
-		      /* Find indices corresponding to the zygotes produced by
-			 mask and parents, and add to their probabilities, as
-			 we just found a new way to generate them  */
+	      /* Find indices corresponding to the zygotes produced by
+		 mask and parents, and add to their probabilities, as
+		 we just found a new way to generate them  */
 
-		      for (k = 0; k < 2; k++)
-			rec_table[i][j][zyg[k]] += zygote_prob;
-		    }
-		}
+	      for (k = 0; k < 2; k++)
+		rec_table[i][j][zyg[k]] += zygote_prob;
 	    }
 	}
     }
-
   return 0;
 }
-
 
 
 
