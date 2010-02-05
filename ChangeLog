@@ -1,5 +1,10 @@
 2010-02-05  Joel James Adamson  <adamsonj@email.unc.edu>
 
+	* configure.ac: made static libraries default; it would be good to
+	change this, but it makes the most sense for developing programs
+	like rec_ck; users can still install shared libs with
+	--enable-shared at ./configure time
+
 	* Makefile.am (AM_CFLAGS): added openmp flags to CFLAGS; also
 	added -Wall and -pedantic for better compiling
 	(check_PROGRAMS): added rec_ck as a noinst program

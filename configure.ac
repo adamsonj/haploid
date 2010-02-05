@@ -18,7 +18,8 @@ AC_PROG_INSTALL
 AC_PROG_LN_S
 AC_PROG_MAKE_SET
 # AC_PROG_RANLIB
-AC_PROG_LIBTOOL
+# AC_PROG_LIBTOOL
+LT_INIT([disable-shared])
 
 # Checks for libraries.
 # FIXME: Replace `main' with a function in `-lm':
@@ -27,6 +28,8 @@ AC_CHECK_LIB([m], [pow])
 # Checks for header files.
 AC_CHECK_HEADERS([fenv.h stdlib.h string.h unistd.h])
 
+# OpenMP:
+AC_OPENMP
 # Checks for typedefs, structures, and compiler characteristics.
 AC_C_INLINE
 
