@@ -78,3 +78,12 @@ Filed by: Joel James Adamson <adamsonj@email.unc.edu>
    This change was not completed because it causes a weird error and
    seems unnecessary, i.e. having LDADD instead of AM_LDFLAGS doesn't
    cause any actual problems
+* src/debug.c: 63 "Joel J. Adamson" <adamsonj@email.unc.edu><2010-02-05 11:01 >
+
+
+This string should not be of limited size; we should use as much
+precision as the user demands (perhaps %9.8g would do it).
+
+
+Version: : trunk
+Filed by: Joel James Adamson <adamsonj@email.unc.edu>
