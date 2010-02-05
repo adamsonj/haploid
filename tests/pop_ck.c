@@ -38,7 +38,7 @@ main (void)
   printf ("i   |i/b   |POP(i) | ISO (i,2,2)\n");
   for (i = 0; i < 0xF; i++)
     /* print the data on the integer i */
-    printf ("%-3i |%-3s | %-5d | %-3s\n", i, printbits (i),
-	    POP (i), printbits(ISO (i, 2, 2)));
+    printf ("%-3i |%-3s | %-5d | %-3s\n", i, debug_printbits (i),
+	    POP (i), debug_printbits(ISO (i, 2, 2)));
   return 0;
 }

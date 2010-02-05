@@ -158,7 +158,7 @@ next_gen (double * freqs, double * W)
   /* new frequencies after selection step */
   double new0[GENO];
   double wbar = gen_mean (freqs, W, GENO);
-  int i, j;
+  int i;
   for (i = 0; i < GENO; i++)
     new0[i] = freqs[i] * W[i] / wbar;
 
