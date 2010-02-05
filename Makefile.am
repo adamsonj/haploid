@@ -23,11 +23,13 @@
 
 lib_LTLIBRARIES = libhaploid.la
 libhaploid_la_SOURCES = src/recomb.c src/spec_func.c \
-	src/mating.c src/geno_func.c src/bits.c
+	src/mating.c src/geno_func.c src/debug.c
 include_HEADERS = src/haploid.h src/bithacks.h
 noinst_HEADERS = src/haploidpriv.h
-LDADD = -lm libhaploid.la
-AM_CFLAGS = -std=gnu99 -ggdb
+noinst_PROGRAMS = rec_ck
+rec_ck_SOURCES = tests/rec_ck.c
+
+AM_CFLAGS = -std=gnu99 $(OPENMP_CFLAGS) -O3 -Wall -pedantic
 ACLOCAL_AMFLAGS = -I m4 
 
 # Documentation
@@ -36,9 +38,10 @@ haploid_TEXINFOS = doc/fdl-1.3.texi
 
 # Tests and checks: each check must be a standalone program that
 # statically links libhaploid
-check_PROGRAMS = sim_stop tlta pop_ck 
+LDADD = -lm libhaploid.la
+check_PROGRAMS = sim_stop tlta pop_ck rec_ck
 sim_stop_SOURCES = tests/sim_stop.c
 tlta_SOURCES = tests/tlta.c
 pop_ck_SOURCES = tests/pop_ck.c
 
-TESTS = sim_stop tlta pop_ck
+TESTS = sim_stop tlta pop_ck 

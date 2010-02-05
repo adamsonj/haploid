@@ -1,3 +1,17 @@
+2010-02-05  Joel James Adamson  <adamsonj@email.unc.edu>
+
+	* Makefile.am (AM_CFLAGS): added openmp flags to CFLAGS; also
+	added -Wall and -pedantic for better compiling
+	(check_PROGRAMS): added rec_ck as a noinst program
+
+2010-01-29  Joel James Adamson  <adamsonj@email.unc.edu>
+
+	* src/recomb.c (set_rec_table): removed the else-arm of the if
+	after checking for NAN (makes nesting too deep)
+
+	* src/debug.c (debug_printbits): changed filename to debug.c;
+	changed function name to debug_printbits
+
 2010-01-20  Joel James Adamson  <adamsonj@email.unc.edu>
 
 	* src/recomb.c (rec_prob): removed get_bit () and replaced its
