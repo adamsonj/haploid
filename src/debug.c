@@ -58,13 +58,14 @@ debug_printbits (unsigned int n)
 }
 
 void
-debug_print_array_double (int len, double * arr, char * buf[len])
+debug_print_array_double (int len, double * arr,
+			  char * prec, char * buf[len])
 {
   /* this hard-codes the width of the output; what's the more flexible
      solution? */
 
   for (int i = 0; i < len; i++)
     {
-      snprintf (buf[i], 6, "%-5.4f ", arr[i]);
+      snprintf (buf[i], 6, prec, arr[i]);
     }
 }

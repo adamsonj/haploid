@@ -92,5 +92,5 @@ char *
 debug_printbits (unsigned int n);
   
 void
-debug_print_array_double (int len, double * arr, char * buf[len]);
+debug_print_array_double (int len, double * arr, char * prec, char * buf[len]);
 #endif
