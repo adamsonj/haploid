@@ -6,6 +6,9 @@
 	(producing positive values where they should be 0); still need to
 	take care of nans
 
+	* UPDATE: this didn't actually fix the bug; I still get the same
+	behavior
+
 	* src/debug.c (debug_print_array_double): this function returns a
 	formatted string of a double precisions number referenced in an
 	array; this function is arbitrarily limited by the size of the
