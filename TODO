@@ -1,16 +1,16 @@
 # -*-mode:org;  org-todo-keywords: '((sequence "todo" "done"))-*-
 * In the near future
-** todo Manual
-   - As soon as TLTA works, we need a manual to keep all this straight
-** todo Big fat test
-   - I'm thinkin' like 32 loci or so
-   - perhaps no recombination (r = 0.0) or no selection
-** todo Return values
-   - some functions return integers but they do no error-checking
-     (e.g. set_rec_table)
-   - set_rec_table does error-checking, but is still error-prone;
-     there is no guarantee that over-reaching r[] will return NaN for
-     zygote_prob; is there just some way to check the size of the array?
+** todo Debugging set_rec_table
+   - print rec_tables of varying sizes and recombination coefficients
+   - solve known examples beforehand to check them
+   - print them mating-by-mating (i.e. print the offspring
+     probabilities of each offspring genotype for a particular mating)
+** todo Function names
+   - use "package" names with a tag at the beginning (this may require
+     changing some file names to shorter names)
+** todo Parallelization
+   - at least set_rec_table needs paralellization
+   - may need to use delay directive for facultative copying
 ** Archive							    :ARCHIVE:
 *** done Stop function
     :PROPERTIES:
@@ -121,6 +121,20 @@
       + leave array dimension unspecified
       + use pointer notation in formal parameters and array notation in function
       + we still need the dimensions for iteration purposes
+*** done Manual
+    :PROPERTIES:
+    :ARCHIVE_TIME: 2010-01-29 Fri 11:20
+    :END:
+    - As soon as TLTA works, we need a manual to keep all this straight
+*** todo Return values
+    :PROPERTIES:
+    :ARCHIVE_TIME: 2010-01-29 Fri 11:21
+    :END:
+    - some functions return integers but they do no error-checking
+      (e.g. set_rec_table)
+    - set_rec_table does error-checking, but is still error-prone;
+      there is no guarantee that over-reaching r[] will return NaN for
+      zygote_prob; is there just some way to check the size of the array?
 * In the future
 ** todo Make sim_stop_ck () accept a function
 ** todo Mating step wrapper code
