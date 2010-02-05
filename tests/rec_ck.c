@@ -234,7 +234,7 @@ rec_ck_print_row (unsigned long geno, int mom, int dad, double * row)
   char * str_array[geno];
   for (int i = 0; i < geno; i++)
     {
-      str_array[i] = malloc (sizeof (char) * 5 + 1);
+      str_array[i] = malloc (sizeof (char) * 9 + 1);
       if (str_array[i] == NULL)
 	{
 	  fprintf (stderr, "Null pointer");
@@ -242,7 +242,7 @@ rec_ck_print_row (unsigned long geno, int mom, int dad, double * row)
 	}
     }
   /* obtain a string of values: */
-  debug_print_array_double (geno, row, str_array);
+  debug_print_array_double (geno, row, "%-9.8fL ", str_array);
   /* print the array to the output file: */
   fprintf (stdout, "%s X %s:",
 	       debug_printbits (mom),
