@@ -87,7 +87,7 @@ precision as the user demands (perhaps %9.8g would do it).
 
 Version: : trunk
 Filed by: Joel James Adamson <adamsonj@email.unc.edu>
-* recomb.c: set_rec_table produces wrong values "Joel J. Adamson" <adamsonj@email.unc.edu><2010-02-05 11:26 >
+* done recomb.c: set_rec_table produces wrong values "Joel J. Adamson" <adamsonj@email.unc.edu><2010-02-05 11:26 >
 
 Two loci, r=0.15:
 00011 X 00011:0.150  0.000  0.000  1.000  
