@@ -1,3 +1,10 @@
+2010-02-06  Joel James Adamson  <adamsonj@email.unc.edu>
+
+	* src/recomb.c (set_rec_table): added an initialization for the
+	rec_table, since it held junk that happened to cause very specific
+	sorts of errors (????????????); this appears to fix both the
+	positive value bugs and the NANs
+
 2010-02-05  Joel James Adamson  <adamsonj@email.unc.edu>
 
 	* src/recomb.c (set_rec_table): fixed an erroneous call to

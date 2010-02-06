@@ -130,6 +130,9 @@ set_rec_table (int nloci, int geno,
       for (j = 0; j < geno; j++)
 	{
 
+	  for (k = 0; k < geno; k++)
+	    rec_table[i][j][k] = 0;
+
 	  /* iterate over recombination possibilities */
 	  for (mask = 0; mask < mask_lim; mask++)
 	    {
@@ -157,7 +160,7 @@ set_rec_table (int nloci, int geno,
 		 we just found a new way to generate them  */
 
 	      for (k = 0; k < 2; k++)
-		rec_table[i][j][zyg[k]] += zygote_prob;
+		  rec_table[i][j][zyg[k]] += zygote_prob;
 	    }
 	}
     }

@@ -33,12 +33,6 @@
 #include <errno.h>
 #include <argp.h>
 
-#define FOUNDERR 		  num_errs++;	\
-  (err_data[i+j])->err = ERANGE;		\
-  (err_data[i+j])->mom = i;			\
-  (err_data[i+j])->dad = j;			\
-  (err_data[i+j])->err_row = rec_table[i][j];
-
 /* some program info to access with argp () */
 const char * argp_program_version = "svn";
 const char * argp_program_bug_address = "haploid-bugs@unc.edu";
