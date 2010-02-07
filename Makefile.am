@@ -26,8 +26,6 @@ libhaploid_la_SOURCES = src/recomb.c src/spec_func.c \
 	src/mating.c src/geno_func.c src/debug.c
 include_HEADERS = src/haploid.h src/bithacks.h
 noinst_HEADERS = src/haploidpriv.h
-noinst_PROGRAMS = rec_ck
-rec_ck_SOURCES = tests/rec_ck.c
 
 AM_CFLAGS = -std=gnu99 $(OPENMP_CFLAGS) -O3 -Wall -pedantic
 ACLOCAL_AMFLAGS = -I m4 
