@@ -36,10 +36,13 @@ ACLOCAL_AMFLAGS = -I m4
 info_TEXINFOS = doc/haploid.texi
 haploid_TEXINFOS = doc/fdl-1.3.texi
 
-# Tests and checks: each check must be a standalone program that
-# statically links libhaploid
+# bin program
+bin_PROGRAMS = rec_ck
+rec_ck_SOURCES = rec_ck.c
+
+# Tests and checks: each check must be a standalone program 
 LDADD = -lm libhaploid.la
-check_PROGRAMS = sim_stop tlta pop_ck rec_ck
+check_PROGRAMS = sim_stop tlta pop_ck 
 sim_stop_SOURCES = tests/sim_stop.c
 tlta_SOURCES = tests/tlta.c
 pop_ck_SOURCES = tests/pop_ck.c

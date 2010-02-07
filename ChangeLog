@@ -1,3 +1,11 @@
+2010-02-07  Joel James Adamson  <adamsonj@email.unc.edu>
+
+	* configure.ac: changed default behavior back to shared libraries
+	added more headers to CHECK_HEADERS
+
+	* Makefile.am (bin_PROGRAMS): promoted rec_ck to a bin_PROGRAM
+	since it is a useful tool in general
+
 2010-02-06  Joel James Adamson  <adamsonj@email.unc.edu>
 
 	* src/haploid.h: added GNU error.h so we can apply the error

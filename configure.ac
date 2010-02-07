@@ -9,24 +9,20 @@ AC_CONFIG_HEADERS([config.h])
 AC_PREFIX_DEFAULT(/usr)
 # Checks for programs.
 # 
-# don't need C++ right now
-# AC_PROG_CXX
 AC_PROG_AWK
 AC_PROG_CC
 AC_PROG_CPP
 AC_PROG_INSTALL
 AC_PROG_LN_S
 AC_PROG_MAKE_SET
-# AC_PROG_RANLIB
-# AC_PROG_LIBTOOL
-LT_INIT([disable-shared])
+LT_INIT
 
 # Checks for libraries.
 # FIXME: Replace `main' with a function in `-lm':
 AC_CHECK_LIB([m], [pow])
 
 # Checks for header files.
-AC_CHECK_HEADERS([fenv.h stdlib.h string.h unistd.h])
+AC_CHECK_HEADERS([stdio.h stdlib.h unistd.h math.h limits.h string.h])
 
 # OpenMP:
 AC_OPENMP
