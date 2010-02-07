@@ -363,11 +363,8 @@ producing the k-th genotype from mating the i-th father and the j-th
 mother.  @var{r} is a pointer to the recombination map (an array of
 recombination probabilities between adjacent sites).  @var{r} should
 have @math{@var{nloci} - 1} entries (or the first @math{@var{nloci} - 1}
-entries will be used).  If there are too few entries in @var{r},
-@code{set_rec_table} could return @code{FE_INVALID} (@pxref{Examining
-the FPU status word, FPU Status, GNU Libc, libc, The GNU C Library
-Reference Manual}).  As of yet, there is no way to ensure this behavior,
-but you should still check the return value of @code{set_rec_table}.
+entries will be used).  @code{set_rec_table} initializes the array
+before setting the values.  
 @end deftypefn
 
 @deftypefn {Library Function} int recombination @

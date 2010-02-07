@@ -5,6 +5,7 @@
    - solve known examples beforehand to check them
    - print them mating-by-mating (i.e. print the offspring
      probabilities of each offspring genotype for a particular mating)
+** todo Use error instead of perror
 ** todo Function names
    - use "package" names with a tag at the beginning (this may require
      changing some file names to shorter names)

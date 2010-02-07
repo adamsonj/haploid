@@ -1,5 +1,8 @@
 2010-02-06  Joel James Adamson  <adamsonj@email.unc.edu>
 
+	* src/haploid.h: added GNU error.h so we can apply the error
+	function in the library and applications
+
 	* src/recomb.c (set_rec_table): added an initialization for the
 	rec_table, since it held junk that happened to cause very specific
 	sorts of errors (????????????); this appears to fix both the
