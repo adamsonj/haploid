@@ -7,6 +7,10 @@ AC_CONFIG_MACRO_DIR([m4])
 AC_CONFIG_SRCDIR([src/recomb.c])
 AC_CONFIG_HEADERS([config.h])
 AC_PREFIX_DEFAULT(/usr)
+
+# system extensions
+AC_USE_SYSTEM_EXTENSIONS(_GNU_SOURCE)
+
 # Checks for programs.
 # 
 AC_PROG_AWK
@@ -26,15 +30,13 @@ AC_CHECK_HEADERS([stdio.h stdlib.h unistd.h math.h limits.h string.h])
 
 # OpenMP:
 AC_OPENMP
+
 # Checks for typedefs, structures, and compiler characteristics.
 AC_C_INLINE
 
 # Checks for library functions.
 AC_FUNC_MALLOC
 AC_CHECK_FUNCS([pow])
-
-# system extensions
-AC_USE_SYSTEM_EXTENSIONS(_GNU_SOURCE)
 
 AC_CONFIG_FILES([Makefile])
 AC_OUTPUT
