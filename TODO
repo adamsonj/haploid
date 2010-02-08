@@ -6,9 +6,12 @@
    - print them mating-by-mating (i.e. print the offspring
      probabilities of each offspring genotype for a particular mating)
 ** todo Use error instead of perror
-** todo Function names
-   - use "package" names with a tag at the beginning (this may require
-     changing some file names to shorter names)
+** todo Style
+*** Take hints from _Practice of Programming_, Chapter 1
+*** Replace macros with inline functions?
+*** Function names
+    - use "package" names with a tag at the beginning (this may require
+      changing some file names to shorter names)
 ** todo Parallelization
    - at least set_rec_table needs paralellization
    - may need to use delay directive for facultative copying
