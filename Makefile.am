@@ -34,10 +34,6 @@ ACLOCAL_AMFLAGS = -I m4
 info_TEXINFOS = doc/haploid.texi
 haploid_TEXINFOS = doc/fdl-1.3.texi
 
-# bin program
-bin_PROGRAMS = rec_ck
-rec_ck_SOURCES = rec_ck.c
-
 # Tests and checks: each check must be a standalone program 
 LDADD = -lm libhaploid.la
 check_PROGRAMS = sim_stop tlta pop_ck 
