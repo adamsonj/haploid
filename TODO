@@ -1,17 +1,16 @@
 # -*-mode:org;  org-todo-keywords: '((sequence "todo" "done"))-*-
 * In the near future
-** todo Debugging set_rec_table
-   - print rec_tables of varying sizes and recombination coefficients
-   - solve known examples beforehand to check them
-   - print them mating-by-mating (i.e. print the offspring
-     probabilities of each offspring genotype for a particular mating)
 ** todo Use error instead of perror
 ** todo Style
 *** Take hints from _Practice of Programming_, Chapter 1
 *** Replace macros with inline functions?
+    e.g. isset () instead of B_IS_SET
 *** Function names
     - use "package" names with a tag at the beginning (this may require
       changing some file names to shorter names)
+** todo Abstract bit-twiddling
+   zygote_genotypes () and other functions in recomb.c could be
+   abstracted to higher-level programming
 ** todo Parallelization
    - at least set_rec_table needs paralellization
    - may need to use delay directive for facultative copying
@@ -139,6 +138,14 @@
     - set_rec_table does error-checking, but is still error-prone;
       there is no guarantee that over-reaching r[] will return NaN for
       zygote_prob; is there just some way to check the size of the array?
+*** done Debugging set_rec_table
+    :PROPERTIES:
+    :ARCHIVE_TIME: 2010-02-09 Tue 13:24
+    :END:
+    - print rec_tables of varying sizes and recombination coefficients
+    - solve known examples beforehand to check them
+    - print them mating-by-mating (i.e. print the offspring
+      probabilities of each offspring genotype for a particular mating)
 * In the future
 ** todo Make sim_stop_ck () accept a function
 ** todo Mating step wrapper code
