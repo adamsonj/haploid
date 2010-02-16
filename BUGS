@@ -124,3 +124,15 @@ precision as the user demands (perhaps %9.8g would do it).
 
 Version: : trunk
 Filed by: Joel James Adamson <adamsonj@email.unc.edu>
+* recomb.c "Joel J. Adamson" <adamsonj@email.unc.edu><2010-02-16 09:51 >
+
+
+[[PGP Signed Part:Undecided]]
+set_rec_table should use a hash table hashed by some function of the
+parents and offspring.  This could reduce searching by many orders of
+magnitude.  Consider especially that most of the recombination table
+will be zeroes, it makes no sense to actually store those anywhere.
+
+
+Version: : trunk
+Filed by: Joel James Adamson <adamsonj@email.unc.edu>
