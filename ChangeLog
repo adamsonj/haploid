@@ -1,3 +1,9 @@
+2010-02-22  Joel James Adamson  <adamsonj@email.unc.edu>
+
+	* Makefile.am (libhaploid_la_SOURCES): removed debug.c as its
+	functions are not useful (now that I understand how to read hex
+	digits!)
+
 2010-02-07  Joel James Adamson  <adamsonj@email.unc.edu>
 
 	* configure.ac: changed default behavior back to shared libraries

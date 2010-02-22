@@ -23,7 +23,7 @@
 
 lib_LTLIBRARIES = libhaploid.la
 libhaploid_la_SOURCES = src/recomb.c src/spec_func.c \
-	src/mating.c src/geno_func.c src/debug.c
+	src/mating.c src/geno_func.c 
 include_HEADERS = src/haploid.h src/bithacks.h
 noinst_HEADERS = src/haploidpriv.h
 
