@@ -57,50 +57,32 @@ zygote_genotypes (unsigned int i,
 		  unsigned int zyg[2],
 		  int nloci)
 {
-  
-  /* zygote_genotypes */
-
   /* forms the 2 zygote genotypes resulting from a Mom, a Dad &
      particular recombination mask */
-
   /* written by Mark Kirkpatrick */
-
-  unsigned int zyg1 = 0, zyg2 = 0;
-  unsigned int bit[nloci];
-  int k;
-  int powk;
-
-  /* preliminaries         */
+  unsigned int zyg1 = 0;
+  unsigned int zyg2 = 0;
+  int k;			/* counter */
+  int powk;			/* mask for a position */
   for (k = 0; k < nloci; k++)
     {
 
       powk = 1 << k;
-
-      /* does the mask call for this bit to come from the mother? */
-      bit[k] = mask & powk;
-
-      /* Yes */
-      if (bit[k] == 0)
+      /* does the mask call for this bit to come from the father? */
+      if (mask & powk)
 	{
-	  /*
-	    If mask and powk have no 1s in common, then we get the
-	    2^kth bit from the mother
-	  */
-	  zyg1 = zyg1 | (i & powk);
-	  /*
-	    then we do the same for the other zygote, getting the
-	    2^kth bit from the dad
-	  */
-	  zyg2 = zyg2 | (j & powk);
+	  /* get the 2^kth bit from the father */
+	  zyg1 |= (j & powk);
+	  /* do the same for the other zygote */
+	  zyg2 |= (i & powk);
 	}
-      /* No */
       else
 	{
-	  zyg1 = zyg1 | (j & powk);
-	  zyg2 = zyg2 | (i & powk);
+	  zyg1 |= (i & powk);
+	  zyg2 |= (j & powk);
 	}
     }
-  /* creates the zygotes  */
+  /* create the zygotes  */
   zyg[0] = zyg1;
   zyg[1] = zyg2;
 }

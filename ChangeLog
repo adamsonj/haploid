@@ -1,5 +1,8 @@
 2010-02-22  Joel James Adamson  <adamsonj@email.unc.edu>
 
+	* src/recomb.c (zygote_genotypes): simplified the code a bit,
+	using side-effect operators and removing the useless bit[k] array
+
 	* Makefile.am (libhaploid_la_SOURCES): removed debug.c as its
 	functions are not useful (now that I understand how to read hex
 	digits!)
