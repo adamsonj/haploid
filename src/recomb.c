@@ -37,15 +37,19 @@ rec_prob (unsigned int mask, int nloci, double * r)
   /* written by Mark Kirkpatrick */
   double prob = 1.0;
   int i;			/* counter */
+  _Bool bset0, bset1;
   for (i = 0; i < nloci - 1; i++)
-    prob *= (((B_IS_SET (mask, i)) == (B_IS_SET (mask, i + 1))))?
-      (1.0 - r[i]):r[i];
+    {
+      bset0 = bits_isset (mask, i);
+      bset1 = bits_isset (mask, i+1);
+      prob *= (bset0 == bset1)?(1.0 - r[i]):r[i];
+    }
   return prob;
 }
 
 static void
-zygote_genotypes (unsigned int i,
-		  unsigned int j,
+zygote_genotypes (unsigned int mom,
+		  unsigned int dad,
 		  unsigned int mask,
 		  unsigned int zyg[2],
 		  int nloci)
@@ -62,17 +66,17 @@ zygote_genotypes (unsigned int i,
 
       powk = 1 << k;
       /* does the mask call for this bit to come from the father? */
-      if (mask & powk)
+      if (bits_isset (mask, k)) 
 	{
 	  /* get the 2^kth bit from the father */
-	  zyg1 |= (j & powk);
+	  zyg1 |= (dad & powk);
 	  /* do the same for the other zygote */
-	  zyg2 |= (i & powk);
+	  zyg2 |= (mom & powk);
 	}
       else
 	{
-	  zyg1 |= (i & powk);
-	  zyg2 |= (j & powk);
+	  zyg1 |= (mom & powk);
+	  zyg2 |= (dad & powk);
 	}
     }
   /* create the zygotes  */
@@ -89,6 +93,12 @@ set_rec_table (int nloci, int geno,
 
      rec_table [mom's genotype][dad's genotype][zygote's genotype] */ 
   unsigned int zyg[2] = { 0, 0 };
+  /* all masks above mask_lim have bitwise complements below
+     1 << (nloci-1)
+
+     Therefore we _do_ get all possible combinations of loci by
+     setting the upper limit at this value.  Also remember that we do
+     not use mask_lim as a mask (see for...mask below) */
   const unsigned int mask_lim = (1 << (nloci - 1));
   double zygote_prob;
 

@@ -24,7 +24,7 @@
 lib_LTLIBRARIES = libhaploid.la
 libhaploid_la_SOURCES = src/recomb.c src/spec_func.c \
 	src/mating.c src/geno_func.c src/bits.c
-include_HEADERS = src/haploid.h src/bithacks.h
+include_HEADERS = src/haploid.h 
 noinst_HEADERS = src/haploidpriv.h
 
 AM_CFLAGS = -std=gnu99 $(OPENMP_CFLAGS) -O3 -Wall -pedantic

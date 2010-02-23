@@ -1,5 +1,7 @@
 2010-02-23  Joel James Adamson  <adamsonj@email.unc.edu>
 
+	* got rid of bithacks.h; updated all function calls and documentation
+
 	* tests/pop_ck.c (main): this function now uses the functions from
 	bits.c (all of them)
 

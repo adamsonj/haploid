@@ -33,13 +33,16 @@
 #include <config.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdbool.h>
 #include <errno.h>
 #include <string.h>
 #include <math.h>
 #include <complex.h>
-#include <stdbool.h>
 #include <time.h>
 #include <fenv.h>
 #include <limits.h>
-#include "bithacks.h"
-#endif
+
+_Bool
+bits_isset (int x, unsigned int pos);
+
+#endif /* HAPLOIDPRIV_H */

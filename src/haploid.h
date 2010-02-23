@@ -36,7 +36,6 @@
 #include <stdio.h>
 #include <unistd.h>
 #include <math.h>
-#include <bithacks.h>
 #include <limits.h>
 #include <error.h>
 

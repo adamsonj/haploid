@@ -71,9 +71,8 @@ Autotools in a @url{http://subversion.tigris.org, Subversion} version
 control repository.
 
 To use the library, use @code{#include <haploid.h>} at the top of your
-files.  You may also want to use macros from @file{bithacks.h}, so
-include it as well.  To link with the library, pass @code{-lhaploid} to
-the linker.  For example:
+files.  To link with the library, pass @code{-lhaploid} to the linker.
+For example:
 
 @example
 # gcc -std=gnu99 -ggdb  -g -O2   -o sim_stop sim_stop.o -lm -lhaploid 
@@ -288,16 +287,38 @@ next_gen (double * freqs, double * W)
 @node Manipulating Genotypes
 @subsection Manipulating Genotypes
 @comment  node-name,  next,  previous,  up
+@c document bits.c
 
-Prior to developing our own bit-hacking library, Haploid includes
-@url{http://www.catonmat.net/blog/bit-hacks-header-file, bithacks.h} for
-manipulating specific bits of genotypes.  The macros in this header will
-check if specific bits are set, and allows you to set specific bits.
-Although these operations are possible with bitwise operators and
-integer arithmetic, using the bit-hacking macros is mnemonically and
-programatically superior (i.e. the bithacks.h macros are faster and
-it's easier to remember what they mean).  bithacks.h has its own
-documentation within the header file, so please read it.
+Haploid includes some basic functions that operate on bits of integers:
+you may find these functions useful for defining specific loci with
+particular phenotypic effects within a large genome.  For example, you
+could have a set of loci defined at positions 0--3 of a genotype
+(genotypes 0x0--0xf) that code for an additive phenotype, and other
+single-locus traits in the same genotype.
+
+@deftypefn {Library Function} _Bool bits_isset (int x, @
+           unsigned int pos)
+
+Test if the bit at position @var{pos} is set; if so, return @code{true},
+if not return @code{false}.
+@end deftypefn
+
+@deftypefn {Library Function} unsigned int bits_extract @
+           (unsigned int start, unsigned int end, unsigned int x)
+           
+Return an unsigned integer extracted from a section of the unsigned
+integer @var{x} defined by @var{start} (inclusive) until @var{end}
+(exclusive).
+@end deftypefn
+
+@deftypefn {Library Function} unsigned int bits_popcount (int x)
+
+Return the number of set bits in @var{x}.  If you compile with GNU
+Compiler Collection, this function simply returns the result of
+__builtin_popcount (@var{x}) (@pxref{Other Builtins, GCC,, gcc, GNU
+Compiler Collection Manual}).
+@end deftypefn
+
 
 @node Genotype functions
 @subsection Genotype functions

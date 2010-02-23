@@ -50,6 +50,7 @@ $ grep -nH -e ">>" -e "<<" -e "[&|]" src/*.c
              call the procedure without conditional compilation
 	 + there are many portable algorithms
 	 + known as "Hamming weight," "population count" and other names
+*** Get rid of bithacks.h
 ** todo Parallelization
    - at least set_rec_table needs paralellization
    - may need to use delay directive for facultative copying
