@@ -33,17 +33,10 @@
 static double
 rec_prob (unsigned int mask, int nloci, double * r)
 {
-  /*  rec_prob calculates the probability of a given recombination pattern. */
-  /*  The pairwise recombination rates r[0],r[1],...,r[nLoci-1] are
-      declared and initialized external to this routine.  */
-
+  /*  calculates the probability of a given recombination pattern. */
   /* written by Mark Kirkpatrick */
-
-  double prob;
-  int i;
-
-  prob = 1.0;
-
+  double prob = 1.0;
+  int i;			/* counter */
   for (i = 0; i < nloci - 1; i++)
     prob *= (((B_IS_SET (mask, i)) == (B_IS_SET (mask, i + 1))))?
       (1.0 - r[i]):r[i];
@@ -91,13 +84,10 @@ int
 set_rec_table (int nloci, int geno,
 	       double rec_table[geno][geno][geno], double * r)
 {
+  /* sets up table of probabilities for offspring from all possible
+     matings:
 
-  /*    This 3 dimensional array sets up the recombination table of
-	probabilities of the production of zygote genotypes given the
-	parental genotypes.
-  */
-
-  /* rec_table [mom's genotype, dad's genotype, zygote's genotype] */ 
+     rec_table [mom's genotype][dad's genotype][zygote's genotype] */ 
   unsigned int zyg[2] = { 0, 0 };
   const unsigned int mask_lim = (1 << (nloci - 1));
   double zygote_prob;
@@ -111,36 +101,22 @@ set_rec_table (int nloci, int geno,
       /* iterate over mothers */
       for (j = 0; j < geno; j++)
 	{
-
+	  /* initialize rec_table */
 	  for (k = 0; k < geno; k++)
 	    rec_table[i][j][k] = 0;
 
 	  /* iterate over recombination possibilities */
 	  for (mask = 0; mask < mask_lim; mask++)
 	    {
-	      /* probability of recombination at a particular site;
-		 mask corresponds to a set of recombination locations;
-		 r is the recombination map  */
-
 	      /* the probability of producing either of the two
 		 zygotes from the particular recombination event
 		 specified by mask  */
-
 	      zygote_prob = (0.5) * rec_prob (mask, nloci, r);
 		    
-	      /* Generate zygote genotypes
-		 
-		 We should get two out of using any particular mask:
-		 the one from specified directly by mask, and the one
-		 specified by its its bitwise complement; store the
-		 result in zyg  */
-
+	      /* Generate zygote genotypes (indices in the
+		 rec_table) */
 	      zygote_genotypes (i, j, mask, zyg, nloci);
-
-	      /* Find indices corresponding to the zygotes produced by
-		 mask and parents, and add to their probabilities, as
-		 we just found a new way to generate them  */
-
+	      /* modify the recombination table: */
 	      for (k = 0; k < 2; k++)
 		  rec_table[i][j][zyg[k]] += zygote_prob;
 	    }
@@ -153,31 +129,16 @@ set_rec_table (int nloci, int geno,
 
 int
 recombination (int geno, double rec_table[geno][geno][geno],
-	       double F[geno][geno],
+	       double mating_table[geno][geno],
 	       double xt[geno])
 {
-
-  /* recombination */
-  /*
-
-    takes arguments of recombination table and mating table
-
-  */
   int i, j, k;
   for (k = 0; k < geno; k++)
     for (i = 0; i < geno; i++)
       for (j = 0; j < geno; j++)
 	/* for the k-th entry in xt, we need to collect the k-th entry
 	   of every pointer in rec_table, multiplied times the i,j-th
-	   entry in F */
-	xt[k] += F[i][j] * rec_table[i][j][k];
+	   entry in mating_table */
+	xt[k] += mating_table[i][j] * rec_table[i][j][k];
   return 0;
 }
-
-/*
-
-  Erroneous output:
-
-  00011 X 00011:0.125  0.000  0.000  1.000  
-
- */

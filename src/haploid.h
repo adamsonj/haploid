@@ -40,23 +40,6 @@
 #include <limits.h>
 #include <error.h>
 
-/* POP(x) yields the number of set bits of an integer.
-
-   Based on HS Warren. 2003.  Hacker's Delight.  Addison-Wesley,
-   Reading, MA, pg 73
-
-*/
-#define POP(x) ((((( x ) * 0x0002000400080010ULL)	\
-		  & 0x1111111111111111ULL )		\
-		 * 0x1111111111111111ULL )		\
-		>> 60)
-
-/* ISO(a,x,y) isolates the y bits of a that start at x; COUNT FROM THE
-   RIGHT!  */
-#define ISO(a, x, y) ((a >> x)			\
-		      & (( ULLONG_MAX )		\
-			 >> (64 - y)))
-
 /* spec_funcs.c */
 int
 sim_stop_ck (double * p1, double * p2, int len, long double tol);
@@ -88,10 +71,15 @@ genotype_to_allele (double * allele_freqs, double * geno_freqs,
 void
 rmtable (int geno, double * freq, double table[geno][geno]);
 
-/* bits.c: useful functions for debugging integer arithmetic */
-char *
-debug_printbits (unsigned int n);
-  
-void
-debug_print_array_double (int len, double * arr, char * prec, char * buf[len]);
+/* bits.c: useful functions for integers */
+
+_Bool
+bits_isset (int x, unsigned int pos);
+
+unsigned int
+bits_extract (unsigned int start, unsigned int end, unsigned int x);
+
+unsigned int
+bits_popcount (int x);
+
 #endif

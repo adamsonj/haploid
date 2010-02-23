@@ -1,3 +1,11 @@
+2010-02-23  Joel James Adamson  <adamsonj@email.unc.edu>
+
+	* tests/pop_ck.c (main): this function now uses the functions from
+	bits.c (all of them)
+
+	* Makefile.am (libhaploid_la_SOURCES): added bits.c with functions
+	that perform the same purposes as the macros in haploid.h
+
 2010-02-22  Joel James Adamson  <adamsonj@email.unc.edu>
 
 	* src/recomb.c (zygote_genotypes): simplified the code a bit,

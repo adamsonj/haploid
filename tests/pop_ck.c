@@ -29,16 +29,16 @@
 
 #include "../src/haploid.h"
 
-
 int
 main (void)
 {
   unsigned int i;
   /* First print a header row: */
-  printf ("i   |i/b   |POP(i) | ISO (i,2,2)\n");
-  for (i = 0; i < 0xF; i++)
+  printf ("i/d |i/x |pop(i) |iso (i,4,2) |Fifth bit set?\n");
+  for (i = 0; i < 0xff; i++)
     /* print the data on the integer i */
-    printf ("%-3i |%-3s | %-5d | %-3s\n", i, debug_printbits (i),
-	    POP (i), debug_printbits(ISO (i, 2, 2)));
+    printf ("%-3i |%02x  |%-5d  |%-3x         |%i\n", i, i,
+	    bits_popcount (i), bits_extract (4, 4, i),
+	    bits_isset (i, 4));
   return 0;
 }
