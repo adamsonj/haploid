@@ -9,8 +9,47 @@
     - use "package" names with a tag at the beginning (this may require
       changing some file names to shorter names)
 ** todo Abstract bit-twiddling
-   zygote_genotypes () and other functions in recomb.c could be
-   abstracted to higher-level programming
+*** zygote_genotypes ()
+    zygote_genotypes () and other functions in recomb.c could be
+    abstracted to higher-level programming
+*** Bit-twiddling plan
+    - formulate a general plan for how to deal with bit-twiddling;
+      this requires a policy
+      1. Find all the places with bitwise operators (use grep!) and
+         make sure we can abstract them to a small number of
+         procedures
+      2. Here's the list:
+$ grep -nH -e ">>" -e "<<" -e "[&|]" src/*.c
+    - three fundamental operations needed:
+      1. Test if a particular bit is set (create a mask with shifting,
+         then and it with the integer in question, then test if the
+         result is zero)
+      2. isolate an integer
+	 + look this up: there should be plenty of examples of it
+	 + Guile has this (meaning it has been done before, so there
+           should be discussion about it)
+	 + idea:
+	   #+CODE:
+	   int
+	   int_extract (int start, int end, int x)
+	   {
+	     unsigned int len = end - start;
+	     x >>= start; /* okay to modify local x */
+	     unsigned int maxshift = UINT_MAX >> len;
+	     return x & maxshift; /* exclude all the values above len
+                                     positions */
+	   }
+	     
+      3. Population count
+	 + gcc ___builtin_popcount (x) does this 
+	   * test with #if __GNUC__ ___builtin_popcount (x) #elif
+             <some other algorithm>)
+	   * gcc should optimize this well
+	   * provide a wrapper with the conditional compilation, such
+             that user programs (and the library, e.g. recomb.c) can
+             call the procedure without conditional compilation
+	 + there are many portable algorithms
+	 + known as "Hamming weight," "population count" and other names
 ** todo Parallelization
    - at least set_rec_table needs paralellization
    - may need to use delay directive for facultative copying
