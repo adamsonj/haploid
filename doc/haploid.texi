@@ -441,6 +441,6 @@ p(x)} given a pointer to proportions @var{props} and a pointer to values
 @node Index
 @unnumbered Index
 
-@printindex cp
+@printindex fn
 
 @bye

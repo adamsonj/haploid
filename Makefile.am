@@ -32,7 +32,9 @@ ACLOCAL_AMFLAGS = -I m4
 
 # Documentation
 info_TEXINFOS = doc/haploid.texi
+pdf_TEXINFOS = doc/haploid.texi
 haploid_TEXINFOS = doc/fdl-1.3.texi
+EXTRA_DIST = $(PDFS)
 
 # Tests and checks: each check must be a standalone program 
 LDADD = -lm libhaploid.la
