@@ -1,6 +1,5 @@
 # -*-mode:org;  org-todo-keywords: '((sequence "todo" "done"))-*-
 * In the near future
-** todo Use error instead of perror
 ** todo Style
 *** Take hints from _Practice of Programming_, Chapter 1
 *** Replace macros with inline functions?
@@ -186,6 +185,10 @@ $ grep -nH -e ">>" -e "<<" -e "[&|]" src/*.c
     - solve known examples beforehand to check them
     - print them mating-by-mating (i.e. print the offspring
       probabilities of each offspring genotype for a particular mating)
+*** done Use error instead of perror
+    :PROPERTIES:
+    :ARCHIVE_TIME: 2010-02-24 Wed 14:05
+    :END:
 * In the future
 ** todo Make sim_stop_ck () accept a function
 ** todo Mating step wrapper code

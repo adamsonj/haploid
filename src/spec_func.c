@@ -64,22 +64,14 @@ euclid_dist (double * array1, double * array2, int len)
   int i;
   double sqrdiff;
   double diffarray[len];
-  if (diffarray != NULL)
+  double eudiff = 0.0;
+  for (i = 0; i < len; i++)
     {
-      double eudiff = 0.0;
-      for (i = 0; i < len; i++)
-	{
-	  diffarray[i] = array1[i] - array2[i];
-	  eudiff += cpow (diffarray[i], 2);
-	}
-      sqrdiff = fabs (csqrt (eudiff));
-      return sqrdiff;
+      diffarray[i] = array1[i] - array2[i];
+      eudiff += cpow (diffarray[i], 2);
     }
-  else
-    {
-      perror ("Null pointer");
-      return ENOMEM;
-    }
+  sqrdiff = fabs (csqrt (eudiff));
+  return sqrdiff;
 }
 
 int

@@ -1,3 +1,10 @@
+2010-02-24  Joel James Adamson  <adamsonj@email.unc.edu>
+
+	* tests/tlta.c (main): changed bithacks.h macro to bits_isset
+
+	* src/spec_func.c (euclid_dist): removed useless check for null
+	pointer
+
 2010-02-23  Joel James Adamson  <adamsonj@email.unc.edu>
 
 	* Makefile.am (EXTRA_DIST): added pdf documentation to

@@ -39,7 +39,6 @@
 
 /* includes */
 #include "../src/haploid.h"
-#include "../src/bithacks.h"
 
 int
 next_gen (double * freqs, double * W);
@@ -90,7 +89,7 @@ main (void)
 	     1 */
 	  for (j = 0; j < NLOCI; j++)
 	    {
-	      if (B_IS_SET (i, j))
+	      if (bits_isset (i, j))
 		allele[j] = 1;
 	      else
 		allele[j] = 0;
