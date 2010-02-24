@@ -33,12 +33,16 @@ int
 main (void)
 {
   unsigned int i;
+  char * fifth;
   /* First print a header row: */
   printf ("i/d |i/x |pop(i) |iso (i,4,2) |Fifth bit set?\n");
+  printf ("+---+----+-------+------------+--------------\n");
   for (i = 0; i < 0xff; i++)
     /* print the data on the integer i */
-    printf ("%-3i |%02x  |%-5d  |%-3x         |%i\n", i, i,
-	    bits_popcount (i), bits_extract (4, 4, i),
-	    bits_isset (i, 4));
+    {
+      fifth = bits_isset (i, 4)?"Yes":"No";
+      printf ("%-3i |%02x  |%-5d  |%-3x         |%s\n", i, i,
+	      bits_popcount (i), bits_extract (4, 4, i), fifth);
+    }
   return 0;
 }
