@@ -135,6 +135,16 @@ will be zeroes, it makes no sense to actually store those anywhere.
    - can we really describe this as a search?
    - hash tables are for searching, so does a hash-table-based
      implementation make sense
+** Outside opinions
+   - Suja Thomas
+     + the most expensive thing is a for loop that iterates over
+       values you know will be useless
+     + you will run into a space constraint before a time constraint
+     + try to identify the masks/loci where you can rule out
+       particular offspring
+   - Toby Clarke
+     + as long as things are known at compile-time there should be
+       little speedup from changing the algorithm
 
 Version: : trunk
 Filed by: Joel James Adamson <adamsonj@email.unc.edu>
