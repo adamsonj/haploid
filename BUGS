@@ -148,3 +148,19 @@ will be zeroes, it makes no sense to actually store those anywhere.
 
 Version: : trunk
 Filed by: Joel James Adamson <adamsonj@email.unc.edu>
+** Outside algorithms
+   - http://dx.doi.org/10.1016/j.tpb.2010.03.003
+     + collaborate with this guy?
+     + read the article
+     + if he wants to be a part of it, and it's suitable, then invite
+       him to help me make the project free software
+     + if he doesn't care, and the algorithm is useful, it's
+       published, so use it anyway
+
+* geno_func.c:33 Joel J Adamson <adamsonj@email.unc.edu><2010-03-12 16:28 >
+
+This file still sources bithacks.h, and still uses its functions!
+
+
+Version: : 0.13
+Filed by: Joel James Adamson <adamsonj@email.unc.edu>
