@@ -1,3 +1,8 @@
+2010-03-16  Joel James Adamson  <adamsonj@email.unc.edu>
+
+	* src/geno_func.c (genotype_to_allele): eliminated calls to
+	bithacks.h functions for real this time
+
 2010-02-24  Joel James Adamson  <adamsonj@email.unc.edu>
 
 	* tests/pop_ck.c (main): some beautification, plus replaced "1|0"

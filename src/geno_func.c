@@ -30,7 +30,6 @@
 
 /* includes */
 #include "haploidpriv.h"
-#include "bithacks.h"
 
 void
 allele_to_genotype (double * allele_freqs, double * geno_freqs,
@@ -47,7 +46,7 @@ allele_to_genotype (double * allele_freqs, double * geno_freqs,
       
       for (j = 0; j < nloci; j++)
 	{
-	  if (B_IS_SET (i, j))
+	  if (bits_isset (i, j))
 	    p *= allele_freqs[j];
 	  else
 	    p *= (1 - allele_freqs[j]);
@@ -79,7 +78,7 @@ genotype_to_allele (double * allele_freqs, double * geno_freqs,
       
       for (j = 0; j < geno; j++)
 	{
-	  if (B_IS_SET (j, i))
+	  if (bits_isset (j, i))
 	    p += geno_freqs[j];
 	}
 
