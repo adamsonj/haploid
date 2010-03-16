@@ -1,5 +1,8 @@
 # -*-mode:org;  org-todo-keywords: '((sequence "todo" "done"))-*-
 * In the near future
+** todo recombination ()
+   - [ ] replace recombination for loops with sparse matrix procedure
+   - [ ] parallelize
 ** todo Style
 *** Take hints from _Practice of Programming_, Chapter 1
 *** Replace macros with inline functions?
