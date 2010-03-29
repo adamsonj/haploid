@@ -27,7 +27,7 @@
   along with haploid.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "../src/haploid.h"
+#include "../src/haploidtest.h"
 
 int
 main (void)

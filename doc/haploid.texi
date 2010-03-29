@@ -61,10 +61,9 @@ C library for haploid population genetic simulations.
 @comment  node-name,  next,  previous,  up
 @node Introduction
 @chapter Introduction
-Haploid is a library of C functions useful to simulating haploid
+Haploid is a library of C functions useful for simulating haploid
 population genetics.  Haploid simulations are often used for theoretical
-studies of sexual selection, migration and speciation.  The base code
-was written by Mark Kirkpatrick and Maria Servedio.
+studies of sexual selection, migration and speciation.
 
 Haploid follows the GNU Coding Standards and is managed by the GNU
 Autotools in a @url{http://subversion.tigris.org, Subversion} version
@@ -128,7 +127,7 @@ canonical repository for Haploid development} is open for viewing.  You
 can also view changes, create diffs and download snapshots using
 @url{http://viewvc.tigris.org, ViewVC} on
 @url{http://chondestes.bio.unc.edu/viewvc, chondestes}.  You will need a
-password for committing changes, so please ask me
+password for committing changes, so please ask the lead developer
 (@email{adamsonj@@email.unc.edu}) for one.
 
 Patches are also accepted for testing.  The best way to make a patch
@@ -217,13 +216,13 @@ defined in @file{haploid.h}.
 @node Genotypes
 @section Genotypes
 
-Haploid represents diallelic genomes with C integers: a single locus
-(position) is represented by a bit of an integer.  An n-locus genotype
-therefore has @math{2^n} possible genotypes.  We can therefore represent
-All interactions of genotypes (e.g. mating, mutation, etc) as changes to
-bits of integers.  The frequency assigned to a particular locus is the
-frequency of the set bit (1), and one minus the frequency of an unset
-bit.
+Haploid represents diallelic genomes with unsigned C integers: a single
+locus (position) is represented by a bit of an integer.  An n-locus
+genotype therefore has @math{2^n} possible genotypes.  We can therefore
+represent all interactions of genotypes (e.g. mating, mutation, etc) as
+changes to bits of integers.  The frequency assigned to a particular
+locus is the frequency of the set bit (1), and one minus the frequency
+of an unset bit.
 
 This makes iterating over genotypes @strong{very} convenient, as you can
 start iterating at 0, and stop before a genotype equals the maximum
@@ -319,6 +318,14 @@ __builtin_popcount (@var{x}) (@pxref{Other Builtins, GCC,, gcc, GNU
 Compiler Collection Manual}).
 @end deftypefn
 
+@deftypefn {Library Function} unsigned int bits_ffs (unsigned int x)
+
+Return the 1-indexed position of the least significant bit.  In other
+words, @code{bits_ffs(2)} returns the integer @math{2}.  This function
+is a wrapper for __builtin_ffs () (@pxref{Other Builtins, GCC,, gcc, GNU
+Compiler Collection Manual}).  If compiled with GCC, this function
+simply returns the result of __builtin_ffs ().
+@end deftypefn
 
 @node Genotype functions
 @subsection Genotype functions
@@ -372,37 +379,51 @@ contexts.
 
 Compound objects represent interactions of genotypes, especially mating.
 The library represents all compound objects as arrays, either single- or
-multi-dimensional.
+multi-dimensional.  Haploid uses singly-linked lists to represent sparse
+matrices (e.g. recombination tables).
 
+The data type @code{rtable_t} is an array of sparse matrices
+representing a recombination table.  
 
-@deftypefn {Library Function} int set_rec_table @
-(int nloci, int geno, double rec_table[geno][geno][geno], double * r)
+The data type @code{haploid_data_t} can hold most of the information
+needed for a simulation:
 
-@code{set_rec_table} populates the three dimensional array
-@var{rec_table} with entries corresponding to the probability of
-producing the k-th genotype from mating the i-th father and the j-th
-mother.  @var{r} is a pointer to the recombination map (an array of
-recombination probabilities between adjacent sites).  @var{r} should
-have @math{@var{nloci} - 1} entries (or the first @math{@var{nloci} - 1}
-entries will be used).  @code{set_rec_table} initializes the array
-before setting the values.  
+@verbatim
+typedef sparse_elt_t rtable_t;
+typedef struct haploid_data_t haploid_data_t;
+struct haploid_data_t
+{
+  int geno;			/* number of genotypes */
+  int nloci;			/* number of loci */
+  rtable_t ** rec_table;	/* recombination table */
+  double ** mtable;		/* mating table (matrix) */
+};
+@end verbatim
+
+@deftypefn {Library Function} rtable_t rec_gen_table @
+(int nloci, int geno, double * r)
+
+@code{rec_gen_table} returns a recombination table with entries
+corresponding to the probability of producing the k-th genotype from
+mating the i-th father and the j-th mother.  In other words, each sparse
+matrix pointer in the returned array is a matrix describing the
+probability of producing a specific offspring genotype.  @var{r} is a
+pointer to the recombination map (an array of recombination
+probabilities between adjacent sites).  @var{r} should have
+@math{@var{nloci} - 1} entries (or the first @math{@var{nloci} - 1}
+entries will be used).
 @end deftypefn
 
-@deftypefn {Library Function} int recombination @
-(int geno, double rec_table[geno][geno][geno], @
-double F[geno][geno], double xt[geno])
+@deftypefn {Library Function} double * rec_mating @
+(haploid_data_t * data)
 
-@code{recombination} produces new values of genotype frequencies in
-@var{xt}.  @var{F} is the @dfn{mating table}, which specifies the
-frequency with which matings between genotypes occur.  All other formal
-parameters are as elsewhere.
+@code{rec_mating} returns a new vector of offspring frequencies from the
+data in @var{data}.  
 @end deftypefn
 
+@deftypefn {Library Function} double ** rmtable (int geno, double * freq)
 
-@deftypefn {Library Function} void rmtable (int geno, double * freq, @
-double table[geno][geno])
-
-@code{rmtable} sets the entries of @var{table} to reflect random mating,
+@code{rmtable} returns a mating table to reflect random mating,
 i.e. products of the entries in @var{freq}.  @var{geno} provides the
 dimensions of @var{table}.
 @end deftypefn

@@ -31,18 +31,55 @@
 
 /* includes: */
 #include <config.h>
-#include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include <errno.h>
-#include <string.h>
 #include <math.h>
 #include <complex.h>
 #include <time.h>
-#include <fenv.h>
 #include <limits.h>
+#include <errno.h>
+#include <error.h>
+
+/* data types */
+typedef struct sparse_elt_t sparse_elt_t;
+struct sparse_elt_t {
+  int * indices;		/* row, column */
+  double val;			/* the value of the matrix element */
+  sparse_elt_t * next;		/* pointer to next */
+};
+
+typedef sparse_elt_t rtable_t;
+typedef struct haploid_data_t haploid_data_t;
+struct haploid_data_t
+{
+  int geno;			/* number of genotypes */
+  int nloci;			/* number of loci */
+  rtable_t ** rec_table;	/* recombination table */
+  double ** mtable;		/* mating table (matrix) */
+};
+
+/* sparse matrix operations */
+void
+sparse_vec_to_array (sparse_elt_t * sparse, double * arr, int len);
+
+sparse_elt_t *
+sparse_new_elt (int * indices, double value, sparse_elt_t * next);
+
+sparse_elt_t *
+sparse_mat_mat_kron (int len, double * dense[len], sparse_elt_t * sparse);
+
+double
+sparse_mat_tot (sparse_elt_t * sparse);
+
+/* bitwise operations: */
 
 _Bool
 bits_isset (int x, unsigned int pos);
+
+unsigned int
+bits_ffs (unsigned int x);
+
+unsigned int
+bits_extract (unsigned int start, unsigned int end, unsigned int x);
 
 #endif /* HAPLOIDPRIV_H */

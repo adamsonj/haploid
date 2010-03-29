@@ -67,3 +67,24 @@ bits_popcount (int x)
 #endif	/* __GNUC__ */
 }
   
+unsigned int
+bits_ffs (unsigned int x)
+{
+#ifdef __GNUC__
+  return __builtin_ffs (x);
+#else  /* __GNUC__ */
+  /* portable (non-GCC version) */
+  if (x == 0)
+    return 0;
+  int last = bits_popcount (x);	/* bound our iterations */
+  _Bool set_p;
+  int pos = 0;			/* count our position */
+  do
+    {
+      set_p = bits_isset(0, x >>= 1);
+      pos++;
+    }
+  while (set_p == false);
+  return pos;
+#endif	/* __GNUC__ */
+}

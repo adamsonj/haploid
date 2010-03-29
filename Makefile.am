@@ -22,25 +22,26 @@
 # along with haploid.  If not, see <http://www.gnu.org/licenses/>.
 
 lib_LTLIBRARIES = libhaploid.la
-libhaploid_la_SOURCES = src/recomb.c src/spec_func.c \
-	src/mating.c src/geno_func.c src/bits.c
+libhaploid_la_SOURCES = src/rec.c src/spec_func.c \
+	src/mating.c src/geno_func.c src/bits.c src/sparse.c
 include_HEADERS = src/haploid.h 
-noinst_HEADERS = src/haploidpriv.h
+noinst_HEADERS = src/haploidpriv.h src/haploidtest.h
 
-AM_CFLAGS = -std=gnu99 $(OPENMP_CFLAGS) -O3 -Wall -pedantic
+AM_CFLAGS = -std=gnu99 -O3 -Wall -pedantic $(OPENMP_CFLAGS)
 ACLOCAL_AMFLAGS = -I m4 
 
 # Documentation
 info_TEXINFOS = doc/haploid.texi
-pdf_TEXINFOS = doc/haploid.texi
 haploid_TEXINFOS = doc/fdl-1.3.texi
-EXTRA_DIST = $(PDFS)
 
 # Tests and checks: each check must be a standalone program 
 LDADD = -lm libhaploid.la
-check_PROGRAMS = sim_stop tlta pop_ck 
+check_PROGRAMS = sim_stop pop_ck sparse_test gen_table rec_test tlta
+rec_test_SOURCES = tests/rec_test.c
 sim_stop_SOURCES = tests/sim_stop.c
+gen_table_SOURCES = tests/gen_table.c
 tlta_SOURCES = tests/tlta.c
 pop_ck_SOURCES = tests/pop_ck.c
+sparse_test_SOURCES = tests/sparse_test.c
 
-TESTS = sim_stop tlta pop_ck 
+TESTS = sim_stop pop_ck sparse_test rec_test tlta

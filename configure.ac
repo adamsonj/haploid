@@ -4,7 +4,7 @@ AC_PREREQ([2.63])
 AC_INIT([haploid], [svn], [haploid-bugs@unc.edu])
 AM_INIT_AUTOMAKE(haploid,svn)
 AC_CONFIG_MACRO_DIR([m4])
-AC_CONFIG_SRCDIR([src/recomb.c])
+AC_CONFIG_SRCDIR([src/rec.c])
 AC_CONFIG_HEADERS([config.h])
 AC_PREFIX_DEFAULT(/usr)
 
@@ -26,7 +26,7 @@ LT_INIT
 AC_CHECK_LIB([m], [pow])
 
 # Checks for header files.
-AC_CHECK_HEADERS([stdio.h stdlib.h unistd.h math.h limits.h string.h])
+AC_CHECK_HEADERS([stdlib.h math.h limits.h string.h limits.h error.h])
 
 # OpenMP:
 AC_OPENMP
@@ -36,7 +36,7 @@ AC_C_INLINE
 
 # Checks for library functions.
 AC_FUNC_MALLOC
-AC_CHECK_FUNCS([pow])
+AC_CHECK_FUNCS([pow] [error])
 
 AC_CONFIG_FILES([Makefile])
 AC_OUTPUT

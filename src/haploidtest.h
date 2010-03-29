@@ -1,5 +1,6 @@
-#ifndef HAPLOID_H
-#define HAPLOID_H
+#ifndef HAPLOIDTEST_H
+#define HAPLOIDTEST_H
+
 /*
 
   haploid.h: Public header for haploid
@@ -33,19 +34,23 @@
 
 /* includes */
 #include <stdlib.h>
-#include <stdbool.h>
+#include <stdio.h>
+#include <unistd.h>
 #include <math.h>
+#include <stdbool.h>
 #include <limits.h>
 #include <errno.h>
 #include <error.h>
 
+/* sparse.c */
+
 typedef struct sparse_elt_t sparse_elt_t;
-struct sparse_elt_t
-{
+struct sparse_elt_t {
   int * indices;		/* row, column */
   double val;			/* the value of the matrix element */
   sparse_elt_t * next;		/* pointer to next */
 };
+
 
 typedef sparse_elt_t rtable_t;
 typedef struct haploid_data_t haploid_data_t;
@@ -57,6 +62,21 @@ struct haploid_data_t
   double ** mtable;		/* mating table (matrix) */
 };
 
+
+void
+sparse_vec_to_array (sparse_elt_t * sparse, double * arr, int len);
+
+sparse_elt_t *
+sparse_new_elt (int * indices, double value, sparse_elt_t * next);
+
+double
+sparse_get_val (sparse_elt_t * list, int row, int col);
+
+sparse_elt_t *
+sparse_mat_mat_kron (int len, double * dense[len], sparse_elt_t * sparse);
+
+double
+sparse_mat_tot (sparse_elt_t * sparse);
 /* spec_funcs.c */
 int
 sim_stop_ck (double * p1, double * p2, int len, long double tol);
@@ -64,12 +84,16 @@ sim_stop_ck (double * p1, double * p2, int len, long double tol);
 double
 gen_mean (double * props, double * vals, int geno);
 
-/* recomb.c */
+/* rec.c */
 double *
 rec_mating (haploid_data_t * data);
 
 rtable_t **
 rec_gen_table (int nloci, int geno, double * r);
+
+double
+rec_total (unsigned int nloci, unsigned int diff,
+	   double * r, _Bool recomb_p);
 
 /* geno_func.c */
 void
@@ -98,4 +122,6 @@ bits_popcount (int x);
 unsigned int
 bits_ffs (unsigned int x);
 
-#endif
+
+
+#endif	/*  HAPLOIDTEST_H */

@@ -5,7 +5,7 @@
    - [ ] parallelize
 ** todo Style
 *** Take hints from _Practice of Programming_, Chapter 1
-*** Replace macros with inline functions?
+*** done Replace macros with inline functions?
     e.g. isset () instead of B_IS_SET
 *** Function names
     - use "package" names with a tag at the beginning (this may require
@@ -15,11 +15,6 @@
       will have the same names as defined in the file:
       #define haploid_isset bits_isset
       _Bool haploid_isset (...)
-** todo Parallelization
-   - at least set_rec_table needs paralellization
-   - may need to use delay directive for facultative copying
-     + Update: not using facultative copying
-     + much more important to parallelize recombination ()
 ** Archive							    :ARCHIVE:
 *** done Stop function
     :PROPERTIES:
@@ -202,6 +197,37 @@ $ grep -nH -e ">>" -e "<<" -e "[&|]" src/*.c
 	 + there are many portable algorithms
 	 + known as "Hamming weight," "population count" and other names
 **** Get rid of bithacks.h
+*** done Sparse matrix procedures [100%]
+    :PROPERTIES:
+    :ARCHIVE_TIME: 2010-03-25 Thu 11:52
+    :END:
+    - [X] sparse matrix multiplication
+    - [X] sparse matrix API (make a layer over sparse matrices so the
+	  user doesn't need to manipulate them)
+	  + [X] create a data type (structure) that will hold both the
+            mating table and the recombination table
+	  + [X] create a typedef for sparse matrices so that they appear to
+            be recombination tables at all times
+    - [X] re-write set_rec_table () and recombination ()
+	  + Totally re-done with original code
+*** done Parallelization
+    :PROPERTIES:
+    :ARCHIVE_TIME: 2010-03-25 Thu 11:52
+    :END:
+    - at least set_rec_table and recombination () need paralellization
+    - may need to use delay directive for facultative copying
+      + Update: not using facultative copying
+      + much more important to parallelize recombination ()
+*** Testing [100%]
+    :PROPERTIES:
+    :ARCHIVE_TIME: 2010-03-28 Sun 09:54
+    :END:
+    - [X] test recombination by printing a recombination table and
+          checking the entries
+      + [X] small table (tlta)
+      + [X] large table (e.g. 64x64x64): you will need to write a
+	    program to do this
+    - [X] redo TLTA with new API
 * In the future
 ** todo Make sim_stop_ck () accept a function
 ** todo Mating step wrapper code

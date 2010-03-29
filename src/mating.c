@@ -30,12 +30,20 @@
 
 #include "haploidpriv.h"
 
-void
-rmtable (int geno, double * freq, double table[geno][geno])
+double **
+rmtable (int geno, double * freq)
 {
-  /* random mating table */
+  /* random mating table for haploid monoecious organisms
+     (hermaphrodites) */
   int i,j;
+  double ** table = malloc (geno * sizeof (double *));
+  if (table == NULL)
+    error (0, ENOMEM, "Null pointer\n");
   for (i = 0; i < geno; i++)
-    for (j = 0; j < geno; j++)
-      table[i][j] = freq[i] * freq[j];
+    {
+      table[i] = malloc (geno * sizeof (double));
+      for (j = 0; j < geno; j++)
+	table[i][j] = freq[i] * freq[j];
+    }
+  return table;
 }

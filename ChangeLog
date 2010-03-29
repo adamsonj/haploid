@@ -1,3 +1,89 @@
+2010-03-29  Joel James Adamson  <adamsonj@email.unc.edu>
+
+	* merging sparse matrix implementation into trunk
+
+2010-03-28  Joel James Adamson  <adamsonj@email.unc.edu>
+
+	* src/sparse.c (sparse_mat_mat_kron): replaced mistaken use of
+	sparse with sparseptr; this was causing a weird error in tlta
+	calculations
+
+	* src/rec.c (rec_gen_table): replaced use of "sum" with a call to
+	rec_total; the only other way to avoid the function call is to
+	exploit the symmetry of the recombination table (either in
+	calculation or in use)
+
+2010-03-26  Joel James Adamson  <adamsonj@email.unc.edu>
+
+	* src/rec.c (rec_gen_table): the call to malloc now requests an
+	array of properly sized pointers (sizeof (sparse_elt_t *))
+
+	* src/mating.c (rmtable): this function now returns a matrix
+	(double **)
+
+2010-03-25  Joel James Adamson  <adamsonj@email.unc.edu>
+
+	* Sparse matrix API is finished; a structure to hold geno, nloci,
+	recombination table and mating table now exists as haploid_data_t;
+	the API has not been thoroughly tested yet
+
+	* src/sparse.c (sparse_mat_tot): this performs the necessary
+	calculation for the mating step
+
+	* src/bits.c (bits_ffs): this function is a wrapper for the
+	builtin gcc function of the (almost) same name; it includes
+	conditional compilation of a portable (non-GCC) version
+
+	* src/recomb.c (rec_mating): this function performs the mating
+	step, and contains an OpenMP orphan directive
+
+2010-03-24  Joel James Adamson  <adamsonj@email.unc.edu>
+
+	* src/sparse.c (sparse_mat_mat_kron): new function finds Kronecker
+	product of a dense matrix and a sparse matrix; this and a sparse
+	matrix-vector product is all we require for mating algorithm
+	(sparse_mat_vec_mul): this is the function mentioned above
+
+	* src/recomb.c (rec_total): this replaces the last
+	Kirkpatrick-written algorithm; file name will need to change
+
+2010-03-19  Joel James Adamson  <adamsonj@email.unc.edu>
+
+	* tests/sparse_test.c: included header material here that is not
+	part of the API yet (we'll see what's necessary after modifying
+	recombination ())
+
+	* src/sparse.c (sparse_mat_mat_mul): this function has replaced
+	sparse_vec_mat_mul () completely, since matrix multiplication is
+	really what I need.  This works with a small matrix, now test with
+	a large matrix!
+	(sparse_mat_mat_mul): replaced the while loop with a for loop;
+	this is still not parallelizable, unless we implement some kind of
+	walk-up procedure or array of endptrs like I tried with the
+	compound vector multiplication procedure; that might still cause
+	synchronization problems, however.  Trying to parallelize the
+	calling code made the code significantly slower and totally
+	screwed up the data
+
+2010-03-18  Joel James Adamson  <adamsonj@email.unc.edu>
+
+	* src/sparse.c (sparse_mat_mat_mul): this function multiplies a
+	dense matrix (an array of pointers to double) times a sparse
+	matrix; this will be the basis of mating calculations
+
+2010-03-17  Joel James Adamson  <adamsonj@email.unc.edu>
+
+	* src/haploid.h: added some functions from sparse.c for testing purposes
+
+	* src/sparse.c: New data structure to totally overhaul all
+	operations; this sparse matrix will be the new backbone of all
+	operations.  Matrices and vectors are represented as linked lists
+	where each entry contains a value, indices and a pointer to the
+	next value in the list.  The difference between matrices and
+	vectors is, in fact, superficial.  A row vector has 0 for all
+	rows, and a column vector has 0 for all columns.  A test suite is
+	in tests/sparse_test.c
+
 2010-03-16  Joel James Adamson  <adamsonj@email.unc.edu>
 
 	* src/geno_func.c (genotype_to_allele): eliminated calls to

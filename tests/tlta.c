@@ -35,27 +35,28 @@
 #define GENO 4			/* GENO */
 #define TRIALS 10		/* TRIALS */
 #define GENS 1e6		/* GENS */
-#define R 0.0374		/* R */
+#define R 0.25			/* R */
 
 /* includes */
-#include "../src/haploid.h"
+#include "../src/haploidtest.h"
 
-int
-next_gen (double * freqs, double * W);
+double *
+selection (double * freqs, double * W);
 
-/* recombination table */
-double rect[GENO][GENO][GENO];
+void
+rec_test_prtable (rtable_t ** rtable);
 
 
 int
 main (void)
 {
+  
 
   double old[NLOCI];
-  double freq[GENO];
+  double * freq = calloc (GENO, sizeof (double));
   double allele[NLOCI];
 
-  int i, j, stop_p, break_p, n;
+  int i, j, stop_p, n;
 
   /* some initializations */
 
@@ -65,11 +66,11 @@ main (void)
 	W(aB) = 1 + s_2
 	W(AB) = 1 + (s_1 + s_2)  */ 
 
-  double W[GENO] = { 1.0, 1.3, 1.5, 1.8};
+  double W[GENO] = { M_1_PI, M_PI_4, M_PI_2, M_PI};
 
   /* initialize recombination table: */
   double rprob = R;
-  set_rec_table (NLOCI, GENO, rect, &rprob);
+ 
 
   /* initialize random number generator; this is a literal since we
      want to replicate values on every trial */
@@ -110,7 +111,9 @@ main (void)
       n = 0;
       /* install the initial genotype frequencies to freq from allele */
       allele_to_genotype (allele, freq, NLOCI, GENO);
-	  
+      haploid_data_t tlta_data =
+	{GENO, NLOCI,
+	 rec_gen_table(NLOCI, GENO, &rprob)};
       /* while sim_stop_ck returns 1 and we are at less than a million
 	 generations, keep going, baby */
       while (stop_p && n < GENS)
@@ -118,10 +121,10 @@ main (void)
 
 	  /* first print the allele frequencies */
 	  for (j = 0; j < NLOCI; j++)
-	    printf ("%16.15f ", allele[j]);
+	    printf ("%9.8f ", allele[j]);
 	  
 	  /* print linkage disequilibrium; valid only for TLTA */
-	  printf ("%16.15f ", freq[0] * freq[3] - freq[1] * freq[2]);
+	  printf ("%9.8f ", freq[0] * freq[3] - freq[1] * freq[2]);
 
 	  /* flush the output */
 	  printf ("\n");
@@ -131,51 +134,74 @@ main (void)
 	    old[j] = allele[j];
 	  
 	  /* produce the next generation */
-	  /* be sure to check the return value of next_gen :) */
-	  break_p = next_gen (freq, W);
-	  if (break_p) break;
+	  tlta_data.mtable = rmtable (GENO,  selection (freq, W));
+	  freq = rec_mating (&tlta_data);
 	  /* compare old and new */
-	  else
-	    {
-	      /* generate new allele frequencies: */
-	      genotype_to_allele (allele, freq, NLOCI, GENO);
-	      stop_p = sim_stop_ck (allele, old, NLOCI, 1e-8);
-	      n++;
-	    }
+	  /* generate new allele frequencies: */
+	  genotype_to_allele (allele, freq, NLOCI, GENO);
+	      
+	  stop_p = sim_stop_ck (allele, old, NLOCI, 1e-8);
+	  n++;
+
 	}
     }	
   printf ("You win!\n");
   return 0;
 }
 
-int
-next_gen (double * freqs, double * W)
+double *
+selection (double * freqs, double * W)
 {
   /* selection step: Multiply each genotype frequency by its
      respective fitness, then divide by the mean fitness  */
 
   /* new frequencies after selection step */
-  double new0[GENO];
+  double * new = calloc (GENO, sizeof (double));
   double wbar = gen_mean (freqs, W, GENO);
   int i;
+  /* selection: */
   for (i = 0; i < GENO; i++)
-    new0[i] = freqs[i] * W[i] / wbar;
+    new[i] = freqs[i] * W[i] / wbar;
 
-  /* mating step: generate mating table, then send to recombination */
-
-  /* new frequencies after mating step */
-  /* populate the arrays with zeros */
-  double new[GENO] = {[0] = 0};
-  /* use frequencies in freqs to generate mating table: */
-  double F[GENO][GENO];
-  
-  /* random mating: rmtable initializes F and recombination performs
-     sex*/
-  rmtable (GENO, new0, F);
-  recombination (GENO, rect, F, new);
-      
   /* update freqs with new frequencies */
-  for (i = 0; i < GENO; i++)
-    freqs[i] = new[i];
-  return 0;
+  return new;
+}
+
+void
+rec_test_prtable (rtable_t ** rtable)
+{
+  /* traverse the table, printing zeros where there are no entries */
+  sparse_elt_t * tptr;
+  int geno;			/* offspring genotype */
+  double val;
+  int i, j;			/* row, column indices */
+  for (geno = 0; geno < GENO; geno++)
+    /* iterate over the rows of the table, printing the whole thing as
+       a matrix (with zero entries) */
+    {
+      tptr = rtable[geno];
+
+      /* print a header announcing the genotype: */
+      printf ("Offspring %x:\n", geno);
+      for (i = 0; i < GENO; i++)
+	{
+	  /* print the parent genotypes across the top */
+	  for (j = -1; j < GENO; j++)
+	    if (j < 0)
+	      printf ("%2s", " ");
+	    else
+	      printf ("%10x ", j);
+	  printf ("\n");
+	  /* print the paternal genotype for the row */
+	  printf ("%x:", i);
+	  /* now print probabilities */
+	  for (j = 0; j < GENO; j++)
+	    {
+	      val = sparse_get_val (tptr, i, j);
+	      printf ("%9.8f ", val);
+	    }
+	  printf ("\n");
+	}
+      printf ("\n");
+    }	  
 }
