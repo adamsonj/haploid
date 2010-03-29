@@ -124,7 +124,7 @@ precision as the user demands (perhaps %9.8g would do it).
 
 Version: : trunk
 Filed by: Joel James Adamson <adamsonj@email.unc.edu>
-* recomb.c "Joel J. Adamson" <adamsonj@email.unc.edu><2010-02-16 09:51 >
+* done recomb.c "Joel J. Adamson" <adamsonj@email.unc.edu><2010-02-16 09:51 >
 
 set_rec_table should use a hash table hashed by some function of the
 parents and offspring.  This could reduce searching by many orders of
@@ -157,7 +157,7 @@ Filed by: Joel James Adamson <adamsonj@email.unc.edu>
      + if he doesn't care, and the algorithm is useful, it's
        published, so use it anyway
 
-* geno_func.c:33 Joel J Adamson <adamsonj@email.unc.edu><2010-03-12 16:28 >
+* done geno_func.c:33 Joel J Adamson <adamsonj@email.unc.edu><2010-03-12 16:28 >
 
 This file still sources bithacks.h, and still uses its functions!
 

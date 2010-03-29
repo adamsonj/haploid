@@ -1,8 +1,5 @@
 # -*-mode:org;  org-todo-keywords: '((sequence "todo" "done"))-*-
 * In the near future
-** todo recombination ()
-   - [ ] replace recombination for loops with sparse matrix procedure
-   - [ ] parallelize
 ** todo Style
 *** Take hints from _Practice of Programming_, Chapter 1
 *** done Replace macros with inline functions?
@@ -228,6 +225,12 @@ $ grep -nH -e ">>" -e "<<" -e "[&|]" src/*.c
       + [X] large table (e.g. 64x64x64): you will need to write a
 	    program to do this
     - [X] redo TLTA with new API
+*** done recombination ()
+    :PROPERTIES:
+    :ARCHIVE_TIME: 2010-03-29 Mon 10:27
+    :END:
+    - [ ] replace recombination for loops with sparse matrix procedure
+    - [ ] parallelize
 * In the future
 ** todo Make sim_stop_ck () accept a function
 ** todo Mating step wrapper code
