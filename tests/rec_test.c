@@ -1,10 +1,39 @@
+/*
+
+  rec_test.c: testing recombination algorithms
+  Copyright 2009 Joel J. Adamson 
+
+  $Id$
+
+  Joel J. Adamson	-- http://www.unc.edu/~adamsonj
+  University of North Carolina at Chapel Hill
+  CB #3280, Coker Hall
+  Chapel Hill, NC 27599-3280
+  <adamsonj@email.unc.edu>
+
+  This file is part of haploid
+
+  haploid is free software: you can redistribute it and/or modify it
+  under the terms of the GNU General Public License as published by the
+  Free Software Foundation, either version 3 of the License, or (at your
+  option) any later version.
+
+  haploid is distributed in the hope that it will be useful, but WITHOUT
+  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+  FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+  for more details.
+
+  You should have received a copy of the GNU General Public License
+  along with haploid.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
 #include "../src/haploidtest.h"
 #include <time.h>
 
-#define NLOCI 4
-#define GENO 16
-#define LEN 3
-double r[LEN] = { 0.25, 0.125, 0.0625};
+#define NLOCI 2
+#define GENO 4
+#define LEN 1
+double r[LEN] = { 0.25};
 
 rtable_t ** rec_table;
 
@@ -13,20 +42,26 @@ void
 rec_test_total (void);
 
 void
-rec_test_prtable (rtable_t ** rtable);
+rec_test_prtable (haploid_data_t * data);
 
 int
 main (void)
 {
   rec_test_total ();
   rec_table = rec_gen_table (NLOCI, GENO, r);
-  rec_test_prtable (rec_table);
+  double alleles[2] = { 0.5, 0.5};
+  
   double freq[GENO];
-  /* time the next calculation */
-  for (int j = 0; j < GENO; j++)
-    freq[j] = 1.0 / GENO;
+  allele_to_genotype (alleles, freq, NLOCI, GENO);
+  
   haploid_data_t rec_test_data =
-    { GENO, NLOCI, rec_table, rmtable (GENO, freq)};
+    { GENO, NLOCI, rec_gen_table (NLOCI, GENO, r), rmtable (GENO, freq)};
+  rec_test_prtable (&rec_test_data);
+
+  /* time the next calculation */
+  rec_test_prtable (&rec_test_data);
+
+  /* time the next calculation */
   time_t time1, time2;
   time1 = time (NULL);
   rec_mating (&rec_test_data);
@@ -54,43 +89,3 @@ rec_test_total (void)
   printf ("Rock 'n roll dynamite, baby!.\n");
 }
 
-/* print a recombination table */
-
-void
-rec_test_prtable (rtable_t ** rtable)
-{
-  /* traverse the table, printing zeros where there are no entries */
-  sparse_elt_t * tptr;
-  int geno;			/* offspring genotype */
-  double val;
-  int i, j;			/* row, column indices */
-  for (geno = 0; geno < GENO; geno++)
-    /* iterate over the rows of the table, printing the whole thing as
-       a matrix (with zero entries) */
-    {
-      tptr = rtable[geno];
-
-      /* print a header announcing the genotype: */
-      printf ("Offspring %x:\n", geno);
-      /* print the parent genotypes across the top */
-      for (j = -1; j < GENO; j++)
-	if (j < 0)
-	  printf ("%2s", " ");
-	else
-	  printf ("%10x ", j);
-      printf ("\n");
-      for (i = 0; i < GENO; i++)
-	{
-	  /* print the paternal genotype for the row */
-	  printf ("%x:", i);
-	  /* now print probabilities */
-	  for (j = 0; j < GENO; j++)
-	    {
-	      val = sparse_get_val (tptr, i, j);
-	      printf ("%9.8f ", val);
-	    }
-	  printf ("\n");
-	}
-      printf ("\n");
-    }	  
-}

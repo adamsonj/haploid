@@ -27,7 +27,7 @@ libhaploid_la_SOURCES = src/rec.c src/spec_func.c \
 include_HEADERS = src/haploid.h 
 noinst_HEADERS = src/haploidpriv.h src/haploidtest.h
 
-AM_CFLAGS = -std=gnu99 -O3 -Wall -pedantic $(OPENMP_CFLAGS)
+AM_CFLAGS = -std=gnu99 -O3 -Wall -pedantic 
 ACLOCAL_AMFLAGS = -I m4 
 
 # Documentation
@@ -37,10 +37,11 @@ haploid_TEXINFOS = doc/fdl-1.3.texi
 # Tests and checks: each check must be a standalone program 
 LDADD = -lm libhaploid.la
 check_PROGRAMS = sim_stop pop_ck sparse_test gen_table rec_test tlta
-rec_test_SOURCES = tests/rec_test.c
+rec_test_SOURCES = tests/rec_test.c tests/prtable.c
 sim_stop_SOURCES = tests/sim_stop.c
 gen_table_SOURCES = tests/gen_table.c
-tlta_SOURCES = tests/tlta.c
+tlta_SOURCES = tests/tlta.c tests/prtable.c
+tlta_CFLAGS = $(AM_CFLAGS) $(OPENMP_CFLAGS)
 pop_ck_SOURCES = tests/pop_ck.c
 sparse_test_SOURCES = tests/sparse_test.c
 

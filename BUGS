@@ -1,5 +1,6 @@
 # -*-mode:org; org-todo-keywords: '((sequence "todo" "done"))-*-
 # file:line author email date
+# Copyright 2010 Joel J. Adamson
 # $Id$
 * done recomb.c:194 Joel James Adamson  <adamsonj@email.unc.edu> <2009-12-28 Mon> :CLOSED:
   - local zyg contains only 0 as its index (is this wrong?) when
@@ -164,3 +165,28 @@ This file still sources bithacks.h, and still uses its functions!
 
 Version: : 0.13
 Filed by: Joel James Adamson <adamsonj@email.unc.edu>
+* done sparse.c:150 "Joel J. Adamson" <adamsonj@email.unc.edu><2010-04-15 16:37 >
+sparse_mat_mat_kron causes a segfault when iterating over sparse_elt_t
+pointers.  Segfault is at the top of the loop, in the test sparseptr->
+!= NULL; accessing sparseptr here causes segfault (i.e. accessing
+sparseptr->next is asking for a value that doesn't exist).  
+
+
+Version: : 0.2
+Filed by: Joel James Adamson <adamsonj@email.unc.edu>
+
+** Backtrace:
+
+   Program received signal SIGSEGV, Segmentation fault.
+   0x00007ffff7ddf904 in sparse_mat_mat_kron (len=8, dense=0x603690, sparse=0x21) at src/sparse.c:150
+   Missing separate debuginfos, use: debuginfo-install glibc-2.11.1-1.x86_64 libgomp-4.4.3-4.fc12.x86_64
+   Breakpoint 1 at 0x7ffff7ddf844: file src/sparse.c, line 150.
+   (gdb) bt
+#0  0x00007ffff7ddf904 in sparse_mat_mat_kron (len=8, dense=0x603690, sparse=0x21) at src/sparse.c:150
+#1  0x00007ffff7ddf0e0 in rec_mating (data=0x603050) at src/rec.c:166
+#2  0x00000000004019cc in age_dep_iterate (data=0x603010, tries=1) at age_dep.c:268
+#3  0x00000000004014ce in main (argc=3, argv=0x7fffffffe498) at age_dep.c:92
+   (gdb) 
+
+** Solved:
+   rewrote as a while loop with proper assignments

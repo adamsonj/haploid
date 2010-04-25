@@ -51,8 +51,8 @@ typedef sparse_elt_t rtable_t;
 typedef struct haploid_data_t haploid_data_t;
 struct haploid_data_t
 {
-  int geno;			/* number of genotypes */
-  int nloci;			/* number of loci */
+  size_t geno;			/* number of genotypes */
+  size_t nloci;			/* number of loci */
   rtable_t ** rec_table;	/* recombination table */
   double ** mtable;		/* mating table (matrix) */
 };
@@ -62,27 +62,27 @@ int
 sim_stop_ck (double * p1, double * p2, int len, long double tol);
 
 double
-gen_mean (double * props, double * vals, int geno);
+gen_mean (double * props, double * vals, size_t geno);
 
 /* recomb.c */
-double *
-rec_mating (haploid_data_t * data);
+void
+rec_mating (double * freqs, haploid_data_t * data);
 
 rtable_t **
-rec_gen_table (int nloci, int geno, double * r);
+rec_gen_table (size_t nloci, size_t geno, double * r);
 
 /* geno_func.c */
 void
 allele_to_genotype (double * allele_freqs, double * geno_freqs,
-		    int nloci, int geno);
+		    size_t nloci, size_t geno);
 
 void
 genotype_to_allele (double * allele_freqs, double * geno_freqs,
-		    int nloci, int geno);
+		    size_t nloci, size_t geno);
 
 /* mating.c */
 double **
-rmtable (int geno, double * freq);
+rmtable (size_t geno, double * freq);
 
 /* bits.c: useful functions for integers */
 

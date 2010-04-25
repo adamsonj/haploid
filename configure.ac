@@ -1,8 +1,27 @@
 #                                               -*- Autoconf -*-
-# Process this file with autoconf to produce a configure script.
-AC_PREREQ([2.63])
-AC_INIT([haploid], [svn], [haploid-bugs@unc.edu])
-AM_INIT_AUTOMAKE(haploid,svn)
+# Copyright 2010 Joel James Adamson <adamsonj@email.unc.edu>
+# configure.ac: Process this file with autoconf to produce a configure
+# script.
+# 
+# $Id$
+# This file is part of haploid
+# 
+# haploid is free software: you can redistribute it and/or modify it
+# under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+# 
+# haploid is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+# General Public License for more details.
+# 
+# You should have received a copy of the GNU General Public License
+# along with haploid.  If not, see <http://www.gnu.org/licenses/>.
+# 
+AC_PREREQ([2.59])
+AC_INIT([haploid], [0.21], [haploid-bugs@unc.edu])
+AM_INIT_AUTOMAKE(haploid,0.21)
 AC_CONFIG_MACRO_DIR([m4])
 AC_CONFIG_SRCDIR([src/rec.c])
 AC_CONFIG_HEADERS([config.h])
@@ -24,12 +43,15 @@ LT_INIT
 # Checks for libraries.
 # FIXME: Replace `main' with a function in `-lm':
 AC_CHECK_LIB([m], [pow])
-
+AC_CHECK_LIB([gomp], [omp_get_num_threads])
 # Checks for header files.
-AC_CHECK_HEADERS([stdlib.h math.h limits.h string.h limits.h error.h])
+AC_CHECK_HEADERS([stdlib.h math.h limits.h string.h limits.h error.h omp.h])
 
 # OpenMP:
 AC_OPENMP
+AM_PROG_CC_C_O
+# enable per-target CFLAGS
+AM_PROG_CC_C_O
 
 # Checks for typedefs, structures, and compiler characteristics.
 AC_C_INLINE

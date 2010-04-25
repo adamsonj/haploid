@@ -39,169 +39,121 @@
 
 /* includes */
 #include "../src/haploidtest.h"
+#include <time.h>
+#include <omp.h>
 
-double *
+char prec[] = "%9.8f ";
+
+void
 selection (double * freqs, double * W);
 
 void
-rec_test_prtable (rtable_t ** rtable);
+rec_test_prtable (haploid_data_t * data);
 
 
 int
 main (void)
 {
-  
-
-  double old[NLOCI];
-  double * freq = calloc (GENO, sizeof (double));
+  double fix0[NLOCI] = { 1.0, 0.0};
+  double fix1[NLOCI] = { 0.0, 1.0};
+  double fixboth[NLOCI] = { 1.0, 1.0};
+  double loseboth[NLOCI] = { 0.0, 0.0};
   double allele[NLOCI];
 
-  int i, j, stop_p, n;
+  int i, j;
 
   /* some initializations */
 
-  /*    additive fitness for each genotype:
-	W(ab) = 1
-	W(Ab) = 1 + s_1
-	W(aB) = 1 + s_2
-	W(AB) = 1 + (s_1 + s_2)  */ 
-
+  /* additive fitness for each genotype */ 
   double W[GENO] = { M_1_PI, M_PI_4, M_PI_2, M_PI};
 
   /* initialize recombination table: */
-  double rprob = R;
- 
-
-  /* initialize random number generator; this is a literal since we
-     want to replicate values on every trial */
-  srand48 (0);
+  double rprob = 0.25;
+  rtable_t ** rtable =  rec_gen_table(NLOCI, GENO, &rprob);
+  haploid_data_t tlta_data = {GENO, NLOCI, rtable};
+  srand48 (time (0));
+#ifdef DEBUG
+  rec_test_prtable (&tlta_data);
+  exit (EXIT_SUCCESS);
+#endif  /* DEBUG */
+#pragma omp parallel for private (i, j, allele) firstprivate (tlta_data)
   for (i = 0; i < TRIALS; i++)
     {
-      if (i < GENO)
-	{
-	  /* for the first GENO cases we want to test the behavior of
-	     the model under the degenerate equilibria: if we have
-	     only one genotype in the population
-
-	     We need to set the allele frequencies to the
-	     corresponding bits of i; e.g. for i = 0, both allele
-	     frequencies should be 0; for i = 1, the first allele
-	     should have frequency 0, the second should have frequency
-	     1 */
-	  for (j = 0; j < NLOCI; j++)
-	    {
-	      if (bits_isset (i, j))
-		allele[j] = 1;
-	      else
-		allele[j] = 0;
-	    }
-	}
-      else
-	{
-	  /* for the rest of the cases, assign random numbers */
-	  for (j = 0; j < NLOCI; j++)
-	    allele[j] = drand48 ();
-	}	  
       
-      /* print a header for each case */
-      printf ("\n\n");
+      if (i < GENO)
+	for (j = 0; j < NLOCI; j++)
+	  allele[j] = (double)bits_isset (i, j);
+      else
+	for (j = 0; j < NLOCI; j++)
+	  allele[j] = drand48 ();
 
-      /* preliminaries: */
-      stop_p = 1;      
-      n = 0;
+
+      double freq[GENO];
+      
       /* install the initial genotype frequencies to freq from allele */
       allele_to_genotype (allele, freq, NLOCI, GENO);
-      haploid_data_t tlta_data =
-	{GENO, NLOCI,
-	 rec_gen_table(NLOCI, GENO, &rprob)};
+
+#ifdef PRFREQS      
+      printf ("OMP Thread %i\n", omp_get_thread_num ());
+      /* first print the allele frequencies */
+      for (j = 0; j < NLOCI; j++)
+	printf (prec, allele[j]);
+      /* flush the output */
+      printf ("\n");
+#ifdef DEBUG
+      rec_test_prtable (&tlta_data);
+      exit (EXIT_SUCCESS);
+#endif	/* DEBUG */
       /* while sim_stop_ck returns 1 and we are at less than a million
 	 generations, keep going, baby */
-      while (stop_p && n < GENS)
+#endif	/* PRFREQS */
+      int n = 0;
+      while (n < GENS)
 	{
-
-	  /* first print the allele frequencies */
-	  for (j = 0; j < NLOCI; j++)
-	    printf ("%9.8f ", allele[j]);
-	  
-	  /* print linkage disequilibrium; valid only for TLTA */
-	  printf ("%9.8f ", freq[0] * freq[3] - freq[1] * freq[2]);
-
-	  /* flush the output */
-	  printf ("\n");
-	  
-	  /* save the old values for comparison */
-	  for (j = 0; j < NLOCI; j++)
-	    old[j] = allele[j];
-	  
 	  /* produce the next generation */
-	  tlta_data.mtable = rmtable (GENO,  selection (freq, W));
-	  freq = rec_mating (&tlta_data);
-	  /* compare old and new */
-	  /* generate new allele frequencies: */
-	  genotype_to_allele (allele, freq, NLOCI, GENO);
-	      
-	  stop_p = sim_stop_ck (allele, old, NLOCI, 1e-8);
-	  n++;
+	  selection (freq, W);
+	  tlta_data.mtable = rmtable (GENO,  freq);
+	  rec_mating (freq, &tlta_data);
 
+	  /* we expect something to fix or be lost */
+	  if (!sim_stop_ck (allele, fix0, NLOCI, 1e-8))
+	    break;
+	  if (!sim_stop_ck (allele, fix1, NLOCI, 1e-8))
+	    break;
+	  if (!sim_stop_ck (allele, fixboth, NLOCI, 1e-8))
+	    break;
+	  if (!sim_stop_ck (allele, loseboth, NLOCI, 1e-8))
+	    break;
+	  else
+	    n++;
 	}
-    }	
-  printf ("You win!\n");
+      /* generate new allele frequencies: */
+      genotype_to_allele (allele, freq, NLOCI, GENO);
+      
+#ifdef PRFREQS
+#ifdef _OPENMP
+      printf ("OMP Thread %i\n", omp_get_thread_num ());
+#endif /* _OPENMP */
+      for (j = 0; j < NLOCI; j++)
+	printf (prec, allele[j]);
+   
+      /* flush the output */
+      printf ("\n");
+#endif
+    }
   return 0;
 }
 
-double *
+void
 selection (double * freqs, double * W)
 {
   /* selection step: Multiply each genotype frequency by its
      respective fitness, then divide by the mean fitness  */
 
   /* new frequencies after selection step */
-  double * new = calloc (GENO, sizeof (double));
   double wbar = gen_mean (freqs, W, GENO);
-  int i;
   /* selection: */
-  for (i = 0; i < GENO; i++)
-    new[i] = freqs[i] * W[i] / wbar;
-
-  /* update freqs with new frequencies */
-  return new;
-}
-
-void
-rec_test_prtable (rtable_t ** rtable)
-{
-  /* traverse the table, printing zeros where there are no entries */
-  sparse_elt_t * tptr;
-  int geno;			/* offspring genotype */
-  double val;
-  int i, j;			/* row, column indices */
-  for (geno = 0; geno < GENO; geno++)
-    /* iterate over the rows of the table, printing the whole thing as
-       a matrix (with zero entries) */
-    {
-      tptr = rtable[geno];
-
-      /* print a header announcing the genotype: */
-      printf ("Offspring %x:\n", geno);
-      for (i = 0; i < GENO; i++)
-	{
-	  /* print the parent genotypes across the top */
-	  for (j = -1; j < GENO; j++)
-	    if (j < 0)
-	      printf ("%2s", " ");
-	    else
-	      printf ("%10x ", j);
-	  printf ("\n");
-	  /* print the paternal genotype for the row */
-	  printf ("%x:", i);
-	  /* now print probabilities */
-	  for (j = 0; j < GENO; j++)
-	    {
-	      val = sparse_get_val (tptr, i, j);
-	      printf ("%9.8f ", val);
-	    }
-	  printf ("\n");
-	}
-      printf ("\n");
-    }	  
+  for (int i = 0; i < GENO; i++)
+    /* update freqs with new frequencies */
+    freqs[i] = freqs[i] * W[i] / wbar;
 }

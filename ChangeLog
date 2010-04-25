@@ -1,3 +1,43 @@
+2010-04-25  Joel James Adamson  <adamsonj@email.unc.edu>
+
+	* merging all branch changes back into trunk
+
+2010-04-24  Joel J. Adamson  <adamsonj@email.unc.edu>
+
+	* src/rec.c (rec_mating): now alters an array of doubles passed in
+	as the first argument (hoping for speed)
+
+2010-04-23  Joel James Adamson  <adamsonj@email.unc.edu>
+
+	* src/rec.c (rec_total): this function now returns an heuristic
+	result for the case of no recombination across the whole chromosome
+	(rec_gen_table): added transcription of transposed values (the
+	first clause in the if statement checks for the transpose value)
+	(rec_total): corrected the starting position in the loop for the
+	degenerate case
+
+2010-04-20  Joel James Adamson  <adamsonj@email.unc.edu>
+
+	* src/haploid.h: changed int types to size_t where appropriate
+
+	* src/rec.c (rec_gen_table): changed the logic of how endptr is
+	assigned; now endptr is only altered when we definitely need to
+	add a new link
+
+2010-04-16  Joel James Adamson  <adamsonj@email.unc.edu>
+
+	* src/rec.c (rec_mating): removed OpenMP directive here; the
+	library is now free of OpenMP code
+
+	* src/sparse.c (sparse_mat_mat_kron): made this construct a while
+	loop; as a for-loop it was improperly constructed
+
+2010-04-14  Joel James Adamson  <adamsonj@email.unc.edu>
+
+	* configure.ac: added a check for libgomp
+
+	* src/haploidpriv.h: added an include for omp.h
+
 2010-03-29  Joel James Adamson  <adamsonj@email.unc.edu>
 
 	* merging sparse matrix implementation into trunk
@@ -506,3 +546,5 @@
 	(set_rec_table (double * rec_table)): now accepts a pointer to the
 	recombination table; removed debugging code (should be part of
 	test, not in function itself)
+
+Copyright 2009, 2010 Joel James Adamson <adamsonj@email.unc.edu> 	

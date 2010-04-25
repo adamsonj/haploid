@@ -1,5 +1,22 @@
 $Id$
 
+This file is part of haploid
+
+haploid is free software: you can redistribute it and/or modify it
+under the terms of the GNU General Public License as published by the
+Free Software Foundation, either version 3 of the License, or (at your
+option) any later version.
+
+haploid is distributed in the hope that it will be useful, but WITHOUT
+ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+for more details.
+
+You should have received a copy of the GNU General Public License
+along with haploid.  If not, see <http://www.gnu.org/licenses/>.
+
+Copyright 2010 Joel James Adamson <adamsonj@email.unc.edu> 
+
 This file describes how to compile and install Haploid, a C library
 for haploid population genetic simulations.
 
@@ -36,7 +53,10 @@ Debugging
 
 To compile a version of the library for debugging use
 
-# make -k CFLAGS=-O0
+# make -k CFLAGS='-O0 -ggdb'
 
 This command disables optimization so the debugger can read symbols
-within library functions.
+within library functions.  Unless you plan to install the version with
+debugging symbols enabled, you can pass '--disable-shared' to
+./configure before invoking make.  This will build a static library in
+the toplevel directory.

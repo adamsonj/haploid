@@ -31,7 +31,7 @@
 #include "haploidpriv.h"
 
 double **
-rmtable (int geno, double * freq)
+rmtable (size_t geno, double * freq)
 {
   /* random mating table for haploid monoecious organisms
      (hermaphrodites) */
@@ -42,6 +42,8 @@ rmtable (int geno, double * freq)
   for (i = 0; i < geno; i++)
     {
       table[i] = malloc (geno * sizeof (double));
+      if (table[i] == NULL)
+	error (0, ENOMEM, "Null pointer\n");
       for (j = 0; j < geno; j++)
 	table[i][j] = freq[i] * freq[j];
     }

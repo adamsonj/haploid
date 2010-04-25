@@ -64,8 +64,12 @@ sparse_new_elt (int * indices, double value, sparse_elt_t * next)
     error (0, ENOMEM, "Null pointer\n");
 
   if (indices == NULL)
-    /* howdy there, need a new pointer? */
-    new_elt->indices = malloc (2 * sizeof (int));
+    {
+      /* howdy there, need a new pointer? */
+      new_elt->indices = malloc (2 * sizeof (int));
+      if (new_elt->indices == NULL)
+	error (0, ENOMEM, "Null pointer\n");
+    }
   else  
     /* set new values: */
     new_elt->indices = indices;
@@ -130,7 +134,7 @@ sparse_get_val (sparse_elt_t * list, int row, int col)
 }
 
 sparse_elt_t *
-sparse_mat_mat_kron (int len, double * dense[len], sparse_elt_t * sparse)
+sparse_mat_mat_kron (size_t len, double * dense[len], sparse_elt_t * sparse)
 {
   /* find Kronecker product of dense matrix DENSE and sparse matrix
      SPARSE  */
@@ -147,13 +151,16 @@ sparse_mat_mat_kron (int len, double * dense[len], sparse_elt_t * sparse)
   sparse_elt_t * sparseptr = sparse;
   int row, col;
   double newval;
-  for (; sparseptr->next != NULL;
-       sparseptr = sparseptr->next)
+  
+  do
     {
       /* copy everything interesting into the endptr */
       row =  sparseptr->indices[0];
       col =  sparseptr->indices[1];
       newval = (sparseptr->val) * dense[row][col];
+      /* at this point we're done with sparseptr, and we need to
+	 advance it every time (unconditionally)*/
+      sparseptr = sparseptr->next;
       /* don't save if the result is zero */
       if (newval != 0.0)
 	{
@@ -163,10 +170,11 @@ sparse_mat_mat_kron (int len, double * dense[len], sparse_elt_t * sparse)
 	  endptr->next = sparse_new_elt (NULL, 0.0, NULL);
 	  endptr = endptr->next;
 	}
-      else continue;
-    }
-  /* no need to free sparseptr, since it will be null */
-  free(endptr);
+      else if (sparseptr == NULL) break;
+      else
+	continue;
+    } while (((row < len) && (col < len)) && sparseptr != NULL);
+  
   return result;
 }
 
@@ -186,7 +194,6 @@ sparse_mat_tot (sparse_elt_t * sparse)
   for (; endptr != NULL; endptr = endptr->next)
     result += endptr->val;
 
-  free (endptr);
   return result;
 }
 

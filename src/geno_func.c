@@ -33,7 +33,7 @@
 
 void
 allele_to_genotype (double * allele_freqs, double * geno_freqs,
-		    int nloci, int geno)
+		    size_t nloci, size_t geno)
 {
   /* take an array of allele frequencies and generate an array of
      genotype frequencies; store the result in geno_freqs */
@@ -60,7 +60,7 @@ allele_to_genotype (double * allele_freqs, double * geno_freqs,
 
 void
 genotype_to_allele (double * allele_freqs, double * geno_freqs,
-		    int nloci, int geno)
+		    size_t nloci, size_t geno)
 {
   /* take an array of genotype frequencies geno_freqs and convert them
      to allele frequencies, store the result in allele_freqs */

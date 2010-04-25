@@ -39,6 +39,8 @@
 #include <limits.h>
 #include <errno.h>
 #include <error.h>
+#include <omp.h>
+
 
 /* data types */
 typedef struct sparse_elt_t sparse_elt_t;
@@ -52,8 +54,8 @@ typedef sparse_elt_t rtable_t;
 typedef struct haploid_data_t haploid_data_t;
 struct haploid_data_t
 {
-  int geno;			/* number of genotypes */
-  int nloci;			/* number of loci */
+  size_t geno;			/* number of genotypes */
+  size_t nloci;			/* number of loci */
   rtable_t ** rec_table;	/* recombination table */
   double ** mtable;		/* mating table (matrix) */
 };
@@ -66,11 +68,12 @@ sparse_elt_t *
 sparse_new_elt (int * indices, double value, sparse_elt_t * next);
 
 sparse_elt_t *
-sparse_mat_mat_kron (int len, double * dense[len], sparse_elt_t * sparse);
+sparse_mat_mat_kron (size_t len, double * dense[len], sparse_elt_t * sparse);
 
 double
 sparse_mat_tot (sparse_elt_t * sparse);
-
+double
+sparse_get_val (sparse_elt_t * list, int row, int col);
 /* bitwise operations: */
 
 _Bool

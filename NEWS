@@ -1,6 +1,36 @@
--*-mode:text-*-
+-*-mode:outline-*-
+* Copyright	
 $Id$
+Copyright 2009 Joel James Adamson <adamsonj@email.unc.edu> 
 
-<2010-03-29 10:25 >
+This file is part of haploid
+
+haploid is free software: you can redistribute it and/or modify it
+under the terms of the GNU General Public License as published by the
+Free Software Foundation, either version 3 of the License, or (at your
+option) any later version.
+
+haploid is distributed in the hope that it will be useful, but WITHOUT
+ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+for more details.
+
+You should have received a copy of the GNU General Public License
+along with haploid.  If not, see <http://www.gnu.org/licenses/>.
+
+* Major changes in Haploid Version 0.21 <2010-04-16 14:56 >
+
+** fixed a bug in sparse.c that incorrectly indexed
+   sparse elements
+
+** Removed OpenMP from rec.c
+
+   OpenMP directives should only be used in applications until further notice
+
+** Lowered required version of Autoconf to 2.59,
+   since that is the lowest version I have encountered on a machine
+   that I need to use
+   
+* Major changes in Haploid Version 0.2 <2010-03-29 10:25 >
 
 Haploid Version 0.2 includes totally new algorithms!
