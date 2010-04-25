@@ -1,5 +1,10 @@
 2010-04-25  Joel James Adamson  <adamsonj@email.unc.edu>
 
+	* tests/tlta.c (main): fixed this so it only makes one call to
+	sim_stop_ck (); previously I had five to check if it had fixed or
+	lost either allele; this was prohibitively slow: don't let it
+	happen again
+
 	* merging all branch changes back into trunk
 
 2010-04-24  Joel J. Adamson  <adamsonj@email.unc.edu>

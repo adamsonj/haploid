@@ -39,6 +39,7 @@
 
 /* includes */
 #include "../src/haploidtest.h"
+#include <string.h>
 #include <time.h>
 #include <omp.h>
 
@@ -54,10 +55,6 @@ rec_test_prtable (haploid_data_t * data);
 int
 main (void)
 {
-  double fix0[NLOCI] = { 1.0, 0.0};
-  double fix1[NLOCI] = { 0.0, 1.0};
-  double fixboth[NLOCI] = { 1.0, 1.0};
-  double loseboth[NLOCI] = { 0.0, 0.0};
   double allele[NLOCI];
 
   int i, j;
@@ -89,57 +86,50 @@ main (void)
 
 
       double freq[GENO];
+      double old[NLOCI];
       
       /* install the initial genotype frequencies to freq from allele */
       allele_to_genotype (allele, freq, NLOCI, GENO);
 
-#ifdef PRFREQS      
-      printf ("OMP Thread %i\n", omp_get_thread_num ());
       /* first print the allele frequencies */
+      printf ("Trial %i (OMP Thread %i)\n", i, omp_get_thread_num ());
       for (j = 0; j < NLOCI; j++)
 	printf (prec, allele[j]);
       /* flush the output */
       printf ("\n");
-#ifdef DEBUG
-      rec_test_prtable (&tlta_data);
-      exit (EXIT_SUCCESS);
-#endif	/* DEBUG */
       /* while sim_stop_ck returns 1 and we are at less than a million
 	 generations, keep going, baby */
-#endif	/* PRFREQS */
+
       int n = 0;
       while (n < GENS)
 	{
 	  /* produce the next generation */
+	  memmove (old, allele, NLOCI * sizeof (double));
 	  selection (freq, W);
 	  tlta_data.mtable = rmtable (GENO,  freq);
 	  rec_mating (freq, &tlta_data);
-
+	  
+	  /* generate new allele frequencies: */
+	  genotype_to_allele (allele, freq, NLOCI, GENO);
+#ifdef PRFREQS
+	  for (j = 0; j < NLOCI; j++)
+	    printf (prec, allele[j]);
+	  printf ("\n");
+#endif  /* PRFREQS */
 	  /* we expect something to fix or be lost */
-	  if (!sim_stop_ck (allele, fix0, NLOCI, 1e-8))
-	    break;
-	  if (!sim_stop_ck (allele, fix1, NLOCI, 1e-8))
-	    break;
-	  if (!sim_stop_ck (allele, fixboth, NLOCI, 1e-8))
-	    break;
-	  if (!sim_stop_ck (allele, loseboth, NLOCI, 1e-8))
+	  if (!sim_stop_ck (allele, old, NLOCI, 1e-8))
 	    break;
 	  else
 	    n++;
 	}
-      /* generate new allele frequencies: */
-      genotype_to_allele (allele, freq, NLOCI, GENO);
       
-#ifdef PRFREQS
-#ifdef _OPENMP
-      printf ("OMP Thread %i\n", omp_get_thread_num ());
-#endif /* _OPENMP */
+      /* print the final frequencies */
       for (j = 0; j < NLOCI; j++)
 	printf (prec, allele[j]);
    
       /* flush the output */
       printf ("\n");
-#endif
+      /* flush the toilet: */
     }
   return 0;
 }
