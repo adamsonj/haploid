@@ -84,15 +84,19 @@ main (void)
 	for (j = 0; j < NLOCI; j++)
 	  allele[j] = drand48 ();
 
-
       double freq[GENO];
       double old[NLOCI];
       
       /* install the initial genotype frequencies to freq from allele */
       allele_to_genotype (allele, freq, NLOCI, GENO);
 
+#ifdef _OPENMP
+      /* if we are OPENMP land, print the thread id: */
+      printf ("OMP Thread %i\n", omp_get_thread_num ());
+#endif	/* _OPENMP */
+      
       /* first print the allele frequencies */
-      printf ("Trial %i (OMP Thread %i)\n", i, omp_get_thread_num ());
+      printf ("Trial %i\n", i);
       for (j = 0; j < NLOCI; j++)
 	printf (prec, allele[j]);
       /* flush the output */

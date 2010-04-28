@@ -64,7 +64,7 @@ main (void)
   /* time the next calculation */
   time_t time1, time2;
   time1 = time (NULL);
-  rec_mating (&rec_test_data);
+  rec_mating (freq, &rec_test_data);
   time2 = time (NULL);
   /* print freq */
   for (int j = 0; j < GENO; j++)
