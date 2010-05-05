@@ -2,6 +2,12 @@
 # file:line author email date
 # Copyright 2010 Joel J. Adamson
 # $Id$
+* This file is now obsolete <2010-05-05 Wed>
+  See the project's Savannah page at
+
+  https://savannah.nongnu.org/bugs/?group=haploid
+
+  to report bugs or check their status
 * done recomb.c:194 Joel James Adamson  <adamsonj@email.unc.edu> <2009-12-28 Mon> :CLOSED:
   - local zyg contains only 0 as its index (is this wrong?) when
     running tlta: i.e. every entry is 0
