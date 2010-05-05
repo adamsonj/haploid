@@ -104,6 +104,9 @@ void
 genotype_to_allele (double * allele_freqs, double * geno_freqs,
 		    size_t nloci, size_t geno);
 
+double
+ld_from_geno (size_t nloci, size_t geno, double * geno_freqs);
+
 /* mating.c */
 double **
 rmtable (size_t geno, double * freq);
@@ -121,7 +124,5 @@ bits_popcount (int x);
 
 unsigned int
 bits_ffs (unsigned int x);
-
-
 
 #endif	/*  HAPLOIDTEST_H */

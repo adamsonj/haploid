@@ -86,4 +86,19 @@ genotype_to_allele (double * allele_freqs, double * geno_freqs,
     }
 }
 
-
+double
+ld_from_geno (size_t nloci, size_t geno, double * geno_freqs)
+{
+  /* takes a single argument geno_freqs and calculates the linkage
+     disequilibrium by finding the difference between the first
+     element and the product of the allele frequencies making up that
+     least-significant genotype */
+  double alleles[nloci];
+  /* assume diallelic loci and calculate the genotype frequencies */
+  genotype_to_allele (alleles, geno_freqs, nloci, geno);
+  double minuend = *geno_freqs;
+  double subtrahend = 1.0;
+  for (int i = 0; i < nloci; i++)
+    subtrahend *= 1.0 - alleles[i];
+  return (minuend - subtrahend);
+}

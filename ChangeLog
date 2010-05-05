@@ -1,3 +1,11 @@
+2010-05-03  Joel James Adamson  <adamsonj@email.unc.edu>
+
+	* src/geno_func.c (ld_from_geno): this function calculates linkage
+	disequilibrium as the deviation from random mating
+
+	* added diseq.c which tests linkage disequilibrium function
+	ld_from_geno ()
+
 2010-04-25  Joel James Adamson  <adamsonj@email.unc.edu>
 
 	* tests/tlta.c (main): fixed this so it only makes one call to
