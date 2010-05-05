@@ -27,7 +27,6 @@ libhaploid_la_SOURCES = src/rec.c src/spec_func.c \
 include_HEADERS = src/haploid.h 
 noinst_HEADERS = src/haploidpriv.h src/haploidtest.h
 
-AM_CFLAGS = -std=gnu99 -O3 -Wall -pedantic 
 ACLOCAL_AMFLAGS = -I m4 
 
 # Documentation
