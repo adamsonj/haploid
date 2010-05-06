@@ -20,15 +20,12 @@
 # along with haploid.  If not, see <http://www.gnu.org/licenses/>.
 # 
 AC_PREREQ([2.59])
-AC_INIT([haploid], [0.21], [haploid-bugs@unc.edu])
-AM_INIT_AUTOMAKE(haploid,0.21)
+AC_INIT([haploid], [svn], [haploid-bugs@unc.edu])
+AM_INIT_AUTOMAKE(haploid,svn)
 AC_CONFIG_MACRO_DIR([m4])
 AC_CONFIG_SRCDIR([src/rec.c])
 AC_CONFIG_HEADERS([config.h])
 AC_PREFIX_DEFAULT(/usr)
-
-# system extensions
-AC_USE_SYSTEM_EXTENSIONS(_GNU_SOURCE)
 
 # Checks for programs.
 # 

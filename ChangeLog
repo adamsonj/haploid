@@ -1,3 +1,7 @@
+2010-05-06  Joel James Adamson  <adamsonj@email.unc.edu>
+
+	* configure.ac: removed system extensions; added C99;
+
 2010-05-03  Joel James Adamson  <adamsonj@email.unc.edu>
 
 	* src/geno_func.c (ld_from_geno): this function calculates linkage
