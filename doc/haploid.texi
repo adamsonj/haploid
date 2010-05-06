@@ -42,7 +42,7 @@ copy and modify this GNU manual.''
 @contents
 
 @ifnottex
-@node Top
+@node Top, Introduction, (dir), (dir)
 @top Numerical Library for Haploid Genetics
 
 This manual covers Haploid (version @value{VERSION}, @value{UPDATED}), a
@@ -50,16 +50,36 @@ C library for haploid population genetic simulations.
 
 @menu
 * Introduction::                
-* Development::                 
 * Representation::              
 * Simulation functions::        
 * GNU Free Documentation License::  
 * Index::                       
+
+@detailmenu
+ --- The Detailed Node Listing ---
+
+Introduction
+
+* Development::                 
+
+Representation
+
+* Genotypes::                   
+* Compound Objects::            
+
+Genotypes
+
+* Working with genome size::    
+* Manipulating Genotypes::      
+* Genotype functions::          
+
+@end detailmenu
 @end menu
+
 @end ifnottex
 
 @comment  node-name,  next,  previous,  up
-@node Introduction
+@node Introduction, Representation, Top, Top
 @chapter Introduction
 Haploid is a library of C functions useful for simulating haploid
 population genetics.  Haploid simulations are often used for theoretical
@@ -67,7 +87,8 @@ studies of sexual selection, migration and speciation.
 
 Haploid follows the GNU Coding Standards and is managed by the GNU
 Autotools in a @url{http://subversion.tigris.org, Subversion} version
-control repository.
+control repository hosted on
+@url{http://savannah.nongnu.org/projects/haploid, Savannah}.
 
 To use the library, use @code{#include <haploid.h>} at the top of your
 files.  To link with the library, pass @code{-lhaploid} to the linker.
@@ -80,58 +101,27 @@ For example:
 Haploid is Free Software released under the terms of the GNU General
 Public License Version 3.
 
-Send bug reports to Joel J. Adamson (@email{haploid-bugs@@unc.edu}).
+Send bug reports or questions on usage to the mailing list at
+@email{haploid-users@@nongnu.org}).
 
-@node Development
-@chapter Development
+@menu
+* Development::                 
+@end menu
+
+@node Development,  , Introduction, Introduction
+@section Development
 
 @comment Some details of developing Haploid.
 
 Please read the GNU Coding Standards before adding any code to Haploid
 or developing a test. @xref{Writing C, Writing C, Writing C, standards,
-GNU Coding Standards}, for details of GNU style.  I strongly recommend
-using GNU Emacs for development, as the tools available in Emacs are
-widely understood and comprehensive (@pxref{Top,Emacs,Emacs,emacs, GNU
-Emacs Manual}).  The accompanying files @file{TODO}, @file{BUGS} and
-@file{ChangeLog} also use Emacs modes which make them more readable.
+GNU Coding Standards}, for details of GNU style.  Haploid makes use of
+extensions in the GNU C Library and the C99 Standard.  I also highly
+recommend using GCC for compiling the library, as some library functions
+are merely wrappers for builtin functions available in GCC.
 
-Haploid makes use of extensions in the GNU C Library and the C99
-Standard; by default compilation makes use of the @code{-std=gnu99} flag.
-
-@menu
-* ChangeLog::                   
-* Subversion::                  
-* TODO file::                   
-* BUGS::                        
-@end menu
-
-@node ChangeLog
-@section ChangeLog
-
-There is a single @file{ChangeLog} for the library and tests in the
-toplevel directory.  The @file{ChangeLog} follows the GNU Coding
-Standards (@pxref{Change Logs, Change Logs, Change Logs, standards, GNU
-Coding Standards}).  Only make a change log entry after testing a
-change, when you are ready to commit a change to the repository.  Be as
-specific as possible and use general terminology: the point of a
-@file{ChangeLog} is so one could reconstruct changes that are lost from
-a description of the changes.
-
-@comment  node-name,  next,  previous,  up
-@node Subversion
-@section Subversion
-
-Haploid uses @url{http://subversion.tigris.org, Subversion} for version
-control.  The @url{http://chondestes.bio.unc.edu/svn/haploid/code,
-canonical repository for Haploid development} is open for viewing.  You
-can also view changes, create diffs and download snapshots using
-@url{http://viewvc.tigris.org, ViewVC} on
-@url{http://chondestes.bio.unc.edu/viewvc, chondestes}.  You will need a
-password for committing changes, so please ask the lead developer
-(@email{adamsonj@@email.unc.edu}) for one.
-
-Patches are also accepted for testing.  The best way to make a patch
-from your working copy is with the command
+Patches are welcomed for testing.  The best way to make a patch from
+your working copy is with the command
 
 @example
 # svn diff -x -u <filename> > PATCHFILE
@@ -140,65 +130,11 @@ from your working copy is with the command
 Such a diff contains enough information for @command{patch} to apply it
 with
 
-
 @example
-# patch -i -p0 < PATCHFILE
+# patch -p0 < PATCHFILE
 @end example
 
-
-@node TODO file
-@section TODO file
-
-The file @file{TODO} in the top-level directory contains all planned
-developments in three levels: ``In the near future,'' ``In the future,''
-and ``Things to think about.''  Items for the near future are currently
-developing; items in the future are good ideas that might work but are
-placed at a lower priority because of (a) higher priorities in the near
-future, or because they will take a long time to implement.  ``Things to
-think about'' are generally ideas about restructuring, development ideas
-or fanciful ideas that I (you) haven't sat down and thought about very
-much.
-
-@file{TODO} is written in Emacs' Org-Mode, a hierarchical organizational
-mode that can make timestamps for particular items, contain hyperlinks
-and many other useful features (@pxref{Top, Org Mode,, org, Org Mode
-Manual}).  When an item from ``In the near future'' is completed, mark
-it with the keyword @strong{done} and move it to the archive sibling
-(@kbd{C-c C-x A}).  Although items (sub-headings of ``In the near
-future'') are not marked with priorities, they are roughly in order of
-priority.
-
-@node BUGS
-@section BUGS
-
-Bugs are failures of the library to do what you want, either because
-they cause a compile-time error (syntax error), a run-time error
-(e.g. running out of memory) in a program, or because tests produce
-incorrect output @footnote{any program you write with the library that
-you know the results of, i.e. is not exploratory, should be added as a
-test.}.  @emph{Anything else} is @emph{not} a bug.  If a program doesn't
-work the way you think it should, put that item in @file{TODO}.
-
-@file{BUGS} is written in Org-Mode: each bug is a header line containing
-the @strong{todo} keyword, the file (and line number, if possible) of
-the bug, the author of the bug report along with contact info, and a
-date the bug was opened.  Bugs may have subheadings containing specific
-solutions or brainstorming.  When a bug is fixed (verified by a test),
-mark it with the tag @strong{CLOSED} (@kbd{C-c C-c CLOSED: @key{RET}}),
-the keyword @strong{done} and leave it where it is.  New bugs should
-appear at the bottom of the file.
-
-You may find the Emacs Lisp library @file{haploid-bug.el} useful for
-filing bugs before committing the BUGS file.  To add a bug to BUGS,
-first make sure your working copy's BUGS file is correctly found by
-@var{haploid-bug-bugs-file}, then enter a mail buffer containing a bug
-report, and
-
-@kbd{M-x haploid-bug-collect}
-
-will add the bug to your BUGS file.
-
-@node Representation
+@node Representation, Simulation functions, Introduction, Top
 @chapter Representation
 
 Haploid represents two kinds of objects: diallelic genotypes (integers),
@@ -213,7 +149,7 @@ defined in @file{haploid.h}.
 * Compound Objects::            
 @end menu
 
-@node Genotypes
+@node Genotypes, Compound Objects, Representation, Representation
 @section Genotypes
 
 Haploid represents diallelic genomes with unsigned C integers: a single
@@ -230,63 +166,41 @@ number of genotypes.  For a genome with @math{n} loci, you will
 therefore iterate over @math{2^n} genotypes.
 
 @menu
-* Genome Size::                 
+* Working with genome size::    
 * Manipulating Genotypes::      
 * Genotype functions::          
 @end menu
 
-@node Genome Size
-@subsection Genome Size
+@node Working with genome size, Manipulating Genotypes, Genotypes, Genotypes
+@subsection  Working with genome size
 
 The simplest way to represent the size of a genome and the number of
-alleles is to define the macros GENO and NLOCI.  These macros are
-mnemonic and not required by the library.  Here's an example of their
-use from @file{tests/tlta.c}:
+alleles is to define global variables or macros to use as array bounds.
+Here's an example from @file{tests/tlta.c}:
 @example
 
 @verbatim
-#define NLOCI 2			/* NLOCI */
 #define GENO 4			/* GENO */
 
-int
-next_gen (double * freqs, double * W)
+void
+selection (double * freqs, double * W)
 {
   /* selection step: Multiply each genotype frequency by its
      respective fitness, then divide by the mean fitness  */
 
   /* new frequencies after selection step */
-  double new0[GENO];
   double wbar = gen_mean (freqs, W, GENO);
-  int i, j;
-  for (i = 0; i < GENO; i++)
-    new0[i] = freqs[i] * W[i] / wbar;
-
-  /* mating step: generate mating table, then send to recombination */
-
-  /* new frequencies after mating step */
-  /* populate the arrays with zeros */
-  double new[GENO] = {[0] = 0};
-  /* use frequencies in freqs to generate mating table: */
-  double F[GENO][GENO];
-  
-  /* random mating: rmtable initializes F and recombination performs
-     sex*/
-  rmtable (GENO, new0, F);
-  recombination (GENO, rect, F, new);
-      
-  /* update freqs with new frequencies */
-  for (i = 0; i < GENO; i++)
-    freqs[i] = new[i];
-  return 0;
+  /* selection: */
+  for (int i = 0; i < GENO; i++)
+    /* update freqs with new frequencies */
+    freqs[i] = freqs[i] * W[i] / wbar;
 }
 @end verbatim
 @end example
 
 
-@node Manipulating Genotypes
+@node Manipulating Genotypes, Genotype functions, Working with genome size, Genotypes
 @subsection Manipulating Genotypes
-@comment  node-name,  next,  previous,  up
-@c document bits.c
 
 Haploid includes some basic functions that operate on bits of integers:
 you may find these functions useful for defining specific loci with
@@ -327,11 +241,11 @@ Compiler Collection Manual}).  If compiled with GCC, this function
 simply returns the result of __builtin_ffs ().
 @end deftypefn
 
-@node Genotype functions
+@node Genotype functions,  , Manipulating Genotypes, Genotypes
 @subsection Genotype functions
 
 @deftypefn {Library Function} void allele_to_genotype @
-(double * allele_freqs, double * geno_freqs, int nloci, int geno)
+(double * allele_freqs, double * geno_freqs, size_t nloci, size_t geno)
 
 @code{allele_to_genotype} takes an array of allele frequencies
 @var{allele_freqs} and assigns values of random-union-of-gametes
@@ -364,7 +278,7 @@ allele_to_genotype (allele, freq, NLOCI, GENO);
 @end deftypefn
 
 @deftypefn {Library Function} void genotype_to_allele @
-(double * allele_freqs, double * geno_freqs, int nloci, int geno)
+(double * allele_freqs, double * geno_freqs, size_t nloci, size_t geno)
 
 @code{genotype_to_allele} takes an array of genotype frequencies
 @var{geno_freqs} and uses it to store allele frequencies in
@@ -373,8 +287,22 @@ allele_to_genotype (allele, freq, NLOCI, GENO);
 contexts.
 @end deftypefn
 
+@deftypefn {Library Function} double ld_from_geno@
+(size_t nloci, size_t geno, double * geno_freqs)
 
-@node Compound Objects
+@code{ld_from_geno} calculates linkage disequilibrium by subtracting
+from the value stored at @var{geno_freqs} from the product of the allele
+frequencies.  In other words, it is equivalent to
+@end deftypefn
+
+@math{f(x) - \Pi_{i=0}^{n} (1 - f(x_i))}
+
+where @math{f(x)} is the frequency of genotype @math{x}, and
+@math{f(x_i)} is the frequency of the allele at the @math{i}-th
+position.
+
+
+@node Compound Objects,  , Genotypes, Representation
 @section Compound Objects
 
 Compound objects represent interactions of genotypes, especially mating.
@@ -404,14 +332,16 @@ struct haploid_data_t
 (int nloci, int geno, double * r)
 
 @code{rec_gen_table} returns a recombination table with entries
-corresponding to the probability of producing the k-th genotype from
-mating the i-th father and the j-th mother.  In other words, each sparse
-matrix pointer in the returned array is a matrix describing the
-probability of producing a specific offspring genotype.  @var{r} is a
-pointer to the recombination map (an array of recombination
+corresponding to the probability of producing the @math{k}-th genotype
+from mating the @math{i}-th father and the @math{j}-th mother.  In other
+words, each sparse matrix pointer in the returned array is a matrix
+describing the probability of producing a specific offspring genotype.
+@var{r} is a pointer to the recombination map (an array of recombination
 probabilities between adjacent sites).  @var{r} should have
 @math{@var{nloci} - 1} entries (or the first @math{@var{nloci} - 1}
-entries will be used).
+entries will be used).  The usual C programming caveats apply:
+if this array does not contain enough entries, it will probably contain
+junk and you will get unexpected results!
 @end deftypefn
 
 @deftypefn {Library Function} double * rec_mating @
@@ -429,17 +359,21 @@ dimensions of @var{table}.
 @end deftypefn
 
 
-@node Simulation functions
+@node Simulation functions, GNU Free Documentation License, Representation, Top
 @chapter Simulation functions
-
+Some special functions for managing simulations or doing often-needed
+calculations are available.
 
 @deftypefn {Library Function} int sim_stop_ck (double * p1, double * p2, @
 int len, long double tol)
 
 @code{sim_stop_ck} compares the values of @var{p1} and @var{p2} by
-finding their Euclidean distance @math{d(p1, p2) = (\sum_{i = 0}^n p_{1i}
-- p_{2i})^{1 \over 2}}, where @math{n = @var{len}}.  When @math{d <
-@var{tol}} @code{sim_stop_ck} returns 0, otherwise it returns 1.
+finding their Euclidean distance @math{d(p1, p2) = (\sum_{i = 0}^n
+p_{1i} - p_{2i})^{1 \over 2}}, where @math{n = @var{len}}.  When @math{d
+< @var{tol}}, @code{sim_stop_ck} returns 0, otherwise it returns 1.
+Calls to @code{sim_stop_ck} are @strong{expensive}: you should only make
+one such call per iteration, or find another way to stop your
+simulation.
 
 @end deftypefn
 
@@ -454,12 +388,12 @@ p(x)} given a pointer to proportions @var{props} and a pointer to values
 
 
 
-@node GNU Free Documentation License
+@node GNU Free Documentation License, Index, Simulation functions, Top
 @appendix GNU Free Documentation License
 
 @include fdl-1.3.texi
 
-@node Index
+@node Index,  , GNU Free Documentation License, Top
 @unnumbered Index
 
 @printindex fn
