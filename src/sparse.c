@@ -197,15 +197,3 @@ sparse_mat_tot (sparse_elt_t * sparse)
   return result;
 }
 
-void
-sparse_vec_to_array (sparse_elt_t * sparse, double * arr, int len)
-{
-  /* transform a sparse list (matrix or array) into a one-dimension
-     array (vector); this should work with either input type, but you
-     will only get a vector out */
-  int i;
-  /* iterate over the rows of SPARSE (it is treated as a column
-     vector) */
-  for (i = 0; i < len; i++)
-    arr[i] = sparse_get_val (sparse, i, 0);
-}
