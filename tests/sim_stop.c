@@ -28,10 +28,10 @@
 
 */
 
+#include "../src/haploid.h"
+#include "../src/sparse.h"
+
 #define GENO 4
-
-#include "../src/haploidtest.h"
-
 #define LEN 2
 
 int

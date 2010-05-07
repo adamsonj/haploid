@@ -27,7 +27,8 @@
   along with haploid.  If not, see <http://www.gnu.org/licenses/>.
 
 */
-#include "../src/haploidtest.h"
+#include "../src/haploid.h"
+#include "../src/sparse.h"
 #define NLOCI 2
 #define GENO 4
 double r = 0.25;

@@ -26,8 +26,8 @@
   You should have received a copy of the GNU General Public License
   along with haploid.  If not, see <http://www.gnu.org/licenses/>.
 */
-
-#include "../src/haploidtest.h"
+#include "../src/haploid.h"
+#include "../src/sparse.h"
 #include <time.h>
 
 #define NLOCI 2

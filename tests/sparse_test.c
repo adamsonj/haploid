@@ -28,8 +28,8 @@
 
 */
 
-#include "../src/haploidtest.h"
-
+#include "../src/haploid.h"
+#include "../src/sparse.h"
 
 #define LEN 0xf
 

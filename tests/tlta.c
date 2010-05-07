@@ -38,7 +38,8 @@
 #define R 0.25			/* R */
 
 /* includes */
-#include "../src/haploidtest.h"
+#include "../src/haploid.h"
+#include "../src/sparse.h"
 #include <string.h>
 #include <time.h>
 #include <omp.h>
