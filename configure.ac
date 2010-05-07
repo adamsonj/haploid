@@ -31,12 +31,15 @@ AC_PREFIX_DEFAULT(/usr)
 # 
 AC_PROG_AWK
 AC_PROG_CC
-AC_PROG_CC_C99
+# check for c99; this does not work on Autoconf lower than 2.62, so
+# the user must user "CFLAGS= -std=gnu99"
+
+# AC_PROG_CC_C99
 AC_PROG_CPP
 AC_PROG_INSTALL
 AC_PROG_LN_S
 AC_PROG_MAKE_SET
-LT_INIT
+AC_PROG_LIBTOOL
 
 # Checks for libraries.
 # FIXME: Replace `main' with a function in `-lm':
@@ -47,7 +50,6 @@ AC_CHECK_HEADERS([stdlib.h math.h limits.h string.h limits.h error.h omp.h])
 
 # OpenMP:
 AC_OPENMP
-AM_PROG_CC_C_O
 # enable per-target CFLAGS
 AM_PROG_CC_C_O
 
