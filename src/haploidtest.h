@@ -1,9 +1,9 @@
-#ifndef HAPLOIDTEST_H
-#define HAPLOIDTEST_H
+#ifndef SPARSE_H
+#define SPARSE_H
 
 /*
 
-  haploid.h: Public header for haploid
+  sparse.h: Public header for haploid
 
   Copyright 2009 Joel J. Adamson 
   
@@ -32,40 +32,6 @@
 
 */
 
-/* includes */
-#include <stdlib.h>
-#include <stdio.h>
-#include <unistd.h>
-#include <math.h>
-#include <stdbool.h>
-#include <limits.h>
-#include <errno.h>
-#include <error.h>
-
-/* sparse.c */
-
-typedef struct sparse_elt_t sparse_elt_t;
-struct sparse_elt_t {
-  int * indices;		/* row, column */
-  double val;			/* the value of the matrix element */
-  sparse_elt_t * next;		/* pointer to next */
-};
-
-
-typedef sparse_elt_t rtable_t;
-typedef struct haploid_data_t haploid_data_t;
-struct haploid_data_t
-{
-  size_t geno;			/* number of genotypes */
-  size_t nloci;			/* number of loci */
-  rtable_t ** rec_table;	/* recombination table */
-  double ** mtable;		/* mating table (matrix) */
-};
-
-
-void
-sparse_vec_to_array (sparse_elt_t * sparse, double * arr, int len);
-
 sparse_elt_t *
 sparse_new_elt (int * indices, double value, sparse_elt_t * next);
 
@@ -77,52 +43,5 @@ sparse_mat_mat_kron (int len, double * dense[len], sparse_elt_t * sparse);
 
 double
 sparse_mat_tot (sparse_elt_t * sparse);
-/* spec_funcs.c */
-int
-sim_stop_ck (double * p1, double * p2, int len, long double tol);
 
-double
-gen_mean (double * props, double * vals, size_t geno);
-
-/* rec.c */
-void
-rec_mating (double * freqs, haploid_data_t * data);
-
-rtable_t **
-rec_gen_table (size_t nloci, size_t geno, double * r);
-
-double
-rec_total (size_t nloci, unsigned int diff,
-	   double * r, _Bool recomb_p);
-
-/* geno_func.c */
-void
-allele_to_genotype (double * allele_freqs, double * geno_freqs,
-		    size_t nloci, size_t geno);
-
-void
-genotype_to_allele (double * allele_freqs, double * geno_freqs,
-		    size_t nloci, size_t geno);
-
-double
-ld_from_geno (size_t nloci, size_t geno, double * geno_freqs);
-
-/* mating.c */
-double **
-rmtable (size_t geno, double * freq);
-
-/* bits.c: useful functions for integers */
-
-_Bool
-bits_isset (int x, unsigned int pos);
-
-unsigned int
-bits_extract (unsigned int start, unsigned int end, unsigned int x);
-
-unsigned int
-bits_popcount (int x);
-
-unsigned int
-bits_ffs (unsigned int x);
-
-#endif	/*  HAPLOIDTEST_H */
+#endif	/*  SPARSE_H */
