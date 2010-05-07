@@ -29,13 +29,6 @@
   along with haploid.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "haploidpriv.h"
-
-/*
-
-
- */
-
 double
 gen_mean (double * props, double * vals, int len)
 {

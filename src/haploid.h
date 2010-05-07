@@ -6,7 +6,7 @@
 
   Copyright 2009 Joel J. Adamson 
   
-  $Id: func.h 497 2009-06-20 00:23:00Z joel $$
+  $Id$$
 
   Joel J. Adamson	-- http://www.unc.edu/~adamsonj
   University of North Carolina at Chapel Hill

@@ -30,7 +30,6 @@
 
 */
 
-#include "haploidpriv.h"
 
 /* this file implements a compound sparse-matrix data structure
    (mainly) for representing recombination tables.
@@ -51,7 +50,8 @@
    first element of each matrix-representing list
 
 */
-
+#include "haploid.h"
+#include "sparse.h"
 
 
 sparse_elt_t *

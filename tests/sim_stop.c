@@ -27,7 +27,7 @@
 
 
 */
-
+#include <stdio.h>
 #include "../src/haploid.h"
 #include "../src/sparse.h"
 
@@ -65,7 +65,8 @@ main (void)
       */
     
     
-      printf ("x(%2d) = [%16.15f, %16.15f]\n", n-1, simarr[0], simarr[1]);
+      fprintf (stdout, "x(%2d) = [%16.15f, %16.15f]\n",
+	       n-1, simarr[0], simarr[1]);
       for (i = 0; i < LEN; i++)
 	{
 	  oldarr[i] = simarr[i];

@@ -28,7 +28,8 @@
 
 */
 
-#include "haploidpriv.h"
+#include <stdbool.h>
+#include <limits.h>
 
 _Bool
 bits_isset (int x, unsigned int pos)

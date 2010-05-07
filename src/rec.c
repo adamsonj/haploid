@@ -28,7 +28,7 @@
 */
 
 /* declarations */
-#include "haploidpriv.h"
+#include "sparse.h"
 
 double
 rec_total (size_t nloci, unsigned int diff,

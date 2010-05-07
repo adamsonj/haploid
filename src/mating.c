@@ -28,7 +28,9 @@
 
 */
 
-#include "haploidpriv.h"
+#include <stdlib.h>
+#include <error.h>
+#include <errno.h>
 
 double **
 rmtable (size_t geno, double * freq)

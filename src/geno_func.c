@@ -27,9 +27,8 @@
   along with haploid.  If not, see <http://www.gnu.org/licenses/>.
 
 */
-
-/* includes */
-#include "haploidpriv.h"
+#include <stdlib.h>
+#include "haploid.h"
 
 void
 allele_to_genotype (double * allele_freqs, double * geno_freqs,

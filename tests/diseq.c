@@ -42,6 +42,7 @@
  TLTA values since they are easy to check literally "by hand."
   
 */
+#include <stdio.h>
 #include "../src/haploid.h"
 #include "../src/sparse.h"
 #ifndef NLOCI

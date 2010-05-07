@@ -25,7 +25,7 @@ lib_LTLIBRARIES = libhaploid.la
 libhaploid_la_SOURCES = src/rec.c src/spec_func.c \
 	src/mating.c src/geno_func.c src/bits.c src/sparse.c
 include_HEADERS = src/haploid.h 
-noinst_HEADERS = src/haploidpriv.h src/haploidtest.h
+noinst_HEADERS = src/sparse.h
 
 ACLOCAL_AMFLAGS = -I m4 
 

@@ -7,7 +7,7 @@
 
   Copyright 2009 Joel J. Adamson 
   
-  $Id: func.h 497 2009-06-20 00:23:00Z joel $$
+  $Id$$
 
   Joel J. Adamson	-- http://www.unc.edu/~adamsonj
   University of North Carolina at Chapel Hill
@@ -32,6 +32,8 @@
 
 */
 
+#include "haploid.h"
+
 sparse_elt_t *
 sparse_new_elt (int * indices, double value, sparse_elt_t * next);
 
@@ -39,7 +41,7 @@ double
 sparse_get_val (sparse_elt_t * list, int row, int col);
 
 sparse_elt_t *
-sparse_mat_mat_kron (int len, double * dense[len], sparse_elt_t * sparse);
+sparse_mat_mat_kron (size_t len, double * dense[len], sparse_elt_t * sparse);
 
 double
 sparse_mat_tot (sparse_elt_t * sparse);

@@ -1,3 +1,11 @@
+2010-05-07  Joel James Adamson  <adamsonj@email.unc.edu>
+
+	* src/haploidpriv.h: removed; sparse vector operations now in
+	sparse.h
+
+	* src/sparse.c: removed sparse_vec_to_array; dig it up later if it
+	becomes useful
+
 2010-05-06  Joel James Adamson  <adamsonj@email.unc.edu>
 
 	* configure.ac: removed system extensions; added C99;
