@@ -26,6 +26,7 @@
   You should have received a copy of the GNU General Public License
   along with haploid.  If not, see <http://www.gnu.org/licenses/>.
 */
+#include <stdio.h>
 #include "../src/haploid.h"
 #include "../src/sparse.h"
 #include <time.h>
@@ -47,7 +48,6 @@ rec_test_prtable (haploid_data_t * data);
 int
 main (void)
 {
-  rec_test_total ();
   rec_table = rec_gen_table (NLOCI, GENO, r);
   double alleles[2] = { 0.5, 0.5};
   
@@ -72,20 +72,5 @@ main (void)
 
   printf ("Call to rec_mating () took %9.8f sec\n", difftime(time1, time2));
   return 0;
-}
-
-void
-rec_test_total (void)
-{
-  printf ("Recombination probabilities: ");
-  for (int i = 0; i < LEN; i++)
-    printf ("%9.8f ", r[i]);
-  printf ("\n");
-  printf ("Probability of recombinant offspring 0x1 from parent 0xF: %9.8f\n",
-	  0.5 * rec_total (NLOCI, (0x0 ^ 0x1), r, true));
-  printf ("Probability of non-recombinant offspring 0x1 \n"
-	  "from parents 0xF X 0x1: %9.8f\n",
-	  0.5 * rec_total (NLOCI, (0xF ^ 0x1), r, false));
-  printf ("Rock 'n roll dynamite, baby!.\n");
 }
 

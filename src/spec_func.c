@@ -28,7 +28,7 @@
   You should have received a copy of the GNU General Public License
   along with haploid.  If not, see <http://www.gnu.org/licenses/>.
 */
-
+#include <math.h>
 double
 gen_mean (double * props, double * vals, int len)
 {
@@ -61,9 +61,9 @@ euclid_dist (double * array1, double * array2, int len)
   for (i = 0; i < len; i++)
     {
       diffarray[i] = array1[i] - array2[i];
-      eudiff += cpow (diffarray[i], 2);
+      eudiff += pow (diffarray[i], 2);
     }
-  sqrdiff = fabs (csqrt (eudiff));
+  sqrdiff = fabs (sqrt (eudiff));
   return sqrdiff;
 }
 

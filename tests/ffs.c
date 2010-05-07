@@ -28,6 +28,7 @@
 
 
 */
+#include <stdio.h>
 #include "../src/haploid.h"
 #include "../src/sparse.h"
 

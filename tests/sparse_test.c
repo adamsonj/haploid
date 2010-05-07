@@ -27,7 +27,7 @@
   along with haploid.  If not, see <http://www.gnu.org/licenses/>.
 
 */
-
+#include <stdio.h>
 #include "../src/haploid.h"
 #include "../src/sparse.h"
 

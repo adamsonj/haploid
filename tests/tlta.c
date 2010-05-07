@@ -38,6 +38,7 @@
 #define R 0.25			/* R */
 
 /* includes */
+#include <stdio.h>
 #include "../src/haploid.h"
 #include "../src/sparse.h"
 #include <string.h>
