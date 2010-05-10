@@ -311,7 +311,18 @@ multi-dimensional.  Haploid uses singly-linked lists to represent sparse
 matrices (e.g. recombination tables).
 
 The data type @code{rtable_t} is an array of sparse matrices
-representing a recombination table.  
+representing a recombination table.  Soarse matrices are implemented as
+singly-linked lists:
+
+@verbatim
+typedef struct sparse_elt_t sparse_elt_t;
+struct sparse_elt_t
+{
+  int * indices;		/* row, column */
+  double val;			/* the value of the matrix element */
+  sparse_elt_t * next;		/* pointer to next */
+};
+@end verbatim
 
 The data type @code{haploid_data_t} can hold most of the information
 needed for a simulation:
@@ -344,8 +355,8 @@ if this array does not contain enough entries, it will probably contain
 junk and you will get unexpected results!
 @end deftypefn
 
-@deftypefn {Library Function} double * rec_mating @
-(haploid_data_t * data)
+@deftypefn {Library Function} void rec_mating @
+(double * freqs, haploid_data_t * data)
 
 @code{rec_mating} returns a new vector of offspring frequencies from the
 data in @var{data}.  
