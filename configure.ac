@@ -20,7 +20,7 @@
 # along with haploid.  If not, see <http://www.gnu.org/licenses/>.
 # 
 AC_PREREQ([2.59])
-AC_INIT([haploid], [svn], [haploid-bugs@unc.edu])
+AC_INIT([haploid], [svn], [haploid-users@nongnu.org])
 AM_INIT_AUTOMAKE(haploid,svn)
 AC_CONFIG_MACRO_DIR([m4])
 AC_CONFIG_SRCDIR([src/rec.c])
@@ -32,7 +32,7 @@ AC_PREFIX_DEFAULT(/usr)
 AC_PROG_AWK
 AC_PROG_CC
 # check for c99; this does not work on Autoconf lower than 2.62, so
-# the user must user "CFLAGS= -std=gnu99"
+# the user must user "CFLAGS='-std=gnu99 -O3 -Wall -pedantic'"
 
 # AC_PROG_CC_C99
 AC_PROG_CPP
@@ -46,7 +46,7 @@ AC_PROG_LIBTOOL
 AC_CHECK_LIB([m], [pow])
 AC_CHECK_LIB([gomp], [omp_get_num_threads])
 # Checks for header files.
-AC_CHECK_HEADERS([stdlib.h math.h limits.h string.h limits.h error.h omp.h])
+AC_CHECK_HEADERS([stdlib.h math.h limits.h string.h limits.h error.h omp.h time.h])
 
 # OpenMP:
 AC_OPENMP

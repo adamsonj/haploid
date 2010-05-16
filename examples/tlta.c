@@ -36,6 +36,7 @@
 #define TRIALS 10		/* TRIALS */
 #define GENS 1e6		/* GENS */
 #define R 0.25			/* R */
+#define MAXBUF 256
 
 /* includes */
 #include <stdio.h>
@@ -57,85 +58,124 @@ rec_test_prtable (haploid_data_t * data);
 int
 main (void)
 {
-  double allele[NLOCI];
-
-  int i, j;
-
   /* some initializations */
 
-  /* additive fitness for each genotype */ 
+  /* additive fitness for each genotype */
+  /* both alleles should fix */
   double W[GENO] = { M_1_PI, M_PI_4, M_PI_2, M_PI};
+  double goal[NLOCI] = { 1.0F, 1.0F };
 
   /* initialize recombination table: */
   double rprob = 0.25;
   rtable_t ** rtable =  rec_gen_table(NLOCI, GENO, &rprob);
-  haploid_data_t tlta_data = {GENO, NLOCI, rtable};
-  srand48 (time (0));
+ 
 #ifdef DEBUG
   rec_test_prtable (&tlta_data);
   exit (EXIT_SUCCESS);
 #endif  /* DEBUG */
-#pragma omp parallel for private (i, j, allele) firstprivate (tlta_data)
-  for (i = 0; i < TRIALS; i++)
+#pragma omp parallel for shared(W, rprob, rtable)
+  for (int i = 0; i < TRIALS; i++)
     {
+      size_t snck;
+      size_t remain = MAXBUF;
+      char outstr[MAXBUF];
+      char * dest = outstr;
       
+      double allele[NLOCI];
+      haploid_data_t tlta_data = {GENO, NLOCI, rtable};
+      srand48 (time (0));
       if (i < GENO)
-	for (j = 0; j < NLOCI; j++)
+	for (int j = 0; j < NLOCI; j++)
 	  allele[j] = (double)bits_isset (i, j);
       else
-	for (j = 0; j < NLOCI; j++)
+	for (int j = 0; j < NLOCI; j++)
 	  allele[j] = drand48 ();
 
       double freq[GENO];
-      double old[NLOCI];
       
       /* install the initial genotype frequencies to freq from allele */
       allele_to_genotype (allele, freq, NLOCI, GENO);
 
-#ifdef _OPENMP
-      /* if we are OPENMP land, print the thread id: */
-      printf ("OMP Thread %i\n", omp_get_thread_num ());
-#endif	/* _OPENMP */
       
-      /* first print the allele frequencies */
-      printf ("Trial %i\n", i);
-      for (j = 0; j < NLOCI; j++)
-	printf (prec, allele[j]);
-      /* flush the output */
-      printf ("\n");
-      /* while sim_stop_ck returns 1 and we are at less than a million
-	 generations, keep going, baby */
-
+	/* first print the allele frequencies */
+	snck = snprintf (outstr, remain, "Trial %i\n", i);
+	if (snck > remain)
+	  /* abort */
+	  error (ENOMEM, ENOMEM,
+		 "Failed write to buffer by %d bytes", remain - snck);
+	dest += snck;
+	remain -= snck;
+	for (int j = 0; j < NLOCI; j++,
+	       dest += snck,
+	       remain -= snck)
+	  {
+	    snck = snprintf (dest, remain, prec, allele[j]);
+	    if (snck > remain)
+	      /* abort */
+	      error (ENOMEM, ENOMEM,
+		     "Failed write to buffer by %d bytes", remain - snck);
+	  }
+	snprintf (dest, remain, "\n");
+	dest += 1;
+	remain -= 1;
+	
+	/* while sim_stop_ck returns 1 and we are at less than a million
+	   generations, keep going, baby */
       int n = 0;
       while (n < GENS)
 	{
 	  /* produce the next generation */
-	  memmove (old, allele, NLOCI * sizeof (double));
 	  selection (freq, W);
 	  tlta_data.mtable = rmtable (GENO,  freq);
 	  rec_mating (freq, &tlta_data);
-	  
+	  	  
 	  /* generate new allele frequencies: */
 	  genotype_to_allele (allele, freq, NLOCI, GENO);
 #ifdef PRFREQS
-	  for (j = 0; j < NLOCI; j++)
-	    printf (prec, allele[j]);
-	  printf ("\n");
+	  if (i > 3)
+	    {
+	      for (int j = 0; j < NLOCI; j++,
+		     dest += snck,
+		     remain -= snck)
+		{
+		  snck = snprintf (dest, remain, prec, allele[j]);
+		  if (snck > remain)
+		    /* abort */
+		    error (ENOMEM, ENOMEM,
+			   "Failed write to buffer by %d bytes", remain - snck);
+		}
+	      snprintf (dest, remain, "\n", remain - snck);
+	      dest += 1;
+	      remain -= 1;
+
+	    }
 #endif  /* PRFREQS */
 	  /* we expect something to fix or be lost */
-	  if (!sim_stop_ck (allele, old, NLOCI, 1e-8))
+	  if (!sim_stop_ck (allele, goal, NLOCI, 1e-8))
 	    break;
 	  else
 	    n++;
 	}
       
       /* print the final frequencies */
-      for (j = 0; j < NLOCI; j++)
-	printf (prec, allele[j]);
-   
-      /* flush the output */
-      printf ("\n");
-      /* flush the toilet: */
+      for (int j = 0; j < NLOCI; j++,
+	     dest += snck,
+	     remain -= snck)
+	{
+	  snck = snprintf (dest, remain, prec, allele[j]);
+	  if (snck > remain)
+	    /* abort */
+	    error (ENOMEM, ENOMEM,
+		   "Failed write to buffer by %d bytes", remain - snck);
+	}
+      snprintf (dest, remain, "\n");
+      dest += 1;
+      remain -= 1;
+#pragma omp critical(prfinal)
+      {
+	fprintf (stdout, outstr);
+	fprintf (stdout, "\n");
+      }
     }
   return 0;
 }

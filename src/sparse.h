@@ -40,10 +40,7 @@ sparse_new_elt (int * indices, double value, sparse_elt_t * next);
 double
 sparse_get_val (sparse_elt_t * list, int row, int col);
 
-sparse_elt_t *
-sparse_mat_mat_kron (size_t len, double * dense[len], sparse_elt_t * sparse);
-
 double
-sparse_mat_tot (sparse_elt_t * sparse);
+sparse_mat_tot (size_t len, double * dense[len], sparse_elt_t * sparse);
 
 #endif	/*  SPARSE_H */

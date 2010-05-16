@@ -64,23 +64,13 @@ main (void)
 
       for (j = 0; j < LEN; j++)
 	matelts[i][j] = i;
+
+      printf ("M[%1x] = %10.8f\n", i, matelts[i][i]);
+      
     }
 
-  sparse_elt_t * matresult = sparse_mat_mat_kron (LEN, matelts, *mat);
-  for (sparse_elt_t * matptr = matresult;
-       matptr->next != NULL;
-       matptr = matptr->next)
-    printf ("M[%2i,%2i] = %9.8f\n",
-	    /* row index */
-	    matptr->indices[0],
-	    /* column index */
-	    matptr->indices[1],
-	    /* value */
-	    matptr->val);
 
- 
-  double res;
-  res = sparse_mat_tot (matresult);
+  double res = sparse_mat_tot (LEN, matelts, mat[0]);
 
   printf ("Total of entries in M = %9.8f \n", res);
 

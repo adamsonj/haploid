@@ -133,53 +133,8 @@ sparse_get_val (sparse_elt_t * list, int row, int col)
   return 0.0;
 }
 
-sparse_elt_t *
-sparse_mat_mat_kron (size_t len, double * dense[len], sparse_elt_t * sparse)
-{
-  /* find Kronecker product of dense matrix DENSE and sparse matrix
-     SPARSE  */
-
-  /* the algorithm is simple; produce a new sparse matrix by iterating
-     over the elements of SPARSE, copying each one and multiplying the
-     values from the corresponding dense matrix entries
-
-     The Kronecker product is commutative, so the order of arguments
-     is significant only in the sense that the two C types are
-     distinct  */
-  sparse_elt_t * result = sparse_new_elt (NULL, 0.0, NULL);
-  sparse_elt_t * endptr = result;
-  sparse_elt_t * sparseptr = sparse;
-  int row, col;
-  double newval;
-  
-  do
-    {
-      /* copy everything interesting into the endptr */
-      row =  sparseptr->indices[0];
-      col =  sparseptr->indices[1];
-      newval = (sparseptr->val) * dense[row][col];
-      /* at this point we're done with sparseptr, and we need to
-	 advance it every time (unconditionally)*/
-      sparseptr = sparseptr->next;
-      /* don't save if the result is zero */
-      if (newval != 0.0)
-	{
-	  endptr->indices[0] = row;
-	  endptr->indices[1] = col;
-	  endptr->val = newval;
-	  endptr->next = sparse_new_elt (NULL, 0.0, NULL);
-	  endptr = endptr->next;
-	}
-      else if (sparseptr == NULL) break;
-      else
-	continue;
-    } while (((row < len) && (col < len)) && sparseptr != NULL);
-  
-  return result;
-}
-
 double
-sparse_mat_tot (sparse_elt_t * sparse)
+sparse_mat_tot (size_t len, double * dense[len], sparse_elt_t * sparse)
 {
   /* total the entries of SPARSE: this is equivalent to
 
@@ -190,9 +145,14 @@ sparse_mat_tot (sparse_elt_t * sparse)
      needed for the recombination algorithm */
   double result = 0.0;
   sparse_elt_t * endptr = sparse;
+  int row, col;
   /* iterate along SPARSE, placing a sum in result */
   for (; endptr != NULL; endptr = endptr->next)
-    result += endptr->val;
+    {
+      row = endptr->indices[0];
+      col = endptr->indices[1];
+      result += endptr->val * dense[row][col];
+    }
 
   return result;
 }

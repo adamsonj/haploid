@@ -1,3 +1,29 @@
+2010-05-16  Joel James Adamson  <adamsonj@email.unc.edu>
+
+	* merging diskron branch back into trunk
+
+2010-05-14  Joel James Adamson  <adamsonj@email.unc.edu>
+
+	* tests/tlta.c (main): now both alleles should fix, so we can use
+	a static array as a "goal"; new output procedure uses snprintf and
+	fprintf to avoid garbled output when using OpenMP 
+
+	* src/rec.c (rec_mating): this function now divides frequencies by
+	the total of the new frequencies
+
+2010-05-11  Joel James Adamson  <adamsonj@email.unc.edu>
+
+	* tests/sparse_test.c (main): maintains functionality, but now
+	uses updated sparse_mat_tot
+
+	* tests/pop_ck.c (main): now only prints if DEBUG is defined
+
+	* src/rec.c (rec_mating): now uses the updated sparse_mat_tot
+
+	* src/sparse.c (sparse_mat_tot): this function now computes the
+	sum of the entries in the  Kronecker product of a dense matrix and
+	a sparse matrix
+
 2010-05-07  Joel James Adamson  <adamsonj@email.unc.edu>
 
 	* src/haploidpriv.h: removed; sparse vector operations now in

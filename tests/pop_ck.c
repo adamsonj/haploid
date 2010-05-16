@@ -35,15 +35,19 @@ main (void)
 {
   unsigned int i;
   char * fifth;
+#ifdef DEBUG
   /* First print a header row: */
   printf ("i/d |i/x |pop(i) |iso (i,4,2) |Fifth bit set?\n");
   printf ("+---+----+-------+------------+--------------\n");
+#endif  /* DEBUG */
   for (i = 0; i < 0xff; i++)
     /* print the data on the integer i */
     {
       fifth = bits_isset (i, 4)?"Yes":"No";
+#ifdef DEBUG
       printf ("%-3i |%02x  |%-5d  |%-3x         |%s\n", i, i,
 	      bits_popcount (i), bits_extract (4, 4, i), fifth);
+#endif	/* DEBUG */
     }
   return 0;
 }

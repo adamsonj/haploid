@@ -311,7 +311,7 @@ multi-dimensional.  Haploid uses singly-linked lists to represent sparse
 matrices (e.g. recombination tables).
 
 The data type @code{rtable_t} is an array of sparse matrices
-representing a recombination table.  Soarse matrices are implemented as
+representing a recombination table.  Sparse matrices are implemented as
 singly-linked lists:
 
 @verbatim
@@ -359,7 +359,13 @@ junk and you will get unexpected results!
 (double * freqs, haploid_data_t * data)
 
 @code{rec_mating} returns a new vector of offspring frequencies from the
-data in @var{data}.  
+data in @var{data}.  @code{rec_mating} calculates the new relative
+frequency of offspring @math{k} by finding the Kronecker (``direct'')
+product of the mating table and the recombination table for offspring
+@math{k}, then summing all the entries of the resultant @math{n \times
+n} matrix (where @math{n} is the number of genotypes).  Finally after
+all new relative frequencies are found, @code{rec_mating} divides each
+new entry by the total sum of the new entries.
 @end deftypefn
 
 @deftypefn {Library Function} double ** rmtable (int geno, double * freq)

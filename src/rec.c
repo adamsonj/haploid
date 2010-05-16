@@ -170,17 +170,18 @@ rec_mating (double * freqs, haploid_data_t * data)
   size_t geno = data->geno;
   sparse_elt_t ** rtable = data->rec_table;
   double ** mtable = data->mtable;
- 
+  double denom = 0.0;
   /* find the frequencies of offspring from recombination table RTABLE
      and mating table MTABLE */
 
-  /* RESULT[k] is the total of the Kronecker product of MTABLE and
+  /* FREQS[k] is the total of the Kronecker product of MTABLE and
      RTABLE[k] */
-  unsigned int k;
-  sparse_elt_t * recmat[geno];
-  for (k = 0; k < geno; k++)
+  for (int k = 0; k < geno; k++)
     {
-      recmat[k] = sparse_mat_mat_kron (geno, mtable, rtable[k]);
-      freqs[k] = sparse_mat_tot (recmat[k]);
+      freqs[k] = sparse_mat_tot (geno, mtable, rtable[k]);
+      denom += freqs[k];
     }
+  /* to ensure that frequencies sum to 1 */
+  for (int k = 0; k < geno; k++)
+    freqs[k] /= denom;
 }

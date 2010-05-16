@@ -33,16 +33,20 @@ ACLOCAL_AMFLAGS = -I m4
 info_TEXINFOS = doc/haploid.texi
 haploid_TEXINFOS = doc/fdl-1.3.texi
 
-# Tests and checks: each check must be a standalone program 
+# Tests and examples: each is a standalone program
 LDADD = -lm libhaploid.la
-check_PROGRAMS = sim_stop pop_ck sparse_test gen_table rec_test tlta diseq
+check_PROGRAMS = sim_stop pop_ck sparse_test rec_test diseq 
+noinst_PROGRAMS = nrm rm_tlta tlta
 rec_test_SOURCES = tests/rec_test.c tests/prtable.c
 sim_stop_SOURCES = tests/sim_stop.c
-gen_table_SOURCES = tests/gen_table.c
-tlta_SOURCES = tests/tlta.c tests/prtable.c
-tlta_CFLAGS = $(AM_CFLAGS) $(OPENMP_CFLAGS)
 pop_ck_SOURCES = tests/pop_ck.c
 sparse_test_SOURCES = tests/sparse_test.c
 diseq_SOURCES = tests/diseq.c
+nrm_SOURCES = examples/nrm.c
+nrm_CFLAGS = $(AM_CFLAGS) $(OPENMP_CFLAGS)
+rm_tlta_SOURCES = examples/rm_tlta.c
+rm_tlta_CFLAGS = $(AM_CFLAGS) $(OPENMP_CFLAGS)
+tlta_SOURCES = examples/tlta.c tests/prtable.c
+tlta_CFLAGS = $(AM_CFLAGS) $(OPENMP_CFLAGS)
 
-TESTS = sim_stop pop_ck sparse_test rec_test tlta diseq
+TESTS = sim_stop pop_ck sparse_test rec_test diseq
