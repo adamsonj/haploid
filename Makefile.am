@@ -35,9 +35,10 @@ haploid_TEXINFOS = doc/fdl-1.3.texi
 
 # Tests and examples: each is a standalone program
 LDADD = -lm libhaploid.la
-check_PROGRAMS = sim_stop pop_ck sparse_test rec_test diseq 
+check_PROGRAMS = sim_stop pop_ck sparse_test rec_test rec_test3 diseq 
 noinst_PROGRAMS = nrm rm_tlta tlta
 rec_test_SOURCES = tests/rec_test.c tests/prtable.c
+rec_test3_SOURCES = tests/rec_test3.c tests/prtable.c
 sim_stop_SOURCES = tests/sim_stop.c
 pop_ck_SOURCES = tests/pop_ck.c
 sparse_test_SOURCES = tests/sparse_test.c
@@ -49,4 +50,4 @@ rm_tlta_CFLAGS = $(AM_CFLAGS) $(OPENMP_CFLAGS)
 tlta_SOURCES = examples/tlta.c tests/prtable.c
 tlta_CFLAGS = $(AM_CFLAGS) $(OPENMP_CFLAGS)
 
-TESTS = sim_stop pop_ck sparse_test rec_test diseq
+TESTS = sim_stop pop_ck sparse_test rec_test rec_test3 diseq

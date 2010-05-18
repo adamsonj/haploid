@@ -36,6 +36,9 @@ rec_total (size_t nloci, unsigned int diff,
 {
   /* find the total probability of recombination (or not, depending on
      RECOMB_P) over recombination map R, given difference map DIFF */
+  /* WARNING: this function assumes that the other parent (the one NOT
+     used to find DIFF provides the right alleles; the caller must
+     verify this assumption) */
   double total = 1.0;
   double * rptr = r;		/* iterate this pointer */
   /* skip ahead to the first set bit: */
@@ -93,10 +96,12 @@ rec_gen_table (size_t nloci, size_t geno, double * r)
 	  {
 	    _Bool new_elt_p = false;
 	    double total;
-	    unsigned int opposite = bits_extract (0, nloci, ~k);
 	    /* does the transpose already exist? */
 	    if ((total = sparse_get_val (rtable[k], j, i)) != 0.0)
 	      /* this avoids the function call to rec_total */
+	      /* however, it doesn't work when the new entry *should*
+		 be zero!  The later procedures should catch this, but
+		 right I'm fixing a bug where they don't...  */
 	      new_elt_p = true;
 	    else if ((i == j) && (j == k))
 	      {
@@ -115,32 +120,74 @@ rec_gen_table (size_t nloci, size_t geno, double * r)
 		total = 0.5 * rec_total (nloci, 0, r, false);
 		/* are recombinant offspring possible? i.e. is the
 		   other parent different at all sites? */
-		if (i != opposite) 
+		if ((i & k) != 0 || bits_extract (0, nloci, ~j & ~k)) 
 		  total += 0.5 * rec_total (nloci, i ^ k, r, true);
 	      }
 	    else if (i == k)
 	      {
+		/* to test for common unset bits */
+		
 		new_elt_p = true;
 		/* this case is (1-r)/2 */
 		total = 0.5 * rec_total (nloci, 0, r, false);
-		if (j != opposite)
+		if ((j & k) != 0 || bits_extract (0, nloci, ~j & ~k))
 		  /* recombinant offspring are also possible */
 		  total += 0.5 * rec_total (nloci, j ^ k, r, true);
 	      }
-	    else if ((i != opposite) && (j != opposite))
+	    else		/* offspring must be recombinant or
+				   impossible */
 	      {
-		new_elt_p = true;
-		/* offspring must be recombinant */
-		total = 0.5 * rec_total (nloci, i ^ k, r, true);
-	      }
-	    else
-	      /* if they have no alleles in common there is no need to
-		 set the indices or advance endptr; proceed to the top
-		 of the innermost loop */
-	      continue;
+		total = 0;
 
-	    /* we must have some alleles in common; if not we do not
-	       make an entry in the table */
+		/* what we need here is to figure out what alleles
+		   (bits) the parents have in common with the
+		   offspring; if they have any, we need to find the
+		   ones that they DON'T have in common and check if
+		   the other parent has the desired ones.
+
+		   Here are the steps:
+		   1. Find the common alleles between one parent and offspring
+		   2. Find the loci where the alleles are NOT common
+                      (take the complement)
+		   3. Compare the alleles at these "non-common" sites
+                      with those of the other parent, and the
+                      offspring.  If the other parent matches the
+                      offspring at these sites then recombination to
+                      the target offspring genotype is possible.  If
+                      not, give up and continue
+
+		   4. What if we need both set and off bits from the
+                      other parent?  These cases are not mutually
+                      exclusive.  What we need is to test for both
+                      cases and the call rec_total ().  We can use
+                      an || for these cases (if they can get either
+                      set or unset bits from the other parent, then we
+                      are go for recombination)
+
+		*/
+		/* Do the parent and the offspring have set bits
+		   in common? */
+		unsigned int set = i & k;
+		/* do they have off bits in common? */
+		unsigned int off = bits_extract(0, nloci, ~i & ~k);
+		/* do they have any bits in common? */
+		unsigned int common = set | off;
+		/* find where they are NOT alike: */
+		unsigned int needed = bits_extract (0, nloci, ~common);
+		/* do we need a set bit from the other parent? If so,
+		   do the set bits match those in the offspring */
+		if (((needed & j) & k) ||
+		    /* do we need off bits from the other parent?  If so,
+		       are they the right ones? */
+		    ((needed & bits_extract (0, nloci, ~j))
+		     & bits_extract (0, nloci, ~k)))
+		  {
+		    new_elt_p = true;
+		    total += 0.5 * rec_total (nloci, i ^ k, r, true);
+		  }
+		else continue;
+	      }	/* for j < geno */
+
 	    /* if we need a new element: */
 	    if (new_elt_p && (endptr != NULL))
 	      {
@@ -159,8 +206,8 @@ rec_gen_table (size_t nloci, size_t geno, double * r)
 	    /* set the indices */
 	    endptr->indices[0] = i;
 	    endptr->indices[1] = j;
-	  }
-    }
+	  } /* for i < geno */
+    }	    /* for k < geno */
   return rtable;
 }
 
