@@ -134,11 +134,9 @@ rec_gen_table (size_t nloci, size_t geno, double * r)
 		  /* recombinant offspring are also possible */
 		  total += 0.5 * rec_total (nloci, j ^ k, r, true);
 	      }
-	    else		/* offspring must be recombinant or
-				   impossible */
+	    /* offspring must be recombinant or impossible */
+	    else		
 	      {
-		total = 0;
-
 		/* what we need here is to figure out what alleles
 		   (bits) the parents have in common with the
 		   offspring; if they have any, we need to find the
@@ -148,21 +146,21 @@ rec_gen_table (size_t nloci, size_t geno, double * r)
 		   Here are the steps:
 		   1. Find the common alleles between one parent and offspring
 		   2. Find the loci where the alleles are NOT common
-                      (take the complement)
+		   (take the complement)
 		   3. Compare the alleles at these "non-common" sites
-                      with those of the other parent, and the
-                      offspring.  If the other parent matches the
-                      offspring at these sites then recombination to
-                      the target offspring genotype is possible.  If
-                      not, give up and continue
+		   with those of the other parent, and the
+		   offspring.  If the other parent matches the
+		   offspring at these sites then recombination to
+		   the target offspring genotype is possible.  If
+		   not, give up and continue
 
 		   4. What if we need both set and off bits from the
-                      other parent?  These cases are not mutually
-                      exclusive.  What we need is to test for both
-                      cases and the call rec_total ().  We can use
-                      an || for these cases (if they can get either
-                      set or unset bits from the other parent, then we
-                      are go for recombination)
+		   other parent?  These cases are not mutually
+		   exclusive.  What we need is to test for both
+		   cases and the call rec_total ().  We can use
+		   an || for these cases (if they can get either
+		   set or unset bits from the other parent, then we
+		   are go for recombination)
 
 		*/
 		/* Do the parent and the offspring have set bits
@@ -176,16 +174,27 @@ rec_gen_table (size_t nloci, size_t geno, double * r)
 		unsigned int needed = bits_extract (0, nloci, ~common);
 		/* do we need a set bit from the other parent? If so,
 		   do the set bits match those in the offspring */
-		if (((needed & j) & k) ||
-		    /* do we need off bits from the other parent?  If so,
-		       are they the right ones? */
-		    ((needed & bits_extract (0, nloci, ~j))
-		     & bits_extract (0, nloci, ~k)))
+		/* Is this symmetric?  Seems like it shouldn't matter
+		   which is i and which is j (therefore j could always
+		   be "other") */
+		unsigned int pos;
+		do
 		  {
-		    new_elt_p = true;
-		    total += 0.5 * rec_total (nloci, i ^ k, r, true);
-		  }
-		else continue;
+		    /* do the bits from the other parent and the
+		       offspring match? */
+		    if (bits_isset (j, pos) == bits_isset (k, pos))
+		      {
+			new_elt_p = true;
+			pos = bits_ffs (needed) - 1;
+		      }
+		    else
+		      {
+			new_elt_p = false;
+			break;
+		      }
+		  } while (needed &= (1 << pos));
+		if (new_elt_p)
+		  total = 0.5 * rec_total (nloci, i ^ k, r, true);
 	      }	/* for j < geno */
 
 	    /* if we need a new element: */
