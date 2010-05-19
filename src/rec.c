@@ -40,17 +40,15 @@ rec_total (size_t nloci, unsigned int diff,
      used to find DIFF) provides the right alleles; the caller must
      verify this assumption) */
   double total = 1.0;
-  /*
-
-    diff should never be 0; we need an assertion here
-    
-    If diff is 0, the caller has asked for the probability of
-    non-recombinant offspring without providing the other parent (the
-    one not identical to the offspring).  That case should be handled
-    by the caller without calling rec_total
-
-  */
+  /* diff should never be 0: if diff is 0, the caller has asked for
+     the probability of non-recombinant offspring without providing
+     the other parent (the one not identical to the offspring).  That
+     case should be handled by the caller without calling rec_total */
   assert (diff != 0);
+  /* if the parent is different at all sites and we are trying
+     recombination, we again should have handled that without calling
+     rec_total */
+  /* assert ((bits_extract (0, nloci, ~diff) == 0 ) && recomb_p == true); */
   while (diff != 0)
     {
       switch (bits_ffs (diff))
@@ -110,7 +108,7 @@ rec_gen_table (size_t nloci, size_t geno, double * r)
 		/* this case is (1-r)/2 */
 		total = rec_total (nloci, i ^ k, r, false);
 		if (bits_extract(0, nloci, ~(i ^ k)) != 0)
-		  /* recombinant offspring are also possible: we know
+		  /* are recombinant offspring also possible?  We know
 		     we can get the alleles we need from the parent
 		     identical to the offspring */
 		  total += rec_total (nloci, i ^ k, r, true);
@@ -120,10 +118,10 @@ rec_gen_table (size_t nloci, size_t geno, double * r)
 		new_elt_p = true;
 		/* this case is (1-r)/2 */
 		total = rec_total (nloci, j ^ k, r, false);
-		  /* recombinant offspring are also possible: we know
+		if (bits_extract(0, nloci, ~(j ^ k)) != 0)
+		  /* are recombinant offspring also possible?  We know
 		     we can get the alleles we need from the parent
 		     identical to the offspring */
-		if (bits_extract(0, nloci, ~(j ^ k)) != 0)
 		  total += rec_total (nloci, j ^ k, r, true);
 	      }
 	    /* offspring must be recombinant or impossible */

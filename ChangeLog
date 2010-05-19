@@ -5,6 +5,9 @@
 	are still wrong
 	(rec_total): solved the TLTA problem; now we need to reduce every
 	other problem to the TLTA problem
+	(rec_total): this works, but I have not verified the results for
+	the three-locus case; we need a precise way to check the results
+	of rec_test3
 
 	* changed format strings in examples/ to use %zu (bug #29905)
 

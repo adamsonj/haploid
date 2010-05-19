@@ -34,7 +34,7 @@
 #define NLOCI 3
 #define GENO 8
 #define LEN 2
-double r[LEN] = { 0.125, 0.25};
+double r[LEN] = { 0.5, 0.5};
 
 rtable_t ** rec_table;
 
