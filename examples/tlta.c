@@ -102,7 +102,7 @@ main (void)
 	if (snck > remain)
 	  /* abort */
 	  error (ENOMEM, ENOMEM,
-		 "Failed write to buffer by %d bytes", remain - snck);
+		 "Failed write to buffer by %zu bytes", remain - snck);
 	dest += snck;
 	remain -= snck;
 	for (int j = 0; j < NLOCI; j++,
@@ -113,7 +113,7 @@ main (void)
 	    if (snck > remain)
 	      /* abort */
 	      error (ENOMEM, ENOMEM,
-		     "Failed write to buffer by %d bytes", remain - snck);
+		     "Failed write to buffer by %zu bytes", remain - snck);
 	  }
 	snprintf (dest, remain, "\n");
 	dest += 1;
@@ -166,7 +166,7 @@ main (void)
 	  if (snck > remain)
 	    /* abort */
 	    error (ENOMEM, ENOMEM,
-		   "Failed write to buffer by %d bytes", remain - snck);
+		   "Failed write to buffer by %zu bytes", remain - snck);
 	}
       snprintf (dest, remain, "\n");
       dest += 1;

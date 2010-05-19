@@ -125,7 +125,7 @@ rm_iterate (haploid_data_t * rm_data, double * alleles, double D)
 	  if (snck > remain)
 	    /* abort */
 	    error (ENOMEM, ENOMEM,
-		   "Failed write to buffer by %d bytes", remain - snck);
+		   "Failed write to buffer by %zu bytes", remain - snck);
 	}
       snck = snprintf (dest, remain, prec,
 		       ld_from_geno (NLOCI, GENO, genotypes));

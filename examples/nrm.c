@@ -155,7 +155,7 @@ nrm_iterate (double * freqs, haploid_data_t * data)
 	  if (snck > remain)
 	    /* abort */
 	    error (ENOMEM, ENOMEM,
-		   "Failed write to buffer by %d bytes", remain - snck);
+		   "Failed write to buffer by %zu bytes", remain - snck);
 	}
 
       /* print LD and a newline */    

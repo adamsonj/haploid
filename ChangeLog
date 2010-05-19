@@ -1,3 +1,7 @@
+2010-05-19  Joel James Adamson  <adamsonj@email.unc.edu>
+
+	* changed format strings in examples/ to use %zu (bug #29905)
+
 2010-05-16  Joel James Adamson  <adamsonj@email.unc.edu>
 
 	* merging diskron branch back into trunk
