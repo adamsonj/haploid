@@ -29,7 +29,7 @@
 
 /* declarations */
 #include "sparse.h"
-
+#include <assert.h>
 double
 rec_total (size_t nloci, unsigned int diff,
 	   double * r, _Bool recomb_p)
@@ -37,43 +37,34 @@ rec_total (size_t nloci, unsigned int diff,
   /* find the total probability of recombination (or not, depending on
      RECOMB_P) over recombination map R, given difference map DIFF */
   /* WARNING: this function assumes that the other parent (the one NOT
-     used to find DIFF provides the right alleles; the caller must
+     used to find DIFF) provides the right alleles; the caller must
      verify this assumption) */
   double total = 1.0;
-  double * rptr = r;		/* iterate this pointer */
-  /* skip ahead to the first set bit: */
-  unsigned int pos = bits_ffs (diff);
-  unsigned int subpos;
-  if (diff == 0)		/* special case */
-    for (pos = 1; pos < nloci; rptr++, pos++)
-      total *= recomb_p?(*rptr):(1 - *rptr);
-  else
+  /*
+
+    diff should never be 0; we need an assertion here
+    
+    If diff is 0, the caller has asked for the probability of
+    non-recombinant offspring without providing the other parent (the
+    one not identical to the offspring).  That case should be handled
+    by the caller without calling rec_total
+
+  */
+  assert (diff != 0);
+  while (diff != 0)
     {
-      if (pos == 1)			/* special case */
+      switch (bits_ffs (diff))
 	{
-	  diff = ~diff;
-	  pos = bits_ffs (diff);
+	case 1:
+	case 2:
+	  total *= recomb_p? *r : 1 - *r ;
 	}
-      do
-	{
-	  rptr += pos - 2;
-	  total *= recomb_p?(*rptr):(1 - *rptr);
-	  /* we know the bit at index pos-1 is set, so if the bit at index
-	     pos is set, there is no transition and we can skip ahead; or
-	     we can find the next unset bit by usign bits_ffs on the one's
-	     complement! */
-	  subpos = bits_ffs(bits_extract (pos, nloci, ~diff));
-	  /* if subpos is 0, then there are no more transitions and our
-	     work here is done */
-	  if (subpos == 0)
-	    break;
-	  else
-	    /* find the next transition */
-	    pos += subpos; 
-	}
-      while (pos < nloci);
-    }
-  return total;
+      r++;
+      diff >>= 2;
+    } 
+  /* we always need half the amount calculated, since there is another
+     recombinant (or non-recombinant) offspring */
+  return 0.5 * total;
 }
 
 rtable_t **
@@ -117,21 +108,23 @@ rec_gen_table (size_t nloci, size_t geno, double * r)
 	      {
 		new_elt_p = true;
 		/* this case is (1-r)/2 */
-		total = 0.5 * rec_total (nloci, 0, r, false)
+		total = rec_total (nloci, i ^ k, r, false);
+		if (bits_extract(0, nloci, ~(i ^ k)) != 0)
 		  /* recombinant offspring are also possible: we know
 		     we can get the alleles we need from the parent
 		     identical to the offspring */
-		  + 0.5 * rec_total (nloci, i ^ k, r, true);
+		  total += rec_total (nloci, i ^ k, r, true);
 	      }
 	    else if (i == k)
 	      {
 		new_elt_p = true;
 		/* this case is (1-r)/2 */
-		total = 0.5 * rec_total (nloci, 0, r, false)	
+		total = rec_total (nloci, j ^ k, r, false);
 		  /* recombinant offspring are also possible: we know
 		     we can get the alleles we need from the parent
 		     identical to the offspring */
-		  + 0.5 * rec_total (nloci, j ^ k, r, true);
+		if (bits_extract(0, nloci, ~(j ^ k)) != 0)
+		  total += rec_total (nloci, j ^ k, r, true);
 	      }
 	    /* offspring must be recombinant or impossible */
 	    else 
@@ -173,7 +166,7 @@ rec_gen_table (size_t nloci, size_t geno, double * r)
 		      }
 		  }
 		if (new_elt_p)
-		  total = 0.5 * rec_total (nloci, i ^ k, r, true);
+		  total = rec_total (nloci, i ^ k, r, true);
 		else continue;
 	      }	/* else */
 	    

@@ -33,8 +33,7 @@
 
 #define NLOCI 2
 #define GENO 4
-#define LEN 1
-double r[LEN] = { 0.25};
+double r = 0.25;
 
 rtable_t ** rec_table;
 
@@ -48,15 +47,14 @@ rec_test_prtable (haploid_data_t * data);
 int
 main (void)
 {
-  rec_table = rec_gen_table (NLOCI, GENO, r);
   double alleles[2] = { 0.5, 0.5};
   
   double freq[GENO];
   allele_to_genotype (alleles, freq, NLOCI, GENO);
   
   haploid_data_t rec_test_data =
-    { GENO, NLOCI, rec_gen_table (NLOCI, GENO, r), rmtable (GENO, freq)};
-  rec_test_prtable (&rec_test_data);
+    { GENO, NLOCI, rec_gen_table (NLOCI, GENO, &r),
+      rmtable (GENO, freq)};
 
   /* time the next calculation */
   rec_test_prtable (&rec_test_data);

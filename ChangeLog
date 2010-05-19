@@ -1,8 +1,10 @@
 2010-05-19  Joel James Adamson  <adamsonj@email.unc.edu>
 
 	* src/rec.c (rec_gen_table): fixed logic so that this no longer
-	produces impossible offspring (almost fixing bug #29904); amounts
+	produces impossible offspring (almost fixing bug #29904); values
 	are still wrong
+	(rec_total): solved the TLTA problem; now we need to reduce every
+	other problem to the TLTA problem
 
 	* changed format strings in examples/ to use %zu (bug #29905)
 
