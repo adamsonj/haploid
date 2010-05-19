@@ -117,52 +117,25 @@ rec_gen_table (size_t nloci, size_t geno, double * r)
 	      {
 		new_elt_p = true;
 		/* this case is (1-r)/2 */
-		total = 0.5 * rec_total (nloci, 0, r, false);
-		/* are recombinant offspring possible? i.e. is the
-		   other parent different at all sites? */
-		if ((i & k) != 0 || bits_extract (0, nloci, ~j & ~k)) 
-		  total += 0.5 * rec_total (nloci, i ^ k, r, true);
+		total = 0.5 * rec_total (nloci, 0, r, false)
+		  /* recombinant offspring are also possible: we know
+		     we can get the alleles we need from the parent
+		     identical to the offspring */
+		  + 0.5 * rec_total (nloci, i ^ k, r, true);
 	      }
 	    else if (i == k)
 	      {
-		/* to test for common unset bits */
-		
 		new_elt_p = true;
 		/* this case is (1-r)/2 */
-		total = 0.5 * rec_total (nloci, 0, r, false);
-		if ((j & k) != 0 || bits_extract (0, nloci, ~j & ~k))
-		  /* recombinant offspring are also possible */
-		  total += 0.5 * rec_total (nloci, j ^ k, r, true);
+		total = 0.5 * rec_total (nloci, 0, r, false)	
+		  /* recombinant offspring are also possible: we know
+		     we can get the alleles we need from the parent
+		     identical to the offspring */
+		  + 0.5 * rec_total (nloci, j ^ k, r, true);
 	      }
 	    /* offspring must be recombinant or impossible */
-	    else		
+	    else 
 	      {
-		/* what we need here is to figure out what alleles
-		   (bits) the parents have in common with the
-		   offspring; if they have any, we need to find the
-		   ones that they DON'T have in common and check if
-		   the other parent has the desired ones.
-
-		   Here are the steps:
-		   1. Find the common alleles between one parent and offspring
-		   2. Find the loci where the alleles are NOT common
-		   (take the complement)
-		   3. Compare the alleles at these "non-common" sites
-		   with those of the other parent, and the
-		   offspring.  If the other parent matches the
-		   offspring at these sites then recombination to
-		   the target offspring genotype is possible.  If
-		   not, give up and continue
-
-		   4. What if we need both set and off bits from the
-		   other parent?  These cases are not mutually
-		   exclusive.  What we need is to test for both
-		   cases and the call rec_total ().  We can use
-		   an || for these cases (if they can get either
-		   set or unset bits from the other parent, then we
-		   are go for recombination)
-
-		*/
 		/* Do the parent and the offspring have set bits
 		   in common? */
 		unsigned int set = i & k;
@@ -172,31 +145,38 @@ rec_gen_table (size_t nloci, size_t geno, double * r)
 		unsigned int common = set | off;
 		/* find where they are NOT alike: */
 		unsigned int needed = bits_extract (0, nloci, ~common);
-		/* do we need a set bit from the other parent? If so,
-		   do the set bits match those in the offspring */
-		/* Is this symmetric?  Seems like it shouldn't matter
-		   which is i and which is j (therefore j could always
-		   be "other") */
-		unsigned int pos;
-		do
+		/* if we need *all* the alleles from the other parent,
+		   then we're screwed since we already know the other
+		   parent is not identical to the target offspring */
+		if (needed == (1 << nloci) - 1)
+		  continue;
+		/* now iterate over the needed bits; break at the
+		   first allele we *can't* get from the other
+		   parent */
+		for (unsigned int pos = bits_ffs (needed);
+		     pos < nloci && needed != 0;
+		       pos = bits_ffs (needed))
 		  {
 		    /* do the bits from the other parent and the
 		       offspring match? */
-		    if (bits_isset (j, pos) == bits_isset (k, pos))
+		    if (bits_isset (j, pos - 1) == bits_isset (k, pos - 1))
 		      {
+			/* for now the other parent is good */
 			new_elt_p = true;
-			pos = bits_ffs (needed) - 1;
+			/* clear that bit so we can reevaluate pos */
+			needed &= ~(1 << (pos - 1));
 		      }
 		    else
 		      {
 			new_elt_p = false;
 			break;
 		      }
-		  } while (needed &= (1 << pos));
+		  }
 		if (new_elt_p)
 		  total = 0.5 * rec_total (nloci, i ^ k, r, true);
-	      }	/* for j < geno */
-
+		else continue;
+	      }	/* else */
+	    
 	    /* if we need a new element: */
 	    if (new_elt_p && (endptr != NULL))
 	      {
@@ -215,7 +195,7 @@ rec_gen_table (size_t nloci, size_t geno, double * r)
 	    /* set the indices */
 	    endptr->indices[0] = i;
 	    endptr->indices[1] = j;
-	  } /* for i < geno */
+	  }	/* for j < geno */
     }	    /* for k < geno */
   return rtable;
 }

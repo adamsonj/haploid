@@ -56,7 +56,6 @@ main (void)
   
   haploid_data_t rec_test_data =
     { GENO, NLOCI, rec_gen_table (NLOCI, GENO, r), rmtable (GENO, freq)};
-  rec_test_prtable (&rec_test_data);
 
   /* time the next calculation */
   rec_test_prtable (&rec_test_data);

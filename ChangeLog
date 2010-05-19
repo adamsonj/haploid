@@ -1,5 +1,9 @@
 2010-05-19  Joel James Adamson  <adamsonj@email.unc.edu>
 
+	* src/rec.c (rec_gen_table): fixed logic so that this no longer
+	produces impossible offspring (almost fixing bug #29904); amounts
+	are still wrong
+
 	* changed format strings in examples/ to use %zu (bug #29905)
 
 2010-05-16  Joel James Adamson  <adamsonj@email.unc.edu>
