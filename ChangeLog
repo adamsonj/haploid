@@ -1,3 +1,15 @@
+2010-05-20  Joel James Adamson  <adamsonj@email.unc.edu>
+
+	* src/rec.c (rec_gen_table): fixed another impossible offspring;
+	1-indexed variable POS was bringing this for-loop to a premature
+	close, meaning that new_elt_p remained `true'
+	(rec_total): removed extra OR condition here that if bits_ffs ()
+	== 1 we can determine recombination; we actually don't need to.
+	What we need is to check single loci until we get to a pair of
+	loci (which reduces to TLTA); this fixes the values for three
+	loci; appears to work for arbitrary recombination fractions; we
+	still need a systematic check
+
 2010-05-19  Joel James Adamson  <adamsonj@email.unc.edu>
 
 	* src/rec.c (rec_gen_table): fixed logic so that this no longer

@@ -35,7 +35,9 @@
 #define GENO 4			/* GENO */
 #define TRIALS 10		/* TRIALS */
 #define GENS 1e6		/* GENS */
-#define R 0.25			/* R */
+#ifndef R
+#define R 0.5F
+#endif
 #define MAXBUF 256
 
 /* includes */

@@ -33,7 +33,11 @@
 
 #define NLOCI 2
 #define GENO 4
-double r = 0.25;
+#ifndef R
+#define R 0.5F
+#endif
+
+double r = R;
 
 rtable_t ** rec_table;
 

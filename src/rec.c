@@ -57,7 +57,7 @@ rec_total (size_t nloci, unsigned int diff,
 	total *= mult; 
       /* after that, we must ask if the next bit after the first is
 	 different */
-      else if ((njunx == 1) || (bits_isset (diff, 1)))	
+      else if (njunx == 1) 
 	total *= mult;
       r++;
       diff >>= 1;
@@ -75,7 +75,7 @@ rec_gen_table (size_t nloci, size_t geno, double * r)
   sparse_elt_t ** rtable = malloc (geno * sizeof (sparse_elt_t *));
   if (rtable == NULL)
     error (0, ENOMEM, "Null pointer\n");
-
+  unsigned int maxed = (1 << nloci) - 1;
   /* iterate over offspring entries, using endptr to keep track of
      position in the kth entry of rec_table, which is an array of
      GENO  */
@@ -108,23 +108,19 @@ rec_gen_table (size_t nloci, size_t geno, double * r)
 	    else if (j == k)
 	      {
 		new_elt_p = true;
+		unsigned int diff = i ^ k;
 		/* this case is (1-r)/2 */
 		total = rec_total (nloci, i ^ k, r, false);
-		if (bits_extract(0, nloci, ~(i ^ k)) != 0)
-		  /* are recombinant offspring also possible?  We know
-		     we can get the alleles we need from the parent
-		     identical to the offspring */
+		if (diff != maxed) 
 		  total += rec_total (nloci, i ^ k, r, true);
 	      }
 	    else if (i == k)
 	      {
 		new_elt_p = true;
+		unsigned int diff = j ^ k;
 		/* this case is (1-r)/2 */
 		total = rec_total (nloci, j ^ k, r, false);
-		if (bits_extract(0, nloci, ~(j ^ k)) != 0)
-		  /* are recombinant offspring also possible?  We know
-		     we can get the alleles we need from the parent
-		     identical to the offspring */
+		if (diff != maxed)
 		  total += rec_total (nloci, j ^ k, r, true);
 	      }
 	    /* offspring must be recombinant or impossible */
@@ -142,13 +138,14 @@ rec_gen_table (size_t nloci, size_t geno, double * r)
 		/* if we need *all* the alleles from the other parent,
 		   then we're screwed since we already know the other
 		   parent is not identical to the target offspring */
-		if (needed == (1 << nloci) - 1)
+		if (needed == maxed)
 		  continue;
 		/* now iterate over the needed bits; break at the
 		   first allele we *can't* get from the other
 		   parent */
 		for (unsigned int pos = bits_ffs (needed);
-		     pos < nloci && needed != 0;
+		     /* remember that pos is 1-indexed! */
+		     pos <= nloci && needed != 0;
 		       pos = bits_ffs (needed))
 		  {
 		    /* do the bits from the other parent and the
