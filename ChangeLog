@@ -8,6 +8,9 @@
 	(rec_total): this works, but I have not verified the results for
 	the three-locus case; we need a precise way to check the results
 	of rec_test3
+	(rec_total): Okay, we now have an algorithm that works, makes
+	sense and produces correct values; again, we need a way to verify
+	the three-locus output
 
 	* changed format strings in examples/ to use %zu (bug #29905)
 

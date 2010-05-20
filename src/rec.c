@@ -39,27 +39,30 @@ rec_total (size_t nloci, unsigned int diff,
   /* WARNING: this function assumes that the other parent (the one NOT
      used to find DIFF) provides the right alleles; the caller must
      verify this assumption) */
-  double total = 1.0;
   /* diff should never be 0: if diff is 0, the caller has asked for
      the probability of non-recombinant offspring without providing
      the other parent (the one not identical to the offspring).  That
      case should be handled by the caller without calling rec_total */
   assert (diff != 0);
-  /* if the parent is different at all sites and we are trying
-     recombination, we again should have handled that without calling
-     rec_total */
-  /* assert ((bits_extract (0, nloci, ~diff) == 0 ) && recomb_p == true); */
-  while (diff != 0)
+  double total = 1.0;
+
+  /* number of junctions where recombination might occur */
+  unsigned int njunx = nloci - 1;
+  do
     {
-      switch (bits_ffs (diff))
-	{
-	case 1:
-	case 2:
-	  total *= recomb_p? *r : 1 - *r ;
-	}
+      double mult = recomb_p? *r : 1 - *r ;
+      /* if this is the first time through, and the first bit is 1,
+	 then we have recombination at the first junction */
+      if ((njunx == nloci - 1) && (bits_ffs (diff) == 1))
+	total *= mult; 
+      /* after that, we must ask if the next bit after the first is
+	 different */
+      else if ((njunx == 1) || (bits_isset (diff, 1)))	
+	total *= mult;
       r++;
-      diff >>= 2;
-    } 
+      diff >>= 1;
+      njunx--;
+    } while ((diff != 0) && (njunx > 0));
   /* we always need half the amount calculated, since there is another
      recombinant (or non-recombinant) offspring */
   return 0.5 * total;
