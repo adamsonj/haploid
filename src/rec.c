@@ -50,19 +50,46 @@ rec_total (size_t nloci, unsigned int diff,
   unsigned int njunx = nloci - 1;
   do
     {
-      double mult = recomb_p? *r : 1 - *r ;
+      double mult;
+      unsigned int sigfirst = bits_ffs (diff);
       /* if this is the first time through, and the first bit is 1,
 	 then we have recombination at the first junction */
-      if ((njunx == nloci - 1) && (bits_ffs (diff) == 1))
-	total *= mult; 
-      /* after that, we must ask if the next bit after the first is
-	 different */
+      if ((njunx == nloci - 1) && (sigfirst == 1))
+	{
+	  mult = recomb_p? *r : 1 - *r ;
+	  total *= mult;
+	  r++;
+	  diff >>= 1;
+	  njunx--;
+	}      
       else if (njunx == 1) 
-	total *= mult;
-      r++;
-      diff >>= 1;
-      njunx--;
-    } while ((diff != 0) && (njunx > 0));
+	{
+	  mult = recomb_p? *r : 1 - *r ;
+	  total *= mult;
+	  break;
+	}
+      else
+	{
+	  r += sigfirst;
+	  mult = recomb_p? *r : 1 - *r ;
+	  diff >>= sigfirst;
+	  njunx -= sigfirst;
+	  total *= mult;
+	}
+    } while ((diff != 0)
+	     /* If diff == 0, then there is no more recombination */
+	     /* if diff == 11 for one more junction, then there is no
+		more recombination
+                | Junctions | Loci | diff == ~0 | diff/t       |
+                |-----------+------+------------+--------------|
+                |         1 |    2 |         11 | (1 << 2) - 1 |
+                |         2 |    3 |        111 | (1 << 3) - 1 |
+                |         3 |    4 |       1111 | (1 << 4) - 1 |
+                |-----------+------+------------+--------------|
+	     */
+	     && (diff != ((1 << (njunx + 1)) - 1))
+	     /* if we have zero more junctions, we're also done */
+	     && (njunx > 0));
   /* we always need half the amount calculated, since there is another
      recombinant (or non-recombinant) offspring */
   return 0.5 * total;
