@@ -1,3 +1,11 @@
+2010-05-28  Joel James Adamson  <adamsonj@email.unc.edu>
+
+	* src/rec.c (rec_total): added more if-conditions and while
+	while-conditions: now the process jumps ahead to the needed member
+	of the recombination map by advancing as many positions as needed;
+	also the iteration stops if we've reached the last recombination
+	event (if the difference map is all 1's)
+
 2010-05-20  Joel James Adamson  <adamsonj@email.unc.edu>
 
 	* src/rec.c (rec_gen_table): fixed another impossible offspring;
