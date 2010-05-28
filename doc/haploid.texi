@@ -50,6 +50,7 @@ C library for haploid population genetic simulations.
 
 @menu
 * Introduction::                
+* Features::                    
 * Representation::              
 * Simulation functions::        
 * GNU Free Documentation License::  
@@ -61,6 +62,12 @@ C library for haploid population genetic simulations.
 Introduction
 
 * Development::                 
+
+Features
+
+* Recombination tables::        
+* Mating tables::               
+* Recombination algorithm::     
 
 Representation
 
@@ -79,28 +86,32 @@ Genotypes
 @end ifnottex
 
 @comment  node-name,  next,  previous,  up
-@node Introduction, Representation, Top, Top
+@node Introduction, Features, Top, Top
 @chapter Introduction
 Haploid is a library of C functions useful for simulating haploid
 population genetics.  Haploid simulations are often used for theoretical
 studies of sexual selection, migration and speciation.
 
-Haploid follows the GNU Coding Standards and is managed by the GNU
-Autotools in a @url{http://subversion.tigris.org, Subversion} version
-control repository hosted on
+@cindex developing Haploid
+@cindex Subversion, using
+Haploid follows the GNU Coding Standards (with some exceptions) and is
+managed by the GNU Autotools in a @url{http://subversion.tigris.org,
+Subversion} version control repository hosted on
 @url{http://savannah.nongnu.org/projects/haploid, Savannah}.
 
 To use the library, use @code{#include <haploid.h>} at the top of your
 files.  To link with the library, pass @code{-lhaploid} to the linker.
 For example:
-
+@cindex compiling
 @example
 # gcc -std=gnu99 -ggdb  -g -O2   -o sim_stop sim_stop.o -lm -lhaploid 
 @end example
 
 Haploid is Free Software released under the terms of the GNU General
 Public License Version 3.
-
+@cindex bug reports, submit
+@cindex bugs
+@cindex reporting bugs
 Send bug reports or questions on usage to the mailing list at
 @email{haploid-users@@nongnu.org}).
 
@@ -112,29 +123,176 @@ Send bug reports or questions on usage to the mailing list at
 @section Development
 
 @comment Some details of developing Haploid.
-
+@cindex development, standards
+@cindex GNU Coding Standards
 Please read the GNU Coding Standards before adding any code to Haploid
 or developing a test. @xref{Writing C, Writing C, Writing C, standards,
 GNU Coding Standards}, for details of GNU style.  Haploid makes use of
 extensions in the GNU C Library and the C99 Standard.  I also highly
 recommend using GCC for compiling the library, as some library functions
-are merely wrappers for builtin functions available in GCC.
+are merely wrappers for built-in functions available in GCC.
 
 Patches are welcomed for testing.  The best way to make a patch from
 your working copy is with the command
-
+@cindex diff
+@cindex patch
 @example
 # svn diff -x -u <filename> > PATCHFILE
 @end example
 
 Such a diff contains enough information for @command{patch} to apply it
 with
-
+@cindex patch, applying a
 @example
 # patch -p0 < PATCHFILE
 @end example
 
-@node Representation, Simulation functions, Introduction, Top
+@node Features, Representation, Introduction, Top
+@chapter Features
+
+Haploid uses two interesting features to simulate evolution of allele
+frequencies.  The first is the representation of recombination tables as
+arrays of sparse matrices (one sparse matrix for each possible offspring
+in a given genome).  Only the offspring that are possible with a given
+set of parents take up storage space in this representation.  Any zero
+entries (for ``impossible offspring'') are not stored, and are
+represented only as gaps in the indices of the entries in the table.
+For small recombination frequencies, and large genomes, this reduces the
+use of space for the lookup table, and potentially reduces the amount of
+time taken to calculate offspring frequencies.
+
+The second feature is the algorithm that produces recombination tables
+for arbitrary recombination frequencies (specified as arrays).  The
+algorithm avoids calculating probabilities as much as possible and only
+calculates them when they are not 1.0 or 0.0.
+
+When a single recombination scheme is needed for a particular problem,
+the lookup table need only be calculated once (at the beginning of the
+simulation).  However, I believe the algorithm is fast enough that you
+could use it to represent evolving recombination.  Please inform the
+developers if you successfully use the library for this purpose.
+@cindex diploid, simulating diploidy
+@cindex diploidy, simulating
+Haploid's name may be deceiving: the real heart of the library is the
+recombination algorithm, for which we only need haploid genetics.
+However, one could adapt the algorithms for simulating diploid
+populations.
+@c how would you do this?  Provide an example!
+
+@menu
+* Recombination tables::        
+* Mating tables::               
+* Recombination algorithm::     
+@end menu
+
+@node Recombination tables, Mating tables, Features, Features
+@section Recombination tables
+@cindex recombination
+@cindex recombination, tables
+@cindex recombination, rates
+
+Recombination tables are three-dimensional arrays that define the
+probability of an offspring genotype given two parents.  We can think of
+the recombination table as an array of matrices wherein each matrix
+defines holds the probabilities of an offspring genotype.  Each column
+in the matrix defines one parent (e.g. the father) and the row defines
+the other parent (e.g. the mother).
+
+The algorithm that builds the table exploits a few conspicuous features:
+the diagonal of this table is entirely zero, except for the entry where
+both parents are the same genotype as the offspring.  When the parents
+are identical, they will only produce the desired offspring when they
+are that genotype themselves (and it is the only genotype they will
+produce).  The matrix is symmetric about this diagonal, since we
+generally assume that recombination is unaffected by the parent of
+origin.
+
+For example, with two loci and two alleles, the recombination table for
+producing the offspring 0 (@code{0x0}) with @math{r = 0.5} is:
+
+@verbatim
+1.00000000 0.50000000 0.50000000 0.25000000 
+0.50000000 0.00000000 0.25000000 0.00000000 
+0.50000000 0.25000000 0.00000000 0.00000000 
+0.25000000 0.00000000 0.00000000 0.00000000 
+@end verbatim
+
+and the whole array includes four such tables.  As you can see the table
+is mostly @math{0}.  For this purpose we store the matrices as linked
+lists where each link is a C structure containing the value, the indices
+and a pointer to the next link in the chain.
+
+This strategy is nifty, but it's not exposed to the user, as the only
+function for accessing recombination table data is rec_mating () which
+produces the offspring genotype frequencies given a mating table.  You
+may be able to use this data structure to your advantage, but its
+implementation is hidden from the user.
+
+@node Mating tables, Recombination algorithm, Recombination tables, Features
+@section Mating tables
+@cindex mating table
+@cindex sexual selection
+@cindex non-random mating
+@cindex mating, non-random
+@cindex mating, random
+@cindex mating, selective
+A ``mating table'' is a matrix where the rows are defined to be one
+parent (e.g. the mother) and the columns represent the other parent, and
+entries represent the probability of mating.  For example, if you were
+simulating sexual selection each entry would be the male frequency times
+the female frequency times the probability of mating given an encounter.
+You can simulate random mating by making the entries of the mating table
+equal to the products of the male and female frequencies.
+
+@code{rec_mating ()} calculates new offspring frequencies by finding the
+Kronecker (or ``direct'') product of the mating table and the
+recombination table entry for a particular offspring and summing the
+entries of the result.  Before returning the vector of offspring
+probabilities @code{rec_mating ()} divides each new frequency by the
+total of the new frequencies.
+
+@node Recombination algorithm,  , Mating tables, Features
+@section Recombination algorithm
+@cindex recombination, algorithm
+Haploid's second feature is the algorithm that calculates the entries of
+the recombination table.  The algorithm for choosing to make an entry is
+contained in a loop-nest within the function @code{rec_gen_table ()}, in
+the file @file{src/rec.c}.  This explanation is just an aid in reading
+the source code: users only need to call @code{rec_gen_table ()} with
+appropriate arguments.
+
+The algorithm loops over the possible offspring, from 0 to the number of
+given genotypes minus one; then the algorithm loops over mothers and
+then fathers (arbitrarily designated).  First the algorithm checks if
+there is already an entry in the table for transposed parents, if so it
+makes a new entry with the same value.  The result is symmetry, which
+corresponds to no bias in recombination based on parent of origin.  If
+the mother, father and offspring all have the same genotype, then there
+is only one possible offspring, and a new entry is made with a value of
+1.  Further (or prior) loops with equal parent genotypes will produce no
+entries (corresponding to the value zero).  If one parent matches the
+offspring, we find the probability of all recombinant and
+non-recombinant offspring (see below).  If neither parent matches, we
+first find if we can construct the offspring genotype from the parents
+using recombination (by comparing the differences between the offspring
+and one parent, then checking the other parent at all the differing
+sites).  Only if this test is successful do we calculate the probability
+of recombinant offspring.
+
+The function @code{rec_total ()} (found in @file{src/rec.c}) computes
+the probability of recombinant, or non-recombinant offspring by taking
+the @emph{exclusive or} of two unsigned integers as an argument.
+@code{rec_total ()} reduces all problems to a two-locus problem by
+iterating over the ``junctions'' and testing where the differences are.
+When it encounters a single remaining junction, it tests if the
+difference map is different from 0, indicating recombination.  If there
+is more than one remaining junction, it looks ahead for the next locus
+that is different from the target offspring; each iteration adjust the
+difference map by the appropriate number of positions.  Iteration stops
+if the difference map is equal to @math{0}, all positions are @math{1}
+or if the number of junctions falls less than 0.
+
+@node Representation, Simulation functions, Features, Top
 @chapter Representation
 
 Haploid represents two kinds of objects: diallelic genotypes (integers),
@@ -151,7 +309,7 @@ defined in @file{haploid.h}.
 
 @node Genotypes, Compound Objects, Representation, Representation
 @section Genotypes
-
+@cindex genotypes, specifying
 Haploid represents diallelic genomes with unsigned C integers: a single
 locus (position) is represented by a bit of an integer.  An n-locus
 genotype therefore has @math{2^n} possible genotypes.  We can therefore
@@ -160,6 +318,7 @@ changes to bits of integers.  The frequency assigned to a particular
 locus is the frequency of the set bit (1), and one minus the frequency
 of an unset bit.
 
+@cindex genotypes, iterating
 This makes iterating over genotypes @strong{very} convenient, as you can
 start iterating at 0, and stop before a genotype equals the maximum
 number of genotypes.  For a genome with @math{n} loci, you will
@@ -173,7 +332,8 @@ therefore iterate over @math{2^n} genotypes.
 
 @node Working with genome size, Manipulating Genotypes, Genotypes, Genotypes
 @subsection  Working with genome size
-
+@cindex genome, size
+@cindex genome, example
 The simplest way to represent the size of a genome and the number of
 alleles is to define global variables or macros to use as array bounds.
 Here's an example from @file{tests/tlta.c}:
@@ -201,7 +361,8 @@ selection (double * freqs, double * W)
 
 @node Manipulating Genotypes, Genotype functions, Working with genome size, Genotypes
 @subsection Manipulating Genotypes
-
+@cindex genotypes, manipulating
+@cindex genotypes, iterating
 Haploid includes some basic functions that operate on bits of integers:
 you may find these functions useful for defining specific loci with
 particular phenotypic effects within a large genome.  For example, you
@@ -312,10 +473,14 @@ matrices (e.g. recombination tables).
 
 The data type @code{rtable_t} is an array of sparse matrices
 representing a recombination table.  Sparse matrices are implemented as
-singly-linked lists:
+singly-linked lists.
 
+@deftp {Data type} rtable_t
+An array of @code{sparse_elt_t} entries, one for each offspring genotype.
+@end deftp
+
+@deftp {Data type} struct sparse_elt_t indices val next
 @verbatim
-typedef struct sparse_elt_t sparse_elt_t;
 struct sparse_elt_t
 {
   int * indices;		/* row, column */
@@ -323,13 +488,13 @@ struct sparse_elt_t
   sparse_elt_t * next;		/* pointer to next */
 };
 @end verbatim
+To explicitly use @code{sparse_elt_t} you must include
+@file{src/sparse.h}, which is not installed by default.
+@end deftp
 
-The data type @code{haploid_data_t} can hold most of the information
-needed for a simulation:
 
+@deftp {Data type} haploid_data_t geno nloci rec_table mtable
 @verbatim
-typedef sparse_elt_t rtable_t;
-typedef struct haploid_data_t haploid_data_t;
 struct haploid_data_t
 {
   int geno;			/* number of genotypes */
@@ -338,6 +503,9 @@ struct haploid_data_t
   double ** mtable;		/* mating table (matrix) */
 };
 @end verbatim
+The data type @code{haploid_data_t} can hold most of the information
+needed for a simulation.  
+@end deftp
 
 @deftypefn {Library Function} rtable_t rec_gen_table @
 (int nloci, int geno, double * r)
@@ -414,5 +582,7 @@ p(x)} given a pointer to proportions @var{props} and a pointer to values
 @unnumbered Index
 
 @printindex fn
+@printindex cp
+@printindex tp
 
 @bye
