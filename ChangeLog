@@ -4,6 +4,8 @@
 	probability of recombination between partitions defined by odd
 	numbers between 1 and the size of the genome minus one (e.g. 1111
 	for nloci = 4)
+	(rec_total): first crack at a recombination function based on
+	Bürger's formula (2.10)
 
 2010-06-01  Joel James Adamson  <adamsonj@email.unc.edu>
 

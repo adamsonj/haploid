@@ -48,11 +48,11 @@ rec_extend_r (size_t nloci, double * r)
   double * resultptr = result;
   /* iterate over the partitions, which are odd numbers from 1 to
      geno_mask - 2 */
-  for (i = 1; i < geno_mask; i += 2)
+  for (unsigned int i = 1; i < geno_mask; i += 2)
     /* iterate over the positions of the genome, testing to see where
        there are changes */
     _Bool set_p = true;
-    for (j = 1; j < nloci; j++, set_p = bits_isset (i, j))
+    for (unsigned int j = 1; j < nloci; j++, set_p = bits_isset (i, j))
       {
 	/* save r's address, so we can iterate by modifying a pointer */
 	double * rptr = r;
@@ -70,54 +70,52 @@ rec_extend_r (size_t nloci, double * r)
 }
 
 double
-rec_total (size_t nloci, unsigned int diffi,
-	   unsigned int diffj, double * r)
+rec_total (size_t nloci, unsigned int diffj,
+	   unsigned int diffk, double * r)
 {
-  /* find the total probability of recombination (or not, depending on
-     RECOMB_P) over recombination map R, given difference map DIFF */
-  /* WARNING: this function assumes that the other parent (the one NOT
-     used to find DIFF) provides the right alleles; the caller must
-     verify this assumption) */
-  double total = 1.0;
+  /* find the total probability of recombination over extended
+     recombination map R, given difference maps DIFFI and DIFFJ
+
+     We can say whether a particular set of loci in a particular
+     parent is different from the offspring by evaluating
+
+     DIFFI & ODDMASK
+
+     where oddmask defines a set of loci containing the first locus
+ */
+  double total = 0.0;
 
   /* this is a mask for the whole genome, or the largest number
      represented by the genome */
   const geno_mask = (1 << nloci) - 1;
 
-  /* number of junctions where recombination might occur */
-  unsigned int njunx = nloci - 1;
-  do
+  /* a pointer to reference elements of r */
+  double * rptr = r;
+  /* iterate over the partitions of the genome, represented by odd
+     numbers from 1 to geno_mask - 2 */
+  for (unsigned int comp = geno_mask - 1,
+	 unsigned int part = 1;
+       part < geno_mask;
+       /* increment partition by 2 (find the next odd number);
+	  decrement complement by 2 (find the next-lowest even
+	  number)  */
+       part += 2, comp -= 2, rptr++)
     {
-      double mult;
-      unsigned int sigfirst = bits_ffs (diff);
-      /* if this is the first time through, and the first bit is 1,
-	 then we have recombination at the first junction */
-      if ((njunx == nloci - 1) && (sigfirst == 1))
-	{
-	  mult = recomb_p? *r : 1 - *r ;
-	  total *= mult;
-	  r++;
-	  diff >>= 1;
-	  njunx--;
-	}      
-      else if (njunx == 1) 
-	{
-	  mult = recomb_p? *r : 1 - *r ;
-	  total *= mult;
-	  break;
-	}
-      else
-	{
-	  r += sigfirst;
-	  mult = recomb_p? *r : 1 - *r ;
-	  diff >>= sigfirst;
-	  njunx -= sigfirst;
-	  total *= mult;
-	}
-    } while ((diff != 0)
-	     /* If diff == 0, then there is no more recombination */
-	     /* if we have zero more junctions, we're also done */
-	     && (njunx > 0));
+      /* delta-values based on the given differences between the
+	 offspring and the two parents */
+      unsigned int delta_iIjI = diffj & part?1:0;
+      unsigned int delta_iJjJ = diffj & comp?1:0;
+      unsigned int delta_iIkI = diffk & part?1:0;
+      unsigned int delta_iJkJ = diffk & comp?1:0;
+
+      /* the recombination fraction for this partition */
+      rI = *rptr;
+      /* now the formula: */
+      total += delta_iIjI * ((1 - rI) * delta_iJjJ + rI * delta_iJkJ)
+	+ delta_iIkI * ((1 - rI) * delta_iJkJ + rI * delta_iJjJ);
+    }
+  assert (total <= 1.0);
+
   /* we always need half the amount calculated, since there is another
      recombinant (or non-recombinant) offspring */
   return 0.5 * total;
