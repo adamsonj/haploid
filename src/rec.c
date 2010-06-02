@@ -78,16 +78,6 @@ rec_total (size_t nloci, unsigned int diff,
 	}
     } while ((diff != 0)
 	     /* If diff == 0, then there is no more recombination */
-	     /* if diff == 11 for one more junction, then there is no
-		more recombination
-                | Junctions | Loci | diff == ~0 | diff/t       |
-                |-----------+------+------------+--------------|
-                |         1 |    2 |         11 | (1 << 2) - 1 |
-                |         2 |    3 |        111 | (1 << 3) - 1 |
-                |         3 |    4 |       1111 | (1 << 4) - 1 |
-                |-----------+------+------------+--------------|
-	     */
-	     && (diff != ((1 << (njunx + 1)) - 1))
 	     /* if we have zero more junctions, we're also done */
 	     && (njunx > 0));
   /* we always need half the amount calculated, since there is another
@@ -106,17 +96,17 @@ rec_gen_table (size_t nloci, size_t geno, double * r)
   /* iterate over offspring entries, using endptr to keep track of
      position in the kth entry of rec_table, which is an array of
      GENO  */
-  for (unsigned int k = 0; k < geno; k++)
+  for (unsigned int i = 0; i < geno; i++)
     {   
-      rtable[k] = sparse_new_elt (NULL, 0.0, NULL);
+      rtable[i] = sparse_new_elt (NULL, 0.0, NULL);
       sparse_elt_t * endptr = NULL;
-      for (unsigned int i = 0; i < geno; i++)
+      for (unsigned int k = 0; k < geno; k++)
 	for (unsigned int j = 0; j < geno; j++)
 	  {
 	    _Bool new_elt_p = false;
 	    double total;
 	    /* does the transpose already exist? */
-	    if ((total = sparse_get_val (rtable[k], j, i)) != 0.0)
+	    if ((total = sparse_get_val (rtable[i], k, j)) != 0.0)
 	      /* this avoids the function call to rec_total */
 	      /* however, it doesn't work when the new entry *should*
 		 be zero!  The later procedures should catch this, but
@@ -129,10 +119,10 @@ rec_gen_table (size_t nloci, size_t geno, double * r)
 		/* there is only one possibility: */
 		total = 1.0;
 	      }
-	    else if (i == j)
+	    else if (j == k)
 	      /* no target offspring possible */
 	      continue;
-	    else if (j == k)
+	    else if (i == j)
 	      {
 		new_elt_p = true;
 		unsigned int diff = i ^ k;
@@ -206,15 +196,15 @@ rec_gen_table (size_t nloci, size_t geno, double * r)
 	    /* if this is our first link in the chain: */
 	    else if (new_elt_p)
 	      {
-		endptr = rtable[k];
+		endptr = rtable[i];
 		endptr->val = total;
 	      }
 
 	    /* set the indices */
-	    endptr->indices[0] = i;
+	    endptr->indices[0] = k;
 	    endptr->indices[1] = j;
-	  }	/* for j < geno */
-    }	    /* for k < geno */
+	  }	/* for k < geno */
+    }	    /* for i < geno */
   return rtable;
 }
 

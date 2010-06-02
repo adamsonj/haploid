@@ -1,3 +1,8 @@
+2010-06-01  Joel James Adamson  <adamsonj@email.unc.edu>
+
+	* src/rec.c (rec_gen_table): changed indices to match Bürger's
+	notation
+
 2010-05-28  Joel James Adamson  <adamsonj@email.unc.edu>
 
 	* src/rec.c (rec_total): added more if-conditions and while
