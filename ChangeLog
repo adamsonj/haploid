@@ -6,6 +6,8 @@
 	for nloci = 4)
 	(rec_total): first crack at a recombination function based on
 	Bürger's formula (2.10)
+	(rec_gen_table): TLTA case works; three-locus case does not;
+	formula is wrong or misinterpreted
 
 2010-06-01  Joel James Adamson  <adamsonj@email.unc.edu>
 

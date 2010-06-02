@@ -39,33 +39,37 @@ rec_extend_r (size_t nloci, double * r)
      (2000): I is a non-void partition of the genome including the
      first locus; J is its complement */
   /* a boundary for the iteration */
-  const geno_mask = (1 << nloci) - 1;
-  double * result = malloc (((geno_mask / 2) - 1) * sizeof (double));
+  const unsigned int geno_mask = (1 << nloci) - 1;
+  double * result = malloc ((size_t) floor(geno_mask / 2) * sizeof (double));
   if (result == NULL)
     error (0, ENOMEM, "Null pointer\n");
   /* we will access the values of result by pointer arithmetic (to
      avoid calculating indices) */
   double * resultptr = result;
+  /* initialize the value to 1.0 */
+  *result = 1.0;
   /* iterate over the partitions, which are odd numbers from 1 to
      geno_mask - 2 */
   for (unsigned int i = 1; i < geno_mask; i += 2)
-    /* iterate over the positions of the genome, testing to see where
-       there are changes */
-    _Bool set_p = true;
-    for (unsigned int j = 1; j < nloci; j++, set_p = bits_isset (i, j))
-      {
-	/* save r's address, so we can iterate by modifying a pointer */
-	double * rptr = r;
-	/* if there is a change, we need to multiply */
-	if (bits_isset (i, j) != set_p)
-	  result *= *rptr;
-	/* otherwise we do nothing */
+    {
+      /* iterate over the positions of the genome, testing to see where
+	 there are changes */
+      _Bool set_p = true;
+      for (unsigned int j = 1; j < nloci; j++, set_p = bits_isset (i, j))
+	{
+	  /* save r's address, so we can iterate by modifying a pointer */
+	  double * rptr = r;
+	  /* if there is a change, we need to multiply */
+	  if (bits_isset (i, j) != set_p)
+	    *result *= *rptr;
+	  /* otherwise we do nothing */
 
-	/* now advance the array of results */
-	result++;
-	/* advance our position in the r array */
-	rptr++;
-      }	
+	  /* advance our position in the r array */
+	  rptr++;
+	}
+      /* now advance the array of results */
+      result++;
+    }
   return resultptr;
 }
 
@@ -82,19 +86,19 @@ rec_total (size_t nloci, unsigned int diffj,
      DIFFI & ODDMASK
 
      where oddmask defines a set of loci containing the first locus
- */
+  */
   double total = 0.0;
 
   /* this is a mask for the whole genome, or the largest number
      represented by the genome */
-  const geno_mask = (1 << nloci) - 1;
+  const unsigned int geno_mask = (1 << nloci) - 1;
 
   /* a pointer to reference elements of r */
   double * rptr = r;
   /* iterate over the partitions of the genome, represented by odd
      numbers from 1 to geno_mask - 2 */
-  for (unsigned int comp = geno_mask - 1,
-	 unsigned int part = 1;
+  unsigned int comp = geno_mask - 1;
+  for (unsigned int part = 1;
        part < geno_mask;
        /* increment partition by 2 (find the next odd number);
 	  decrement complement by 2 (find the next-lowest even
@@ -103,13 +107,13 @@ rec_total (size_t nloci, unsigned int diffj,
     {
       /* delta-values based on the given differences between the
 	 offspring and the two parents */
-      unsigned int delta_iIjI = diffj & part?1:0;
-      unsigned int delta_iJjJ = diffj & comp?1:0;
-      unsigned int delta_iIkI = diffk & part?1:0;
-      unsigned int delta_iJkJ = diffk & comp?1:0;
+      unsigned int delta_iIjI = diffj & part?0:1;
+      unsigned int delta_iJjJ = diffj & comp?0:1;
+      unsigned int delta_iIkI = diffk & part?0:1;
+      unsigned int delta_iJkJ = diffk & comp?0:1;
 
       /* the recombination fraction for this partition */
-      rI = *rptr;
+      double rI = *rptr;
       /* now the formula: */
       total += delta_iIjI * ((1 - rI) * delta_iJjJ + rI * delta_iJkJ)
 	+ delta_iIkI * ((1 - rI) * delta_iJkJ + rI * delta_iJjJ);
@@ -128,7 +132,7 @@ rec_gen_table (size_t nloci, size_t geno, double * r)
   sparse_elt_t ** rtable = malloc (geno * sizeof (sparse_elt_t *));
   if (rtable == NULL)
     error (0, ENOMEM, "Null pointer\n");
-  const geno_mask = (1 << nloci) - 1;
+  const unsigned int geno_mask = (1 << nloci) - 1;
   /* find the "extended recombination array" */
   double * xr = rec_extend_r (nloci, r);
   /* iterate over offspring entries, using endptr to keep track of
@@ -168,7 +172,7 @@ rec_gen_table (size_t nloci, size_t geno, double * r)
 	    else if (i == k)
 	      {
 		new_elt_p = true;
-		total = rec_total (nloci, 0, j ^ k, xr);
+		total = rec_total (nloci, 0, i ^ j, xr);
 	      }
 	    /* offspring must be recombinant or impossible */
 	    else 
@@ -193,7 +197,7 @@ rec_gen_table (size_t nloci, size_t geno, double * r)
 		for (unsigned int pos = bits_ffs (needed);
 		     /* remember that pos is 1-indexed! */
 		     pos <= nloci && needed != 0;
-		       pos = bits_ffs (needed))
+		     pos = bits_ffs (needed))
 		  {
 		    /* do the bits from the other parent and the
 		       offspring match? */
