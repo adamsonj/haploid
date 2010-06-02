@@ -30,21 +30,59 @@
 /* declarations */
 #include "sparse.h"
 #include <assert.h>
+
+double *
+rec_extend_r (size_t nloci, double * r)
+{
+  /* return a pointer to an array of values describing probabilities
+     of recombination between sets I and J as described in Bürger
+     (2000): I is a non-void partition of the genome including the
+     first locus; J is its complement */
+  /* a boundary for the iteration */
+  const geno_mask = (1 << nloci) - 1;
+  double * result = malloc (((geno_mask / 2) - 1) * sizeof (double));
+  if (result == NULL)
+    error (0, ENOMEM, "Null pointer\n");
+  /* we will access the values of result by pointer arithmetic (to
+     avoid calculating indices) */
+  double * resultptr = result;
+  /* iterate over the partitions, which are odd numbers from 1 to
+     geno_mask - 2 */
+  for (i = 1; i < geno_mask; i += 2)
+    /* iterate over the positions of the genome, testing to see where
+       there are changes */
+    _Bool set_p = true;
+    for (j = 1; j < nloci; j++, set_p = bits_isset (i, j))
+      {
+	/* save r's address, so we can iterate by modifying a pointer */
+	double * rptr = r;
+	/* if there is a change, we need to multiply */
+	if (bits_isset (i, j) != set_p)
+	  result *= *rptr;
+	/* otherwise we do nothing */
+
+	/* now advance the array of results */
+	result++;
+	/* advance our position in the r array */
+	rptr++;
+      }	
+  return resultptr;
+}
+
 double
-rec_total (size_t nloci, unsigned int diff,
-	   double * r, _Bool recomb_p)
+rec_total (size_t nloci, unsigned int diffi,
+	   unsigned int diffj, double * r)
 {
   /* find the total probability of recombination (or not, depending on
      RECOMB_P) over recombination map R, given difference map DIFF */
   /* WARNING: this function assumes that the other parent (the one NOT
      used to find DIFF) provides the right alleles; the caller must
      verify this assumption) */
-  /* diff should never be 0: if diff is 0, the caller has asked for
-     the probability of non-recombinant offspring without providing
-     the other parent (the one not identical to the offspring).  That
-     case should be handled by the caller without calling rec_total */
-  assert (diff != 0);
   double total = 1.0;
+
+  /* this is a mask for the whole genome, or the largest number
+     represented by the genome */
+  const geno_mask = (1 << nloci) - 1;
 
   /* number of junctions where recombination might occur */
   unsigned int njunx = nloci - 1;
@@ -92,7 +130,9 @@ rec_gen_table (size_t nloci, size_t geno, double * r)
   sparse_elt_t ** rtable = malloc (geno * sizeof (sparse_elt_t *));
   if (rtable == NULL)
     error (0, ENOMEM, "Null pointer\n");
-  unsigned int maxed = (1 << nloci) - 1;
+  const geno_mask = (1 << nloci) - 1;
+  /* find the "extended recombination array" */
+  double * xr = rec_extend_r (nloci, r);
   /* iterate over offspring entries, using endptr to keep track of
      position in the kth entry of rec_table, which is an array of
      GENO  */
@@ -125,29 +165,21 @@ rec_gen_table (size_t nloci, size_t geno, double * r)
 	    else if (i == j)
 	      {
 		new_elt_p = true;
-		unsigned int diff = i ^ k;
-		/* this case is (1-r)/2 */
-		total = rec_total (nloci, i ^ k, r, false);
-		if (diff != maxed) 
-		  total += rec_total (nloci, i ^ k, r, true);
+		total = rec_total (nloci, 0, i ^ k, xr);
 	      }
 	    else if (i == k)
 	      {
 		new_elt_p = true;
-		unsigned int diff = j ^ k;
-		/* this case is (1-r)/2 */
-		total = rec_total (nloci, j ^ k, r, false);
-		if (diff != maxed)
-		  total += rec_total (nloci, j ^ k, r, true);
+		total = rec_total (nloci, 0, j ^ k, xr);
 	      }
 	    /* offspring must be recombinant or impossible */
 	    else 
 	      {
-		/* Do the parent and the offspring have set bits
-		   in common? */
-		unsigned int set = i & k;
+		/* Do one parent and the offspring have set bits in
+		   common? */
+		unsigned int set = i & j;
 		/* do they have off bits in common? */
-		unsigned int off = bits_extract(0, nloci, ~i & ~k);
+		unsigned int off = bits_extract(0, nloci, ~i & ~j);
 		/* do they have any bits in common? */
 		unsigned int common = set | off;
 		/* find where they are NOT alike: */
@@ -155,7 +187,7 @@ rec_gen_table (size_t nloci, size_t geno, double * r)
 		/* if we need *all* the alleles from the other parent,
 		   then we're screwed since we already know the other
 		   parent is not identical to the target offspring */
-		if (needed == maxed)
+		if (needed == geno_mask)
 		  continue;
 		/* now iterate over the needed bits; break at the
 		   first allele we *can't* get from the other
@@ -167,7 +199,7 @@ rec_gen_table (size_t nloci, size_t geno, double * r)
 		  {
 		    /* do the bits from the other parent and the
 		       offspring match? */
-		    if (bits_isset (j, pos - 1) == bits_isset (k, pos - 1))
+		    if (bits_isset (k, pos - 1) == bits_isset (i, pos - 1))
 		      {
 			/* for now the other parent is good */
 			new_elt_p = true;
@@ -181,7 +213,7 @@ rec_gen_table (size_t nloci, size_t geno, double * r)
 		      }
 		  }
 		if (new_elt_p)
-		  total = rec_total (nloci, i ^ k, r, true);
+		  total = rec_total (nloci, i ^ j, i ^ k, xr);
 		else continue;
 	      }	/* else */
 	    
