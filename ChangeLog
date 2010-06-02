@@ -8,6 +8,8 @@
 	Bürger's formula (2.10)
 	(rec_gen_table): TLTA case works; three-locus case does not;
 	formula is wrong or misinterpreted
+	(rec_extend_r): fixed arrangement of instructions so that we get
+	proper switching of set_p
 
 2010-06-01  Joel James Adamson  <adamsonj@email.unc.edu>
 

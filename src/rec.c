@@ -46,8 +46,7 @@ rec_extend_r (size_t nloci, double * r)
   /* we will access the values of result by pointer arithmetic (to
      avoid calculating indices) */
   double * resultptr = result;
-  /* initialize the value to 1.0 */
-  *result = 1.0;
+
   /* iterate over the partitions, which are odd numbers from 1 to
      geno_mask - 2 */
   for (unsigned int i = 1; i < geno_mask; i += 2)
@@ -55,15 +54,18 @@ rec_extend_r (size_t nloci, double * r)
       /* iterate over the positions of the genome, testing to see where
 	 there are changes */
       _Bool set_p = true;
-      for (unsigned int j = 1; j < nloci; j++, set_p = bits_isset (i, j))
+      /* initialize the value to 1.0 */
+      *result = 1.0;
+      for (unsigned int j = 1; j < nloci; j++)
 	{
 	  /* save r's address, so we can iterate by modifying a pointer */
 	  double * rptr = r;
 	  /* if there is a change, we need to multiply */
 	  if (bits_isset (i, j) != set_p)
 	    *result *= *rptr;
-	  /* otherwise we do nothing */
 
+	  /* otherwise we do nothing */
+	  set_p = bits_isset (i, j);
 	  /* advance our position in the r array */
 	  rptr++;
 	}
@@ -118,7 +120,7 @@ rec_total (size_t nloci, unsigned int diffj,
       total += delta_iIjI * ((1 - rI) * delta_iJjJ + rI * delta_iJkJ)
 	+ delta_iIkI * ((1 - rI) * delta_iJkJ + rI * delta_iJjJ);
     }
-  assert (total <= 1.0);
+  /* assert (total <= 1.0); */
 
   /* we always need half the amount calculated, since there is another
      recombinant (or non-recombinant) offspring */
