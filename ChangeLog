@@ -1,3 +1,10 @@
+2010-06-09  Joel James Adamson  <adamsonj@email.unc.edu>
+
+	* src/rec.c (rec_total): these changes bring about the first
+	logical recombination algorithm; it will all be explained in the
+	manual!  This batch of changes to the algorithm yields sensible
+	results for the two and three-locus cases.
+
 2010-06-02  Joel James Adamson  <adamsonj@email.unc.edu>
 
 	* src/rec.c (rec_extend_r): this new function finds the
