@@ -1,3 +1,7 @@
+2010-06-10  Joel James Adamson  <adamsonj@email.unc.edu>
+
+	* recombination algorithm now detailed in the manual
+
 2010-06-09  Joel James Adamson  <adamsonj@email.unc.edu>
 
 	* src/rec.c (rec_total): these changes bring about the first

@@ -270,27 +270,41 @@ corresponds to no bias in recombination based on parent of origin.  If
 the mother, father and offspring all have the same genotype, then there
 is only one possible offspring, and a new entry is made with a value of
 1.  Further (or prior) loops with equal parent genotypes will produce no
-entries (corresponding to the value zero).  If one parent matches the
-offspring, we find the probability of all recombinant and
-non-recombinant offspring (see below).  If neither parent matches, we
-first find if we can construct the offspring genotype from the parents
-using recombination (by comparing the differences between the offspring
-and one parent, then checking the other parent at all the differing
-sites).  Only if this test is successful do we calculate the probability
-of recombinant offspring.
+entries (corresponding to the value zero).  
+
+If one parent matches the offspring, and recombination can possibly
+produce the target offspring, then the value of the new entry is
+@math{0.5}.  If recombination is not possible (i.e. any recombination
+will produce non-target offspring) then the probability of the target
+offspring is the probability of no recombination at any loci:
+
+@math{R(jk \rightarrow i) = \frac{1}{2} \Pi_I (1 - r_I)}
+
+where @math{r_I} is the probability of recombination between a locus in
+genome partition @math{I \subset L}, and a locus in @math{J \subset L}
+such that @math{I \cap J = \nothing}.
+
+If neither parent matches, we first find if we can construct the
+offspring genotype from the parents using recombination (by comparing
+the differences between the offspring and one parent, then checking the
+other parent at all the differing sites).  Only if this test is
+successful do we calculate the probability of recombinant offspring.
 
 The function @code{rec_total ()} (found in @file{src/rec.c}) computes
-the probability of recombinant, or non-recombinant offspring by taking
-the @emph{exclusive or} of two unsigned integers as an argument.
-@code{rec_total ()} reduces all problems to a two-locus problem by
-iterating over the ``junctions'' and testing where the differences are.
-When it encounters a single remaining junction, it tests if the
-difference map is different from 0, indicating recombination.  If there
-is more than one remaining junction, it looks ahead for the next locus
-that is different from the target offspring; each iteration adjust the
-difference map by the appropriate number of positions.  Iteration stops
-if the difference map is equal to @math{0}, all positions are @math{1}
-or if the number of junctions falls less than 0.
+the probability of recombinant offspring by iterating across partitions
+of the genome that contain the first locus.  For each partition we
+evaluate
+
+@math{R (j_Ij_J, k_Ik_J \rightarrow i_Ii_J)
+        = (delta_{{i_I}{j_I}} delta_{{i_J}{k_J}}) rI
+          + (delta_{{i_I}{k_I}} delta_{{i_J}{j_J}}) rI}
+
+only if @math{delta_{{i_I}{j_I}} = delta_{{i_J}{k_J}} = 1}.  If that's
+true then the target offspring can be formed by recombination at the
+site defining @math{I} and @math{J}.  The total probability is the sum
+of these values:
+
+@math{R(jk \rightarrow i) = \sum_I R (j_Ij_J, k_Ik_J \rightarrow i_Ii_J)}
 
 @node Representation, Simulation functions, Features, Top
 @chapter Representation

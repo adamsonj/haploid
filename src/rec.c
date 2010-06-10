@@ -113,7 +113,7 @@ rec_total (size_t nloci, unsigned int j, unsigned int k,
 	     recombinations that produce the target */
 	  /* the recombination fraction for this partition */
 	  double rI = *rptr;
-	  total += (delta_iIjI * delta_iJkJ) *rI 
+	  total += (delta_iIjI * delta_iJkJ) * rI 
 	    + (delta_iIkI * delta_iJjJ) * rI;
 	}
       else continue;
@@ -134,10 +134,9 @@ rec_gen_table (size_t nloci, size_t geno, double * r)
   /* find the "extended recombination array" */
   double * xr = rec_extend_r (nloci, r);
   /* find the total probability of no recombination */
-  /* how many elements in xr? */
-  double rtot = 1.0;
+  double rnot = 1.0;
   for (int i = 0; i < (size_t) floor(geno_mask / 2); i++)
-    rtot *= xr[i];
+    rnot *= (1 - xr[i]);
   /* iterate over offspring entries, using endptr to keep track of
      position in the kth entry of rec_table, which is an array of
      GENO  */
@@ -183,7 +182,7 @@ rec_gen_table (size_t nloci, size_t geno, double * r)
 		     then total = 0.5 */
 		  total = 0.5;
 		else if (common == 0)
-		  total = 0.5 * rtot;
+		  total = 0.5 * rnot;
 		else
 		  total = rec_total (nloci, k, j, target, xr);
 		if (total != 0.0)
@@ -204,7 +203,7 @@ rec_gen_table (size_t nloci, size_t geno, double * r)
 		     then total = 0.5 */
 		  total = 0.5;
 		else if (common == 0)
-		  total = 0.5 * rtot;
+		  total = 0.5 * rnot;
 		else
 		  /* if not, call rec_total */
 		  total = rec_total (nloci, j, k, target, xr);
