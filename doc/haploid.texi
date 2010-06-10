@@ -278,11 +278,11 @@ produce the target offspring, then the value of the new entry is
 will produce non-target offspring) then the probability of the target
 offspring is the probability of no recombination at any loci:
 
-@math{R(jk \rightarrow i) = \frac{1}{2} \Pi_I (1 - r_I)}
+@math{R(jk \rightarrow i) = ({1 \over 2}) \Pi_I (1 - r_I)}
 
 where @math{r_I} is the probability of recombination between a locus in
 genome partition @math{I \subset L}, and a locus in @math{J \subset L}
-such that @math{I \cap J = \nothing}.
+such that @math{I \cap J = \emptyset}.
 
 If neither parent matches, we first find if we can construct the
 offspring genotype from the parents using recombination (by comparing
@@ -296,13 +296,14 @@ of the genome that contain the first locus.  For each partition we
 evaluate
 
 @math{R (j_Ij_J, k_Ik_J \rightarrow i_Ii_J)
-        = (delta_{{i_I}{j_I}} delta_{{i_J}{k_J}}) rI
-          + (delta_{{i_I}{k_I}} delta_{{i_J}{j_J}}) rI}
+        = (\delta_{{i_I}{j_I}} \delta_{{i_J}{k_J}}) r_I
+          + (\delta_{{i_I}{k_I}} \delta_{{i_J}{j_J}}) r_I}
 
-only if @math{delta_{{i_I}{j_I}} = delta_{{i_J}{k_J}} = 1}.  If that's
-true then the target offspring can be formed by recombination at the
-site defining @math{I} and @math{J}.  The total probability is the sum
-of these values:
+only if @math{\delta_{{i_I}{j_I}} = \delta_{{i_J}{k_J}} = 1}, where
+@math{\delta_{i_I j_J}} is a Kronecker @math{\delta}.  If that's true
+then the target offspring can be formed by recombination at the site
+defining @math{I} and @math{J}.  The total probability is the sum of
+these values:
 
 @math{R(jk \rightarrow i) = \sum_I R (j_Ij_J, k_Ik_J \rightarrow i_Ii_J)}
 
