@@ -51,3 +51,11 @@ tlta_SOURCES = examples/tlta.c tests/prtable.c
 tlta_CFLAGS = $(AM_CFLAGS) $(OPENMP_CFLAGS)
 
 TESTS = sim_stop pop_ck sparse_test rec_test rec_test3 diseq
+
+# distribution:
+sig: dist
+	gpg -b --use-agent $(PACKAGE)-$(VERSION).tar.gz
+	gpg --verify $(PACKAGE)-$(VERSION).tar.gz.sig
+disthost: sig
+	for file in  $(PACKAGE)-$(VERSION).tar.gz* ; \
+		do rsync -avz $$file $(RMTHOST) ; done

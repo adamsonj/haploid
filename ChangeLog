@@ -1,3 +1,8 @@
+2010-08-04  Joel James Adamson  <adamsonj@email.unc.edu>
+
+	* Makefile.am: added distribution target that signs the package
+	and uploads it
+
 2010-06-10  Joel James Adamson  <adamsonj@email.unc.edu>
 
 	* recombination algorithm now detailed in the manual
