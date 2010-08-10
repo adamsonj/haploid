@@ -1,5 +1,9 @@
 2010-08-10  Joel James Adamson  <adamsonj@email.unc.edu>
 
+	* src/rec.c (rec_total): added an or to the logical step before
+	adding to total; removed denominator (not necessary; should be
+	dealt with in mating table)
+
 	* src/geno_func.c (ld_from_geno): replaced all "1.0 - something"
 	with fdim (1.0, something); also replaced subtraction in return
 	statement of ld_from_geno

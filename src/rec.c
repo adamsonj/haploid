@@ -100,14 +100,17 @@ rec_total (size_t nloci, unsigned int j, unsigned int k,
 	  number)  */
        part += 2, comp -= 2, rptr++)
     {
-      /* differences between genomes defined by partitions: */
+      /* differences between genomes defined by partitions: in
+	 Burger's notation I= part and J = comp, i is the target, j
+	 and k are parents */
       unsigned int delta_iIjI = ((j & part) == (target & part))? 1 : 0;
       unsigned int delta_iIkI = ((k & part) == (target & part))? 1 : 0;
       unsigned int delta_iJkJ = ((k & comp) == (target & comp))? 1 : 0;
       unsigned int delta_iJjJ = ((j & comp) == (target & comp))? 1 : 0;
 
       /* does this recombination produce the target? */
-      if (delta_iIjI && delta_iJkJ)
+      if ((delta_iIjI && delta_iJkJ)
+	  || (delta_iIkI && delta_iJjJ))
 	{
 	  /* otherwise we need to find the probability of specific
 	     recombinations that produce the target */
@@ -153,7 +156,8 @@ rec_gen_table (size_t nloci, size_t geno, double * r)
 	    unsigned int off;
 	    unsigned int common;		
 	    /* does the transpose already exist? */
-	    if ((total = sparse_get_val (rtable[target], j, k)) != 0.0)
+	    if (isgreater(total = sparse_get_val (rtable[target], j, k),
+			       0.0))
 	      /* this avoids the function call to rec_total */
 	      /* however, it doesn't work when the new entry *should*
 		 be zero!  The later procedures should catch this, but
@@ -286,18 +290,11 @@ rec_mating (double * freqs, haploid_data_t * data)
   size_t geno = data->geno;
   sparse_elt_t ** rtable = data->rec_table;
   double ** mtable = data->mtable;
-  double denom = 0.0;
   /* find the frequencies of offspring from recombination table RTABLE
      and mating table MTABLE */
 
-  /* FREQS[k] is the total of the Kronecker product of MTABLE and
+  /* FREQS[k] is the total of the Hadamard product of MTABLE and
      RTABLE[k] */
   for (int k = 0; k < geno; k++)
-    {
-      freqs[k] = sparse_mat_tot (geno, mtable, rtable[k]);
-      denom += freqs[k];
-    }
-  /* to ensure that frequencies sum to 1 */
-  for (int k = 0; k < geno; k++)
-    freqs[k] /= denom;
+    freqs[k] = sparse_mat_tot (geno, mtable, rtable[k]);
 }
