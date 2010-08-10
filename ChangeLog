@@ -1,5 +1,10 @@
 2010-08-10  Joel James Adamson  <adamsonj@email.unc.edu>
 
+	* src/sparse.c (sparse_mat_tot): made some C99 changes and
+	reformatted comments; what I've been calling the Kronecker product
+	up to this point is actually the "Hadamard" product or the "Schur"
+	product.  The most descriptive name is "entrywise product"
+
 	* src/rec.c (rec_total): added an or to the logical step before
 	adding to total; removed denominator (not necessary; should be
 	dealt with in mating table)

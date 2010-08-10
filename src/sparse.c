@@ -136,24 +136,21 @@ sparse_get_val (sparse_elt_t * list, int row, int col)
 double
 sparse_mat_tot (size_t len, double * dense[len], sparse_elt_t * sparse)
 {
-  /* total the entries of SPARSE: this is equivalent to
-
-     1*S*1^T
-
+  /* total the entries of SPARSE: this is equivalent to 1*S*1^T
      i.e. multiplying on the right by a column of ones, and
      multiplying on the left with a row of ones; this is the operation
-     needed for the recombination algorithm */
+     needed for the recombination algorithm; this is the sum of the
+     entries of the Hadamard (Schur/entry-wise) product of dense and
+     sparse */
   double result = 0.0;
   sparse_elt_t * endptr = sparse;
-  int row, col;
   /* iterate along SPARSE, placing a sum in result */
   for (; endptr != NULL; endptr = endptr->next)
     {
-      row = endptr->indices[0];
-      col = endptr->indices[1];
+      int row = endptr->indices[0];
+      int col = endptr->indices[1];
       result += endptr->val * dense[row][col];
     }
-
   return result;
 }
 
