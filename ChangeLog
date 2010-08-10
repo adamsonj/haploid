@@ -1,3 +1,9 @@
+2010-08-10  Joel James Adamson  <adamsonj@email.unc.edu>
+
+	* src/geno_func.c (ld_from_geno): replaced all "1.0 - something"
+	with fdim (1.0, something); also replaced subtraction in return
+	statement of ld_from_geno
+
 2010-08-04  Joel James Adamson  <adamsonj@email.unc.edu>
 
 	* Makefile.am: added distribution target that signs the package

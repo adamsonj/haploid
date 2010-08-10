@@ -36,19 +36,18 @@ allele_to_genotype (double * allele_freqs, double * geno_freqs,
 {
   /* take an array of allele frequencies and generate an array of
      genotype frequencies; store the result in geno_freqs */
-  int i, j;
-  double p;
 
-  for (i = 0; i < geno; i++)
+
+  for (int i = 0; i < geno; i++)
     {
-      p = 1.0;
+      double p = 1.0;
       
-      for (j = 0; j < nloci; j++)
+      for (int j = 0; j < nloci; j++)
 	{
 	  if (bits_isset (i, j))
 	    p *= allele_freqs[j];
 	  else
-	    p *= (1 - allele_freqs[j]);
+	    p *= fdim(1.0, allele_freqs[j]);
 	}
       /* how can we ensure that we end up with frequencies that sum to
 	 one? */
@@ -69,13 +68,11 @@ genotype_to_allele (double * allele_freqs, double * geno_freqs,
 
   /* notice that this is the same as allele_to_genotype except for a
      few crucial differences ... ;) */
-  int i, j;
-  double p;
-  for (i = 0; i < nloci; i++)
+  for (int i = 0; i < nloci; i++)
     {
-      p = 0.0;
+      double p = 0.0;
       
-      for (j = 0; j < geno; j++)
+      for (int j = 0; j < geno; j++)
 	{
 	  if (bits_isset (j, i))
 	    p += geno_freqs[j];
@@ -98,6 +95,6 @@ ld_from_geno (size_t nloci, size_t geno, double * geno_freqs)
   double minuend = *geno_freqs;
   double subtrahend = 1.0;
   for (int i = 0; i < nloci; i++)
-    subtrahend *= 1.0 - alleles[i];
-  return (minuend - subtrahend);
+    subtrahend *= fdim(1.0, alleles[i]);
+  return fdim(minuend, subtrahend);
 }
