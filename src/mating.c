@@ -31,23 +31,32 @@
 #include <stdlib.h>
 #include <error.h>
 #include <errno.h>
+#include <assert.h>
+#include <math.h>
 
 double **
 rmtable (size_t geno, double * freq)
 {
   /* random mating table for haploid monoecious organisms
      (hermaphrodites) */
-  int i,j;
   double ** table = malloc (geno * sizeof (double *));
   if (table == NULL)
     error (0, ENOMEM, "Null pointer\n");
-  for (i = 0; i < geno; i++)
+  double denom = 0.0F;
+  for (int i = 0; i < geno; i++)
     {
-      table[i] = malloc (geno * sizeof (double));
+      table[i] = calloc (geno, sizeof (double));
       if (table[i] == NULL)
 	error (0, ENOMEM, "Null pointer\n");
-      for (j = 0; j < geno; j++)
-	table[i][j] = freq[i] * freq[j];
+      for (int j = 0; j < geno; j++)
+	{
+	  table[i][j] = freq[i] * freq[j];
+	  denom += table[i][j];
+	}
     }
+  assert (isgreater (denom, 0.0));
+  for (int i = 0; i < geno; i++)
+    for (int j = 0; j < geno; j++)
+      table[i][j] /= denom;
   return table;
 }

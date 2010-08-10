@@ -1,5 +1,9 @@
 2010-08-10  Joel James Adamson  <adamsonj@email.unc.edu>
 
+	* src/mating.c (rmtable): corrected mating table calculation to
+	include division by a common denominator (the sum of all entries,
+	which are themselves products of the frequencies of the genotypes)
+
 	* src/sparse.c (sparse_mat_tot): made some C99 changes and
 	reformatted comments; what I've been calling the Kronecker product
 	up to this point is actually the "Hadamard" product or the "Schur"
