@@ -1,3 +1,8 @@
+2010-08-11  Joel James Adamson  <adamsonj@email.unc.edu>
+
+	* src/rec.c (rec_gen_table): got rid of the floor function here,
+	as it was producing the wrong values
+
 2010-08-10  Joel James Adamson  <adamsonj@email.unc.edu>
 
 	* src/rec.c (rec_gen_table): replaced a comparison of floating

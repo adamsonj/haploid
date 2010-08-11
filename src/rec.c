@@ -40,7 +40,7 @@ rec_extend_r (size_t nloci, double * r)
      first locus; J is its complement */
   /* a boundary for the iteration */
   const unsigned int geno_mask = (1 << nloci) - 1;
-  double * result = malloc ((size_t) floor(geno_mask / 2) * sizeof (double));
+  double * result = malloc ((size_t) (geno_mask >> 1) * sizeof (double));
   if (result == NULL)
     error (0, ENOMEM, "Null pointer\n");
   /* we will access the values of result by pointer arithmetic (to
@@ -138,7 +138,7 @@ rec_gen_table (size_t nloci, size_t geno, double * r)
   double * xr = rec_extend_r (nloci, r);
   /* find the total probability of no recombination */
   double rnot = 1.0;
-  for (int i = 0; i < (size_t) floor(geno_mask / 2); i++)
+  for (int i = 0; i < (size_t) (geno_mask >> 1) ; i++)
     rnot *= (1 - xr[i]);
   /* iterate over offspring entries, using endptr to keep track of
      position in the kth entry of rec_table, which is an array of
