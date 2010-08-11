@@ -189,7 +189,7 @@ rec_gen_table (size_t nloci, size_t geno, double * r)
 		  total = 0.5 * rnot;
 		else
 		  total = rec_total (nloci, k, j, target, xr);
-		if (total != 0.0)
+		if (isgreater(total,0.0))
 		  new_elt_p = true;
 		else
 		  continue;
@@ -211,7 +211,7 @@ rec_gen_table (size_t nloci, size_t geno, double * r)
 		else
 		  /* if not, call rec_total */
 		  total = rec_total (nloci, j, k, target, xr);
-		if (total != 0.0)
+		if (isgreater(total, 0.0))
 		  new_elt_p = true;
 		else
 		  continue;

@@ -1,5 +1,8 @@
 2010-08-10  Joel James Adamson  <adamsonj@email.unc.edu>
 
+	* src/rec.c (rec_gen_table): replaced a comparison of floating
+	point with 0.0
+
 	* src/mating.c (rmtable): corrected mating table calculation to
 	include division by a common denominator (the sum of all entries,
 	which are themselves products of the frequencies of the genotypes)
