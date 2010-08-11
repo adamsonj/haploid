@@ -37,8 +37,7 @@
 double **
 rmtable (size_t geno, double * freq)
 {
-  /* random mating table for haploid monoecious organisms
-     (hermaphrodites) */
+  /* random mating table */
   double ** table = malloc (geno * sizeof (double *));
   if (table == NULL)
     error (0, ENOMEM, "Null pointer\n");
