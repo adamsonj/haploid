@@ -1,4 +1,12 @@
+2010-08-12  Joel James Adamson  <adamsonj@email.unc.edu>
+
+	* src/rec.c (rtable_new): new function that creates links for
+	rtables	
+
 2010-08-11  Joel James Adamson  <adamsonj@email.unc.edu>
+
+	* tests/rec_test(3).c: added assertions: these tests should fail
+	if the genotype frequencies add up to more than 1
 
 	* src/rec.c (rec_gen_table): got rid of the floor function here,
 	as it was producing the wrong values

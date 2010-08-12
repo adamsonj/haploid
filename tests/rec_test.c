@@ -26,6 +26,8 @@
   You should have received a copy of the GNU General Public License
   along with haploid.  If not, see <http://www.gnu.org/licenses/>.
 */
+#include <float.h>
+#include <assert.h>
 #include <stdio.h>
 #include "../src/haploid.h"
 #include "../src/sparse.h"
@@ -68,10 +70,25 @@ main (void)
   time1 = time (NULL);
   rec_mating (freq, &rec_test_data);
   time2 = time (NULL);
+
+  double tot = 0.0F;
   /* print freq */
   for (int j = 0; j < GENO; j++)
-    printf ("x[%1x] = %9.8f\n", j, freq[j]);
-
+    {
+      printf ("x[%1x] = %9.8f\n", j, freq[j]);
+      tot += freq[j];
+    }
+  double alleles_new[2];
+  genotype_to_allele (alleles_new, freq, NLOCI, GENO);
+  double allele_total = 0.0F;
+  for (int j = 0; j < NLOCI; j++)
+    {
+      printf ("p[%1x] = %9.8f\n", j, alleles_new[j]);
+      allele_total += alleles_new[j];
+      assert (islessequal (alleles[j] - alleles_new[j], DBL_MIN));
+    }
+  assert (islessequal (allele_total, 1.0));
+  assert (islessequal (tot, 1.0));
   printf ("Call to rec_mating () took %9.8f sec\n", difftime(time1, time2));
   return 0;
 }

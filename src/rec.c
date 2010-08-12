@@ -108,7 +108,29 @@ rec_total (size_t nloci, uint j, uint k,
 }
 
 void
-rtable_new (rtable_t * rtable, double val, uint i, uint j);
+rtable_new (rtable_t * rtable, double val, uint i, uint j)
+{
+  /* if the incoming rtable is NULL, then we need to create a fresh
+     rtable object */
+  if (rtable == NULL)
+    {
+      rtable = malloc (sizeof (rtable_t));
+      if (rtable == NULL)
+	error (0, ENOMEM, "Null pointer\n");	
+    }
+  /* otherwise we need to create a new one and link it in to the old
+     one, then advance it by one */
+  rtable->val = val;
+  rtable->indices[0] = i;
+  rtable->indices[1] = j;
+  /* set up the next link in the chain */
+  rtable_t * new = malloc (sizeof (rtable_t));
+  new->indices = calloc (2, sizeof (uint));
+  if ((new == NULL) || (new->indices == NULL))
+    error (0, ENOMEM, "Null pointer\n");
+  else
+    rtable->next = new;
+}
 
 int
 rec_case (uint target, uint mom, uint dad,
@@ -133,7 +155,7 @@ rec_case (uint target, uint mom, uint dad,
     /* no new element */
     return 1;
   else if ((!needmom && !dadcom) || (!needdad && !momcom))
-    /* mom (dad) equals target and dad (mom) have no genes to offer;
+    /* mom (dad) equals target and dad (mom) has no genes to offer;
        therefore we need the probability of no recombination */
     {
       double rnot = 1.0;
@@ -173,7 +195,7 @@ rec_gen_table (size_t nloci, size_t geno, double * r)
   for (uint target = 0; target< geno; target++)
     {   
       rtable[target] = sparse_new_elt (NULL, 0.0, NULL);
-      sparse_elt_t * endptr = NULL;
+      sparse_elt_t * endptr = rtable[target];
       for (uint k = 0; k < geno; k++)
 	{
 	  for (uint j = 0; j < geno; j++)
@@ -181,9 +203,17 @@ rec_gen_table (size_t nloci, size_t geno, double * r)
 	    double total;
 	    /* does the transpose already exist? */
 	    if (isgreater(total = sparse_get_val (rtable[target], j, k), 0.0))
-	      rtable_new (endptr, total, k, j);
+	      {
+		rtable_new (endptr, total, k, j);
+		endptr = endptr->next;
+	      }
 	    else
-	      rec_case (target, k, j, endptr, r, nloci);
+	      {
+		int rc_ck = rec_case (target, k, j, endptr, r, nloci);
+		if (!rc_ck)
+		  endptr = endptr->next;
+		else continue;
+	      }		
 	  }
 	}      /* for k < geno */
     } /* for target < geno */
