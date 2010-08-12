@@ -100,16 +100,8 @@ rec_total (size_t nloci, uint j, uint k,
       uint delta_iJjJ = ((j & comp) == (target & comp))? 1 : 0;
 
       /* does this recombination produce the target? */
-      if ((delta_iIjI && delta_iJkJ)
-	  || (delta_iIkI && delta_iJjJ))
-	{
-	  /* otherwise we need to find the probability of specific
-	     recombinations that produce the target */
-	  /* the recombination fraction for this partition */
-	  double rI = *rptr;
-	  total += (delta_iIjI * delta_iJkJ) * rI 
-	    + (delta_iIkI * delta_iJjJ) * rI;
-	}
+      if ((delta_iIjI && delta_iJkJ) || (delta_iIkI && delta_iJjJ))
+	total += *rptr;
       else continue;
     }
   return 0.5 * total;
