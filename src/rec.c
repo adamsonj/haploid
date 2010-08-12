@@ -39,7 +39,7 @@ rec_extend_r (size_t nloci, double * r)
      (2000): I is a non-void partition of the genome including the
      first locus; J is its complement */
   /* a boundary for the iteration */
-  const unsigned int geno_mask = (1 << nloci) - 1;
+  const uint geno_mask = (1 << nloci) - 1;
   double * result = malloc ((size_t) (geno_mask >> 1) * sizeof (double));
   if (result == NULL)
     error (0, ENOMEM, "Null pointer\n");
@@ -49,14 +49,14 @@ rec_extend_r (size_t nloci, double * r)
 
   /* iterate over the partitions, which are odd numbers from 1 to
      geno_mask - 2 */
-  for (unsigned int i = 1; i < geno_mask; i += 2)
+  for (uint i = 1; i < geno_mask; i += 2)
     {
       /* iterate over the positions of the genome, testing to see where
 	 there are changes */
       _Bool set_p = true;
       /* initialize the value to 1.0 */
       *result = 1.0;
-      for (unsigned int j = 1; j < nloci; j++)
+      for (uint j = 1; j < nloci; j++)
 	{
 	  /* save r's address, so we can iterate by modifying a pointer */
 	  double * rptr = r;
@@ -76,37 +76,28 @@ rec_extend_r (size_t nloci, double * r)
 }
 
 double
-rec_total (size_t nloci, unsigned int j, unsigned int k,
-	   unsigned int target, double * r)
+rec_total (size_t nloci, uint j, uint k,
+	   uint target, double * r)
 {
   /* find the total probability of recombination over extended
      recombination map R, given parents J and K, and offspring
      TARGET */
   double total = 0.0;
-
-  /* this is a mask for the whole genome, or the largest number
-     represented by the genome */
-  const unsigned int geno_mask = (1 << nloci) - 1;
-
-  /* a pointer to reference elements of r */
+  const uint geno_mask = (1 << nloci) - 1;
   double * rptr = r;
   /* iterate over the partitions of the genome, represented by odd
      numbers from 1 to geno_mask - 2 */
-  unsigned int comp = geno_mask - 1;
-  for (unsigned int part = 1;
-       part < geno_mask;
-       /* increment partition PART by 2 (find the next odd number);
-	  decrement complement COMP by 2 (find the next-lowest even
-	  number)  */
-       part += 2, comp -= 2, rptr++)
+  uint comp = geno_mask - 1;
+  /* increment partition PART by 2 (find the next odd number) */
+  for (uint part = 1; part < geno_mask; part += 2,  comp -= 2, rptr++)
     {
       /* differences between genomes defined by partitions: in
 	 Burger's notation I= part and J = comp, i is the target, j
 	 and k are parents */
-      unsigned int delta_iIjI = ((j & part) == (target & part))? 1 : 0;
-      unsigned int delta_iIkI = ((k & part) == (target & part))? 1 : 0;
-      unsigned int delta_iJkJ = ((k & comp) == (target & comp))? 1 : 0;
-      unsigned int delta_iJjJ = ((j & comp) == (target & comp))? 1 : 0;
+      uint delta_iIjI = ((j & part) == (target & part))? 1 : 0;
+      uint delta_iIkI = ((k & part) == (target & part))? 1 : 0;
+      uint delta_iJkJ = ((k & comp) == (target & comp))? 1 : 0;
+      uint delta_iJjJ = ((j & comp) == (target & comp))? 1 : 0;
 
       /* does this recombination produce the target? */
       if ((delta_iIjI && delta_iJkJ)
@@ -121,9 +112,59 @@ rec_total (size_t nloci, unsigned int j, unsigned int k,
 	}
       else continue;
     }
-  /* we always need half the amount calculated, since there is another
-     recombinant (or non-recombinant) offspring */
   return 0.5 * total;
+}
+
+void
+rtable_new (rtable_t * rtable, double val, uint i, uint j);
+
+int
+rec_case (uint target, uint mom, uint dad,
+	  rtable_t * rtable, double * r, uint nloci)
+{
+  const uint	genomask = (1 << nloci) - 1;
+  uint	setmom	 = target & mom; uint	setdad	 = target & dad;
+  uint	offmom	 = (~target & genomask) & (~mom & genomask);
+  uint	offdad	 = (~target & genomask) & (~dad & genomask);
+  /* is recombination possible? */
+  /* common alleles between mom and target */
+  uint	momcom	 = setmom | offmom; uint dadcom	 = setdad | offdad; 
+  /* alleles needed by mom to meet target */
+  uint	needmom	 = ~momcom & genomask; uint needdad = ~dadcom & genomask; 
+  /* if non-zero, recombination with dad genome can yield target */
+  int momp = needmom & dadcom; int dadp = needdad & momcom; 
+  /* find the "extended recombination array" */
+  double * xr = rec_extend_r (nloci, r);
+  if ((mom == dad) && (dad == target))
+    rtable_new (rtable, 1.0, mom, dad);
+  else if (mom == dad)
+    /* no new element */
+    return 1;
+  else if ((!needmom && !dadcom) || (!needdad && !momcom))
+    /* mom (dad) equals target and dad (mom) have no genes to offer;
+       therefore we need the probability of no recombination */
+    {
+      double rnot = 1.0;
+      for (int i = 0; i < (genomask >> 1) ; i++)
+	rnot *= (1 - xr[i]);	/* no recombination */
+      rtable_new (rtable, 0.5 * rnot, mom, dad);
+    }
+  else if ((needmom && !dadcom) || (needdad && !momcom))
+    /* no recombination possible */
+    return 1;
+  else if (((needmom | dadp) == dadp) || ((needdad | momp) == momp))
+    /* mom (dad) = target, but can recombine with dad (mom) to produce
+       recombinant target */
+    rtable_new (rtable, 0.5, mom, dad);
+  else if (momp)
+    /* get the total recombination value and create a new element */
+    {
+      double total = rec_total (nloci, mom, dad, target, xr);
+      rtable_new (rtable, total, mom, dad);
+    }      
+  else
+    return 1;  
+  return 0;
 }
 
 rtable_t **
@@ -133,154 +174,27 @@ rec_gen_table (size_t nloci, size_t geno, double * r)
   sparse_elt_t ** rtable = malloc (geno * sizeof (sparse_elt_t *));
   if (rtable == NULL)
     error (0, ENOMEM, "Null pointer\n");
-  const unsigned int geno_mask = (1 << nloci) - 1;
-  /* find the "extended recombination array" */
-  double * xr = rec_extend_r (nloci, r);
-  /* find the total probability of no recombination */
-  double rnot = 1.0;
-  for (int i = 0; i < (size_t) (geno_mask >> 1) ; i++)
-    rnot *= (1 - xr[i]);
+
   /* iterate over offspring entries, using endptr to keep track of
      position in the kth entry of rec_table, which is an array of
      GENO  */
-  for (unsigned int target = 0; target< geno; target++)
+  for (uint target = 0; target< geno; target++)
     {   
       rtable[target] = sparse_new_elt (NULL, 0.0, NULL);
       sparse_elt_t * endptr = NULL;
-      for (unsigned int k = 0; k < geno; k++)
-	for (unsigned int j = 0; j < geno; j++)
+      for (uint k = 0; k < geno; k++)
+	{
+	  for (uint j = 0; j < geno; j++)
 	  {
-	    _Bool new_elt_p = false;
 	    double total;
-	    unsigned int set;
-	    unsigned int off;
-	    unsigned int common;		
 	    /* does the transpose already exist? */
-	    if (isgreater(total = sparse_get_val (rtable[target], j, k),
-			       0.0))
-	      /* this avoids the function call to rec_total */
-	      /* however, it doesn't work when the new entry *should*
-		 be zero!  The later procedures should catch this, but
-		 I'm fixing a bug where they don't...  */
-	      new_elt_p = true;
-	    else if ((target == j) && (j == k))
-	      {
-		/* do we need to make an entry? */
-		new_elt_p = true;
-		/* there is only one possibility: */
-		total = 1.0;
-	      }
-	    else if (j == k)
-	      /* no target offspring possible */
-	      continue;
-	    else if (target == k)
-	      {
-		/* Do one parent and the offspring have set bits in
-		   common? */
-		set = target & j;
-		/* do they have off bits in common? */
-		off = bits_extract(0, nloci, ~target & ~j);
-		common = set | off;
-		if (common)
-		  /* if recombinant target offspring are possible,
-		     then total = 0.5 */
-		  total = 0.5;
-		else if (common == 0)
-		  total = 0.5 * rnot;
-		else
-		  total = rec_total (nloci, k, j, target, xr);
-		if (isgreater(total,0.0))
-		  new_elt_p = true;
-		else
-		  continue;
-	      }
-	    else if (target == j)
-	      {
-		/* Do one parent and the offspring have set bits in
-		   common? */
-		set = target & k;
-		/* do they have off bits in common? */
-		off = bits_extract(0, nloci, ~target & ~k);
-		common = set | off;
-		if (common)
-		  /* if recombinant target offspring are possible,
-		     then total = 0.5 */
-		  total = 0.5;
-		else if (common == 0)
-		  total = 0.5 * rnot;
-		else
-		  /* if not, call rec_total */
-		  total = rec_total (nloci, j, k, target, xr);
-		if (isgreater(total, 0.0))
-		  new_elt_p = true;
-		else
-		  continue;
-	      }
-	    /* offspring must be recombinant or impossible */
-	    else 
-	      {
-		/* Do one parent and the offspring have set bits in
-		   common? */
-		set = target & j;
-		/* do they have off bits in common? */
-		off = bits_extract(0, nloci, ~target & ~j);
-		/* do they have any bits in common? */
-		common = set | off;
-		/* find where they are NOT alike: */
-		unsigned int needed = bits_extract (0, nloci, ~common);
-		/* if we need *all* the alleles from the other parent,
-		   then we're screwed since we already know the other
-		   parent is not identical to the target offspring */
-		if (needed == geno_mask)
-		  continue;
-		/* now iterate over the needed bits; break at the
-		   first allele we *can't* get from the other
-		   parent */
-		for (unsigned int pos = bits_ffs (needed);
-		     /* remember that pos is 1-indexed! */
-		     pos <= nloci && needed != 0;
-		     pos = bits_ffs (needed))
-		  {
-		    /* do the bits from the other parent and the
-		       offspring match? */
-		    if (bits_isset (k, pos - 1) == bits_isset (target, pos - 1))
-		      {
-			/* for now the other parent is good */
-			new_elt_p = true;
-			/* clear that bit so we can reevaluate pos */
-			needed &= ~(1 << (pos - 1));
-		      }
-		    else
-		      {
-			new_elt_p = false;
-			break;
-		      }
-		  }
-		if (new_elt_p)
-		  total = rec_total (nloci, j, k, target, xr);
-		else continue;
-	      }	/* else */
-	    
-	    /* if we need a new element: */
-	    if (new_elt_p && (endptr != NULL))
-	      {
-		/* create a link to the next element: */
-		endptr->next = sparse_new_elt (NULL, total, NULL);
-		/* increment endptr */
-		endptr = endptr->next;	
-	      }
-	    /* if this is our first link in the chain: */
-	    else if (new_elt_p)
-	      {
-		endptr = rtable[target];
-		endptr->val = total;
-	      }
-
-	    /* set the indices */
-	    endptr->indices[0] = k;
-	    endptr->indices[1] = j;
-	  }	/* for k < geno */
-    }	    /* for target < geno */
+	    if (isgreater(total = sparse_get_val (rtable[target], j, k), 0.0))
+	      rtable_new (endptr, total, k, j);
+	    else
+	      rec_case (target, k, j, endptr, r, nloci);
+	  }
+	}      /* for k < geno */
+    } /* for target < geno */
   return rtable;
 }
 

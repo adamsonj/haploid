@@ -2,6 +2,11 @@
 
 	* src/rec.c (rec_gen_table): got rid of the floor function here,
 	as it was producing the wrong values
+	(rec_case): new function; rec_gen_table will from now on only
+	handle the "administrative" duties of creating the recombination
+	table; rec_gen_table () will delegate the calculation of
+	recombination frequencies and the creation of new elements to
+	other functions
 
 2010-08-10  Joel James Adamson  <adamsonj@email.unc.edu>
 
