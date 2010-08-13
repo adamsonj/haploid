@@ -27,6 +27,8 @@
   along with haploid.  If not, see <http://www.gnu.org/licenses/>.
 
 */
+#include <assert.h>
+#include <float.h>
 #include <stdio.h>
 #include "../src/haploid.h"
 #include "../src/sparse.h"
@@ -64,16 +66,9 @@ main (void)
 
       for (j = 0; j < LEN; j++)
 	matelts[i][j] = i;
-
-      printf ("M[%1x] = %10.8f\n", i, matelts[i][i]);
-      
     }
-
-
-  double res = sparse_mat_tot (LEN, matelts, mat[0]);
-
-  printf ("Total of entries in M = %9.8f \n", res);
-
+  double res = fdim (105.0, sparse_mat_tot (LEN, matelts, mat[0]));
+  assert (islessequal (res, DBL_MIN));
   return 0;
 }
 	 

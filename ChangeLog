@@ -1,3 +1,10 @@
+2010-08-13  Joel James Adamson  <adamsonj@email.unc.edu>
+
+	* tests/sim_stop.c: updated tests to be less chatty and use
+	assertions; the plan is to make rec_test test assertions over a
+	range of genome sizes (from 0 to however large the machine can
+	handle)
+
 2010-08-12  Joel J. Adamson  <adamsonj@email.unc.edu>
 
 	* src/rec.c (rec_extend_r): New procedure for extending the
