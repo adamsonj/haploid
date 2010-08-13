@@ -31,66 +31,86 @@
 #include "sparse.h"
 #include <assert.h>
 
-double *
-rec_extend_r (size_t nloci, double * r)
+typedef struct rextend rextend_t;
+struct rextend
+{
+  double * r;
+  double * rnot;
+};
+
+rextend_t *
+rec_extend_r (double * r, size_t nloci)
 {
   /* return a pointer to an array of values describing probabilities
      of recombination between sets I and J as described in Bürger
      (2000): I is a non-void partition of the genome including the
      first locus; J is its complement */
   /* a boundary for the iteration */
-  const uint geno_mask = (1 << nloci) - 1;
-  double * result = malloc ((size_t) (geno_mask >> 1) * sizeof (double));
+  const uint genomask = (1 << nloci) - 1;
+  const uint unmask = 1 << (nloci - 1);
+  double * result = calloc (unmask, sizeof (double));
   if (result == NULL)
     error (0, ENOMEM, "Null pointer\n");
-  /* we will access the values of result by pointer arithmetic (to
-     avoid calculating indices) */
-  double * resultptr = result;
-
+  double * not = calloc (unmask, sizeof (double));
+  if (not == NULL)
+    error (0, ENOMEM, "Null pointer\n");
   /* iterate over the partitions, which are odd numbers from 1 to
-     geno_mask - 2 */
-  for (uint i = 1; i < geno_mask; i += 2)
+     genomask - 2 */
+  for (int i = 0; 2*i + 1 < genomask; i++)
     {
       /* iterate over the positions of the genome, testing to see where
 	 there are changes */
+      /* the first bit is set */
       _Bool set_p = true;
+      /* the partition: */
+      uint part = 2*i + 1;
       /* initialize the value to 1.0 */
-      *result = 1.0;
+      result[i] = 1.0;
+      not[i] = 1.0;
       for (uint j = 1; j < nloci; j++)
 	{
-	  /* save r's address, so we can iterate by modifying a pointer */
-	  double * rptr = r;
 	  /* if there is a change, we need to multiply */
-	  if (bits_isset (i, j) != set_p)
-	    *result *= *rptr;
-
-	  /* otherwise we do nothing */
+	  if (bits_isset (part, j) != set_p)
+	    result[i] *= r[i];
+	  /* otherwise we need to multiply by the probability of not
+	     crossing over at this site */
+	  else
+	    {
+	      not[i] *= fdim (1.0, r[i]);
+	      assert (isgreaterequal(not[i], 0.0));
+	    }
+	  /* set this for the next go-round */
 	  set_p = bits_isset (i, j);
-	  /* advance our position in the r array */
-	  rptr++;
-	}
-      /* now advance the array of results */
-      result++;
-    }
-  return resultptr;
+	} /* j < nloci */
+    }	  /* 2i + 1 < genomask */
+  rextend_t * extend = malloc (sizeof (rextend_t));
+  if (extend == NULL)
+    error (0, ENOMEM, "Null pointer\n");
+  /* otherwise set the elements of the structure */
+  extend->r = result;
+  extend->rnot = not;
+  return extend;
 }
 
 double
 rec_total (size_t nloci, uint j, uint k,
-	   uint target, double * r)
+	   uint target, rextend_t * xr)
 {
   /* find the total probability of recombination over extended
      recombination map R, given parents J and K, and offspring
      TARGET */
-  double total = 0.0;
-  const uint geno_mask = (1 << nloci) - 1;
-  double * rptr = r;
+  double total = 0.0F;
+  const uint genomask = (1 << nloci) - 1;
+
   /* iterate over the partitions of the genome, represented by odd
-     numbers from 1 to geno_mask - 2 */
-  uint comp = geno_mask - 1;
+     numbers from 1 to genomask - 2 */
   /* increment partition PART by 2 (find the next odd number) */
-  for (uint part = 1; part < geno_mask; part += 2,  comp -= 2, rptr++)
+  for (uint i = 0; 2*i + 1 < genomask; i++)
     {
+      /* a partitoin (odd integer) */
+      uint part = 2*i + 1;
+      /* the partition's complement */
+      uint comp = ~part & genomask;
       /* differences between genomes defined by partitions: in
 	 Burger's notation I= part and J = comp, i is the target, j
 	 and k are parents */
@@ -101,7 +121,7 @@ rec_total (size_t nloci, uint j, uint k,
 
       /* does this recombination produce the target? */
       if ((delta_iIjI && delta_iJkJ) || (delta_iIkI && delta_iJjJ))
-	total += *rptr;
+	total += (xr->r[i]) * (xr->rnot[i]);
       else continue;
     }
   return 0.5 * total;
@@ -137,6 +157,7 @@ rec_case (uint target, uint mom, uint dad,
 	  rtable_t * rtable, double * r, uint nloci)
 {
   const uint	genomask = (1 << nloci) - 1;
+  const uint unmask = 1 << (nloci - 1);
   uint	setmom	 = target & mom; uint	setdad	 = target & dad;
   uint	offmom	 = (~target & genomask) & (~mom & genomask);
   uint	offdad	 = (~target & genomask) & (~dad & genomask);
@@ -148,7 +169,7 @@ rec_case (uint target, uint mom, uint dad,
   /* if non-zero, recombination with dad genome can yield target */
   int momp = needmom & dadcom; int dadp = needdad & momcom; 
   /* find the "extended recombination array" */
-  double * xr = rec_extend_r (nloci, r);
+  rextend_t * xr = rec_extend_r (r, nloci);
   if ((mom == dad) && (dad == target))
     rtable_new (rtable, 1.0, mom, dad);
   else if (mom == dad)
@@ -159,8 +180,8 @@ rec_case (uint target, uint mom, uint dad,
        therefore we need the probability of no recombination */
     {
       double rnot = 1.0;
-      for (int i = 0; i < (genomask >> 1) ; i++)
-	rnot *= (1 - xr[i]);	/* no recombination */
+      for (int i = 0; i < unmask; i++)
+	rnot *= (1 - xr->r[i]);	/* no recombination */
       rtable_new (rtable, 0.5 * rnot, mom, dad);
     }
   else if ((needmom && !dadcom) || (needdad && !momcom))

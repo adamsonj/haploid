@@ -1,3 +1,11 @@
+2010-08-12  Joel J. Adamson  <adamsonj@email.unc.edu>
+
+	* src/rec.c (rec_extend_r): New procedure for extending the
+	recombination map; this produces two arrays, one with the
+	probabilities of specific recombination events, and the other
+	("not") for not recombination at every other locus (based on
+	Christiansen 2000)
+
 2010-08-12  Joel James Adamson  <adamsonj@email.unc.edu>
 
 	* src/rec.c (rtable_new): new function that creates links for

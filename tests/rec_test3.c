@@ -79,14 +79,11 @@ main (void)
   /* print alleles */
   double alleles_new[NLOCI];
   genotype_to_allele (alleles_new, freq, NLOCI, GENO);
-  double allele_total = 0.0F;
   for (int j = 0; j < NLOCI; j++)
     {
       printf ("p[%1x] = %9.8f\n", j, alleles_new[j]);
-      allele_total += alleles_new[j];
       assert (islessequal (alleles[j] - alleles_new[j], DBL_MIN));
     }
-  assert (islessequal (allele_total, 1.0));
   assert (islessequal (tot, 1.0));
 
   printf ("Call to rec_mating () took %9.8f sec\n", difftime(time2, time1));

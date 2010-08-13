@@ -36,7 +36,7 @@
 #define NLOCI 2
 #define GENO 4
 #ifndef R
-#define R 0.5F
+#define R 0.50F
 #endif
 
 double r = R;
@@ -73,6 +73,7 @@ main (void)
 
   double tot = 0.0F;
   /* print freq */
+  printf ("Genotype frequencies:\n");
   for (int j = 0; j < GENO; j++)
     {
       printf ("x[%1x] = %9.8f\n", j, freq[j]);
@@ -80,14 +81,15 @@ main (void)
     }
   double alleles_new[2];
   genotype_to_allele (alleles_new, freq, NLOCI, GENO);
-  double allele_total = 0.0F;
+
+  printf ("Allele frequencies:\n");
   for (int j = 0; j < NLOCI; j++)
     {
       printf ("p[%1x] = %9.8f\n", j, alleles_new[j]);
-      allele_total += alleles_new[j];
+      /* allele frequencies should not change */
       assert (islessequal (alleles[j] - alleles_new[j], DBL_MIN));
     }
-  assert (islessequal (allele_total, 1.0));
+  /* allele frequencies must add to 1.0 */
   assert (islessequal (tot, 1.0));
   printf ("Call to rec_mating () took %9.8f sec\n", difftime(time1, time2));
   return 0;
