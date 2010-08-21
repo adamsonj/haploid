@@ -28,103 +28,100 @@
 */
 
 /* declarations */
+#include <stdio.h>
 #include "sparse.h"
+#include <float.h>
 #include <assert.h>
+#include <stdint.h>
 
-typedef struct rextend rextend_t;
-struct rextend
+uint
+rec_more_zygs (uint stem, uint nloci)
 {
-  double * r;
-  double * rnot;
-};
-
-rextend_t *
-rec_extend_r (double * r, size_t nloci)
-{
-  /* return a pointer to an array of values describing probabilities
-     of recombination between sets I and J as described in Bürger
-     (2000): I is a non-void partition of the genome including the
-     first locus; J is its complement */
-  /* a boundary for the iteration */
-  const uint genomask = (1 << nloci) - 1;
-  const uint unmask = 1 << (nloci - 1);
-  double * result = calloc (unmask, sizeof (double));
-  if (result == NULL)
-    error (0, ENOMEM, "Null pointer\n");
-  double * not = calloc (unmask, sizeof (double));
-  if (not == NULL)
-    error (0, ENOMEM, "Null pointer\n");
-  /* iterate over the partitions, which are odd numbers from 1 to
-     genomask - 2 */
-  for (int i = 0; 2*i + 1 < genomask; i++)
-    {
-      /* iterate over the positions of the genome, testing to see where
-	 there are changes */
-      /* the first bit is set */
-      _Bool set_p = true;
-      /* the partition: */
-      uint part = 2*i + 1;
-      /* initialize the value to 1.0 */
-      result[i] = 1.0;
-      not[i] = 1.0;
-      for (uint j = 1; j < nloci; j++)
-	{
-	  /* if there is a change, we need to multiply */
-	  if (bits_isset (part, j) != set_p)
-	    result[i] *= r[i];
-	  /* otherwise we need to multiply by the probability of not
-	     crossing over at this site */
-	  else
-	    {
-	      not[i] *= fdim (1.0, r[i]);
-	      assert (isgreaterequal(not[i], 0.0));
-	    }
-	  /* set this for the next go-round */
-	  set_p = bits_isset (i, j);
-	} /* j < nloci */
-    }	  /* 2i + 1 < genomask */
-  rextend_t * extend = malloc (sizeof (rextend_t));
-  if (extend == NULL)
-    error (0, ENOMEM, "Null pointer\n");
-  /* otherwise set the elements of the structure */
-  extend->r = result;
-  extend->rnot = not;
-  return extend;
-}
+  /* iterate over the integers (genotypes), &-ing them with stem,
+     returning the total number of zygotes with the stem */
+  int n = 0;
+  /* set up the stem */
+  uint genomask = (1 << nloci) - 1;
+  uint mask = ~stem & genomask;
+  for (int i = 0; i < (1 << nloci); i++, mask &= i) 
+    if ((mask & i) != mask) n++;
+  return n;
+}      
 
 double
-rec_total (size_t nloci, uint j, uint k,
-	   uint target, rextend_t * xr)
+rec_total (uint j, uint k, uint target, double * r, size_t nloci)
 {
   /* find the total probability of recombination over extended
      recombination map R, given parents J and K, and offspring
      TARGET */
-  double total = 0.0F;
-  const uint genomask = (1 << nloci) - 1;
+  /* eliminate confounding cases right away */
+  if ((j == k) && (j == target))
+    /* only one possibility */
+    return 1.0;
+  else if ((j == k) || ((j ^ target) & (k ^ target)))
+    /* no recombination is possible */
+    return 0.0;
 
-  /* iterate over the partitions of the genome, represented by odd
-     numbers from 1 to genomask - 2 */
-  /* increment partition PART by 2 (find the next odd number) */
-  for (uint i = 0; 2*i + 1 < genomask; i++)
+  /* number of recombination sites */
+  uint njunx = nloci - 1;
+  double total[2][njunx];
+  for (int p = 0; p < njunx; p++)
     {
-      /* a partitoin (odd integer) */
-      uint part = 2*i + 1;
-      /* the partition's complement */
-      uint comp = ~part & genomask;
-      /* differences between genomes defined by partitions: in
-	 Burger's notation I= part and J = comp, i is the target, j
-	 and k are parents */
-      uint delta_iIjI = ((j & part) == (target & part))? 1 : 0;
-      uint delta_iIkI = ((k & part) == (target & part))? 1 : 0;
-      uint delta_iJkJ = ((k & comp) == (target & comp))? 1 : 0;
-      uint delta_iJjJ = ((j & comp) == (target & comp))? 1 : 0;
-
-      /* does this recombination produce the target? */
-      if ((delta_iIjI && delta_iJkJ) || (delta_iIkI && delta_iJjJ))
-	total += (xr->r[i]) * (xr->rnot[i]);
-      else continue;
+      /* always initialize! */
+      total[0][p] = 1.0;
+      total[1][p] = 1.0;
     }
-  return 0.5 * total;
+  
+  uint p = 0; uint q = 1;
+  /* mask for the junction */
+  uint hamdad = bits_hamming (k, target);
+  uint hammom = bits_hamming (j, target);
+  uint H = hamdad + hammom;
+  H = -fmax (-H, -njunx);
+  
+  while (H > 0)
+    {
+      /* go by pairs of loci */
+      uint jmask = 0x3 << p;
+      uint mt = target & jmask;
+      uint jt = j & jmask;
+      uint kt = k & jmask;
+      int diff = bits_hamming (jt, mt) + bits_hamming (kt, mt);
+ 
+      switch (diff)
+	{
+	case 0: break;
+	case 1:
+	  {
+	    total[0][p] = (jt == mt) ? 1.0 - r[p] : r[p];
+	    total[1][p] = (kt == mt) ? 1.0 - r[p] : r[p];
+	    H--;
+	    break;
+	  }
+	case 2:
+	  {
+	    /* non-recombinant case */
+	    if ((jt == mt) || (kt == mt))
+	      total[0][p] = (1 - r[p]);
+	    else
+	      total[0][p] = r[p];
+	    H--;
+	    break;
+	  }
+	default: return 0.0;
+	}
+      p++; q++;
+    }
+  double result[2] = { 1.0, 1.0 };
+  for (int i = 0; i < njunx; i++)
+    {
+      result[0] *= total[0][i];
+      result[1] *= total[1][i];
+    }
+  /* this is kind of a kludge, but we must have 1.0 in place if we are
+     going to multiply */
+  if (isgreaterequal (result[1], 1.0)) result[1] = 0;
+  return (result[0] + result[1]) / 2.0;
 }
 
 void
@@ -152,56 +149,6 @@ rtable_new (rtable_t * rtable, double val, uint i, uint j)
     rtable->next = new;
 }
 
-int
-rec_case (uint target, uint mom, uint dad,
-	  rtable_t * rtable, double * r, uint nloci)
-{
-  const uint	genomask = (1 << nloci) - 1;
-  const uint unmask = 1 << (nloci - 1);
-  uint	setmom	 = target & mom; uint	setdad	 = target & dad;
-  uint	offmom	 = (~target & genomask) & (~mom & genomask);
-  uint	offdad	 = (~target & genomask) & (~dad & genomask);
-  /* is recombination possible? */
-  /* common alleles between mom and target */
-  uint	momcom	 = setmom | offmom; uint dadcom	 = setdad | offdad; 
-  /* alleles needed by mom to meet target */
-  uint	needmom	 = ~momcom & genomask; uint needdad = ~dadcom & genomask; 
-  /* if non-zero, recombination with dad genome can yield target */
-  int momp = needmom & dadcom; int dadp = needdad & momcom; 
-  /* find the "extended recombination array" */
-  rextend_t * xr = rec_extend_r (r, nloci);
-  if ((mom == dad) && (dad == target))
-    rtable_new (rtable, 1.0, mom, dad);
-  else if (mom == dad)
-    /* no new element */
-    return 1;
-  else if ((!needmom && !dadcom) || (!needdad && !momcom))
-    /* mom (dad) equals target and dad (mom) has no genes to offer;
-       therefore we need the probability of no recombination */
-    {
-      double rnot = 1.0;
-      for (int i = 0; i < unmask; i++)
-	rnot *= (1 - xr->r[i]);	/* no recombination */
-      rtable_new (rtable, 0.5 * rnot, mom, dad);
-    }
-  else if ((needmom && !dadcom) || (needdad && !momcom))
-    /* no recombination possible */
-    return 1;
-  else if (((needmom | dadp) == dadp) || ((needdad | momp) == momp))
-    /* mom (dad) = target, but can recombine with dad (mom) to produce
-       recombinant target */
-    rtable_new (rtable, 0.5, mom, dad);
-  else if (momp)
-    /* get the total recombination value and create a new element */
-    {
-      double total = rec_total (nloci, mom, dad, target, xr);
-      rtable_new (rtable, total, mom, dad);
-    }      
-  else
-    return 1;  
-  return 0;
-}
-
 rtable_t **
 rec_gen_table (size_t nloci, size_t geno, double * r)
 {
@@ -220,22 +167,26 @@ rec_gen_table (size_t nloci, size_t geno, double * r)
       for (uint k = 0; k < geno; k++)
 	{
 	  for (uint j = 0; j < geno; j++)
-	  {
-	    double total;
-	    /* does the transpose already exist? */
-	    if (isgreater(total = sparse_get_val (rtable[target], j, k), 0.0))
-	      {
-		rtable_new (endptr, total, k, j);
-		endptr = endptr->next;
-	      }
-	    else
-	      {
-		int rc_ck = rec_case (target, k, j, endptr, r, nloci);
-		if (!rc_ck)
+	    {
+	      double total;
+	      /* does the transpose already exist? */
+	      if (j == k && k == target)
+		{
+		  rtable_new (endptr, 1.0, k, j);
 		  endptr = endptr->next;
-		else continue;
-	      }		
-	  }
+		}
+	      else if (isgreater(total = sparse_get_val (rtable[target], j, k), 0.0))
+		{
+		  rtable_new (endptr, total, k, j);
+		  endptr = endptr->next;
+		}
+	      else if (isgreater(total = rec_total (k, j, target, r, nloci), 0.0))
+		{
+		  rtable_new (endptr, total, k, j);
+		  endptr = endptr->next;
+		}
+	      else continue;
+	    }
 	}      /* for k < geno */
     } /* for target < geno */
   return rtable;

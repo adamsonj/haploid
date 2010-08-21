@@ -89,3 +89,9 @@ bits_ffs (unsigned int x)
   return pos;
 #endif	/* __GNUC__ */
 }
+
+unsigned int
+bits_hamming (unsigned int x, unsigned int y)
+{
+  return bits_popcount (x ^ y);
+}

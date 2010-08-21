@@ -1,3 +1,11 @@
+2010-08-20  Joel James Adamson  <adamsonj@email.unc.edu>
+
+	* src/rec.c (rec_total): this is the new algorithm; some problems
+	still remain: certain crosses add up to 1.5 due to the ordering of
+	the iteration (i.e. they should pick only pick up the multiple at
+	the site of recombination, but since the loci in regions overlap
+	they effectively examine the wrong loci)
+
 2010-08-13  Joel James Adamson  <adamsonj@email.unc.edu>
 
 	* tests/sim_stop.c: updated tests to be less chatty and use
@@ -16,7 +24,7 @@
 2010-08-12  Joel James Adamson  <adamsonj@email.unc.edu>
 
 	* src/rec.c (rtable_new): new function that creates links for
-	rtables	
+	rtables
 
 2010-08-11  Joel James Adamson  <adamsonj@email.unc.edu>
 

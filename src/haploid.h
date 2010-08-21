@@ -101,4 +101,6 @@ bits_popcount (int x);
 unsigned int
 bits_ffs (unsigned int x);
 
+unsigned int
+bits_hamming (unsigned int x, unsigned int y);
 #endif
