@@ -1,5 +1,8 @@
 2010-08-23  Joel J. Adamson  <adamsonj@email.unc.edu>
 
+	* tests/rec_test3.c: now compartmentalized into functions; main ()
+	runs a series of tests over genome sizes from 0x2 to 0xf
+
 	* src/rec.c (rec_total): now adds possibilities indicated with a
 	boolean `maybep'; maybep = true iff we've hit a "maybe junction";
 	this now produces correct results for two and three loci

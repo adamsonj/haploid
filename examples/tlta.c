@@ -71,10 +71,6 @@ main (void)
   double rprob = 0.25;
   rtable_t ** rtable =  rec_gen_table(NLOCI, GENO, &rprob);
  
-#ifdef DEBUG
-  rec_test_prtable (&tlta_data);
-  exit (EXIT_SUCCESS);
-#endif  /* DEBUG */
 #pragma omp parallel for shared(W, rprob, rtable)
   for (int i = 0; i < TRIALS; i++)
     {

@@ -30,16 +30,16 @@
 
 /* Commentary:
 
- This file tests the function ld_from_geno ().  The method by hand is
- either the typical Felsenstein linkagedisequilibrium x1*x2 - x3*x4 or
- a mimic of the routine employed by the function; a better test might
- be to throw random numbers into the function to see how often it
- produces a clearly wrong value (e.g. greater than 1).
+   This file tests the function ld_from_geno ().  The method by hand is
+   either the typical Felsenstein linkagedisequilibrium x1*x2 - x3*x4 or
+   a mimic of the routine employed by the function; a better test might
+   be to throw random numbers into the function to see how often it
+   produces a clearly wrong value (e.g. greater than 1).
 
- If you define the number of loci using -DNLOCI, make sure you define
- the proper number of genotypes using -DGENO.  Otherwise this will run
- with the canned values of 4 and 16.  I recommend testing this with
- TLTA values since they are easy to check literally "by hand."
+   If you define the number of loci using -DNLOCI, make sure you define
+   the proper number of genotypes using -DGENO.  Otherwise this will run
+   with the canned values of 4 and 16.  I recommend testing this with
+   TLTA values since they are easy to check literally "by hand."
   
 */
 #include <stdio.h>
@@ -61,21 +61,24 @@ main (void)
   const double geno_zero =  M_PI_4;
   double allele_freqs[NLOCI];
   double genotype_freqs[GENO] = { [0] = geno_zero };
-  for (int i = 0; i < genotypes; i++)
-  {
-    if (i == 0);
-    else genotype_freqs[i] = (1.0 - geno_zero) / (genotypes - 1);
 #ifdef DEBUG
-    fprintf (stdout, "x[%2x] = %f\n", i, genotype_freqs[i]);
+  fprintf (stdout, "Genotype frequencies: \n");
+#endif  /* DEBUG */
+  for (int i = 0; i < genotypes; i++)
+    {
+      if (i == 0);
+      else genotype_freqs[i] = (1.0 - geno_zero) / (genotypes - 1);
+#ifdef DEBUG
+      fprintf (stdout, "x[%1x] = %f\n", i, genotype_freqs[i]);
 #endif
-  }
+    }
   
   genotype_to_allele (allele_freqs, genotype_freqs, nloci, genotypes);
 #ifdef DEBUG
   fprintf (stdout, "Allele frequencies:\n");
   
-  for (int k = 0; k < genotypes; k++)
-      fprintf (stdout, "x[%2x] = %f\n", k, allele_freqs[k]);
+  for (int k = 0; k < nloci; k++)
+    fprintf (stdout, "x[%1x] = %f\n", k, allele_freqs[k]);
 #endif
   /* You can't break up with me, I've got hand! */
   double hand;

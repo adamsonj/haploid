@@ -33,14 +33,6 @@
 #include "../src/sparse.h"
 #include <time.h>
 
-#define NLOCI 3
-#define GENO 8
-#define LEN 2
-#ifndef R
-#define R 0.5F
-#endif
-double r[LEN] = { R, R};
-
 rtable_t ** rec_table;
 
 /* declarations: */
@@ -70,52 +62,92 @@ add_rec_entries (double ** sums, rtable_t ** rec_table, size_t geno)
 }
 
 int
-main (void)
+check_entries (haploid_data_t * data)
 {
-  rec_table = rec_gen_table (NLOCI, GENO, r);
-  double alleles[3] = { 0.5, 0.5, 0.5};
+  size_t geno = data->geno;
+  /* now check the sums of entries in the recombination table and
+     print them for inspection (later we can make this an assertion) */
+  double ** sums = malloc (geno * sizeof (double *));
+  for (int i = 0; i < geno; i++)
+    sums[i] = calloc (geno, sizeof (double));
   
-  double freq[GENO];
-  allele_to_genotype (alleles, freq, NLOCI, GENO);
+  add_rec_entries (sums, data->rec_table, geno);
+  for (int i = 0; i < geno; i++)
+    {
+      for (int j = 0; j < geno; j++)
+	{
+#ifdef DEBUG
+	  fprintf (stdout, "%9.8f ", sums[i][j]);
+#endif	/* DEBUG */
+	  assert (islessequal (sums[i][j], 1.0)
+		  && isgreaterequal (sums[i][j], 1.0));
+	}
+#ifdef DEBUG
+      fprintf (stdout, "\n");
+#endif	/* DEBUG */
+    }  
+  return 0;
+}
+
+int
+run_test (size_t nloci, double r)
+{
+  size_t geno = 1 << nloci;
+  double rarr[nloci];
+  double alleles[nloci];
+  for (int i = 0; i < nloci; i++)
+    {
+      rarr[i] = r;
+      alleles[i] = 0.5;
+    }
+  rec_table = rec_gen_table (nloci, geno, rarr);
+  
+  double freq[geno];
+  allele_to_genotype (alleles, freq, nloci, geno);
   
   haploid_data_t rec_test_data =
-    { GENO, NLOCI, rec_gen_table (NLOCI, GENO, r), rmtable (GENO, freq)};
+    { geno, nloci, rec_gen_table (nloci, geno, rarr), rmtable (geno, freq)};
 
-  /* time the next calculation */
+#ifdef DEBUG
+  fprintf (stdout, "%i x %i x %i recombination table:\n", geno, geno, geno);
   rec_test_prtable (&rec_test_data);
+#endif  /* DEBUG */
 
   double tot = 0.0F;
   rec_mating (freq, &rec_test_data);
 
   /* print freq */
-  for (int j = 0; j < GENO; j++)
+#ifdef DEBUG
+  fprintf (stdout, "Genotype frequencies:\n");
+#endif
+  for (int j = 0; j < geno; j++)
     {
-      printf ("x[%1x] = %9.8f\n", j, freq[j]);
+#ifdef DEBUG
+      fprintf (stdout, "x[%1x] = %9.8f\n", j, freq[j]);
+#endif
       tot += freq[j];
     }
   /* print alleles */
-  double alleles_new[NLOCI];
-  genotype_to_allele (alleles_new, freq, NLOCI, GENO);
-  for (int j = 0; j < NLOCI; j++)
+  double alleles_new[nloci];
+  genotype_to_allele (alleles_new, freq, nloci, geno);
+  assert (islessequal (tot, 1.0) && isgreaterequal (tot, 1.0));
+
+#ifdef DEBUG
+  fprintf (stdout, "Allele frequencies:\n");
+  for (int j = 0; j < nloci; j++)
     {
-      printf ("p[%1x] = %9.8f\n", j, alleles_new[j]);
-      /* assert (islessequal (alleles[j] - alleles_new[j], DBL_MIN)); */
+      fprintf (stdout, "p[%1x] = %9.8f\n", j, alleles_new[j]);
     }
-  /* assert (islessequal (tot, 1.0)); */
+#endif	/* DEBUG */
+  check_entries (&rec_test_data);
+  return 0;
+}
 
-  /* now check the sums of entries in the recombination table and
-     print them for inspection (later we can make this an assertion) */
-  double ** sums = malloc (GENO * sizeof (double *));
-  for (int i = 0; i < GENO; i++)
-    sums[i] = calloc (GENO, sizeof (double));
-  
-  add_rec_entries (sums, rec_test_data.rec_table, GENO);
-  for (int i = 0; i < GENO; i++)
-    {
-      for (int j = 0; j < GENO; j++)
-	printf ("%9.8f ", sums[i][j]);
-      printf ("\n");
-    }  
-
+int
+main (void)
+{
+  for (int i = 2; i < 0xf; i++)
+    for (double r = 0.0F; r < 0.5; r += 0.1)
+      run_test (i, r);
   return 0;
 }
