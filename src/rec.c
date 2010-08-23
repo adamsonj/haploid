@@ -64,6 +64,7 @@ rec_total (uint j, uint k, uint target, double * r, size_t nloci)
 
   /* number of recombination sites */
   uint njunx = nloci - 1;
+  _Bool maybep = false;
   double total[2][njunx];
   for (int p = 0; p < njunx; p++)
     {
@@ -71,7 +72,7 @@ rec_total (uint j, uint k, uint target, double * r, size_t nloci)
       total[0][p] = 1.0;
       total[1][p] = 1.0;
     }
-  
+
   uint p = 0; uint q = 1;
   /* mask for the junction */
   uint hamdad = bits_hamming (k, target);
@@ -95,16 +96,25 @@ rec_total (uint j, uint k, uint target, double * r, size_t nloci)
 	  {
 	    total[0][p] = (jt == mt) ? 1.0 - r[p] : r[p];
 	    total[1][p] = (kt == mt) ? 1.0 - r[p] : r[p];
+	    /* we must add this to at the end */
+	    maybep = true;
 	    H--;
 	    break;
 	  }
 	case 2:
 	  {
-	    /* non-recombinant case */
+	    /* non-recombinant case: */
 	    if ((jt == mt) || (kt == mt))
-	      total[0][p] = (1 - r[p]);
+	      {
+		total[0][p] = (1 - r[p]);
+		total[1][p] = (1 - r[p]);
+	      }
+	    /* recombinant case: */
 	    else
-	      total[0][p] = r[p];
+	      {
+		total[0][p] = r[p];
+		total[1][p] = r[p];
+	      }
 	    H--;
 	    break;
 	  }
@@ -116,11 +126,12 @@ rec_total (uint j, uint k, uint target, double * r, size_t nloci)
   for (int i = 0; i < njunx; i++)
     {
       result[0] *= total[0][i];
-      result[1] *= total[1][i];
+      /* if we've hit a MAYBE, we need to add the other possibilities */
+      result[1] *= maybep ? total[1][i] : 0;
     }
   /* this is kind of a kludge, but we must have 1.0 in place if we are
      going to multiply */
-  if (isgreaterequal (result[1], 1.0)) result[1] = 0;
+  /* if (isgreaterequal (result[1], 1.0)) result[1] = 0; */
   return (result[0] + result[1]) / 2.0;
 }
 

@@ -1,3 +1,9 @@
+2010-08-23  Joel J. Adamson  <adamsonj@email.unc.edu>
+
+	* src/rec.c (rec_total): now adds possibilities indicated with a
+	boolean `maybep'; maybep = true iff we've hit a "maybe junction";
+	this now produces correct results for two and three loci
+
 2010-08-20  Joel James Adamson  <adamsonj@email.unc.edu>
 
 	* src/rec.c (rec_total): this is the new algorithm; some problems
