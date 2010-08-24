@@ -3,7 +3,7 @@
   rec_test.c: testing recombination algorithms
   Copyright 2009 Joel J. Adamson 
 
-  $Id$
+  $Id: rec_test.c 1046 2010-05-07 19:32:41Z trashbird1240 $
 
   Joel J. Adamson	-- http://www.unc.edu/~adamsonj
   University of North Carolina at Chapel Hill
@@ -33,14 +33,6 @@
 #include "../src/sparse.h"
 #include <time.h>
 
-#define NLOCI 2
-#define GENO 4
-#ifndef R
-#define R 0.50F
-#endif
-
-double r = R;
-
 rtable_t ** rec_table;
 
 /* declarations: */
@@ -50,48 +42,112 @@ rec_test_total (void);
 void
 rec_test_prtable (haploid_data_t * data);
 
-int
-main (void)
+
+void
+add_rec_entries (double ** sums, rtable_t ** rec_table, size_t geno)
 {
-  double alleles[2] = { 0.5, 0.5};
+  /* add the entries in the array of recombination tables rec_table;
+     enter the sums into a matrix sums; this is to check that all
+     entries add to 1.0 over range of the entire array (the entries in
+     each table are probabilities and therefore over thesample space
+     of mated pairs must add to 1) */
+  for (int i = 0; i < geno; i++)
+    for (int j = 0; j < geno; j++)
+      {
+	sums[i][j] = 0.0;
+	for (int k = 0; k < geno; k++)
+	  sums[i][j] += sparse_get_val (rec_table[k], i, j);
+      }
+  /* this will allow us to see which ones have problems */
+}
+
+int
+check_entries (haploid_data_t * data)
+{
+  size_t geno = data->geno;
+  /* now check the sums of entries in the recombination table and
+     print them for inspection (later we can make this an assertion) */
+  double ** sums = malloc (geno * sizeof (double *));
+  for (int i = 0; i < geno; i++)
+    sums[i] = calloc (geno, sizeof (double));
   
-  double freq[GENO];
-  allele_to_genotype (alleles, freq, NLOCI, GENO);
-  
-  haploid_data_t rec_test_data =
-    { GENO, NLOCI, rec_gen_table (NLOCI, GENO, &r),
-      rmtable (GENO, freq)};
-
-  /* time the next calculation */
-  rec_test_prtable (&rec_test_data);
-
-  /* time the next calculation */
-  time_t time1, time2;
-  time1 = time (NULL);
-  rec_mating (freq, &rec_test_data);
-  time2 = time (NULL);
-
-  double tot = 0.0F;
-  /* print freq */
-  printf ("Genotype frequencies:\n");
-  for (int j = 0; j < GENO; j++)
+  add_rec_entries (sums, data->rec_table, geno);
+  for (int i = 0; i < geno; i++)
     {
-      printf ("x[%1x] = %9.8f\n", j, freq[j]);
-      tot += freq[j];
-    }
-  double alleles_new[2];
-  genotype_to_allele (alleles_new, freq, NLOCI, GENO);
-
-  printf ("Allele frequencies:\n");
-  for (int j = 0; j < NLOCI; j++)
-    {
-      printf ("p[%1x] = %9.8f\n", j, alleles_new[j]);
-      /* allele frequencies should not change */
-      assert (islessequal (alleles[j] - alleles_new[j], DBL_MIN));
-    }
-  /* allele frequencies must add to 1.0 */
-  assert (islessequal (tot, 1.0));
-  printf ("Call to rec_mating () took %9.8f sec\n", difftime(time1, time2));
+      for (int j = 0; j < geno; j++)
+	{
+#ifdef DEBUG
+	  fprintf (stdout, "%9.8f ", sums[i][j]);
+#endif	/* DEBUG */
+	  assert (islessequal (sums[i][j], 1.0)
+		  && isgreaterequal (sums[i][j], 1.0));
+	}
+#ifdef DEBUG
+      fprintf (stdout, "\n");
+#endif	/* DEBUG */
+    }  
   return 0;
 }
 
+int
+run_test (size_t nloci, double r)
+{
+  size_t geno = 1 << nloci;
+  double rarr[nloci];
+  double alleles[nloci];
+  for (int i = 0; i < nloci; i++)
+    {
+      rarr[i] = r;
+      alleles[i] = 0.5;
+    }
+  rec_table = rec_gen_table (nloci, geno, rarr);
+  
+  double freq[geno];
+  allele_to_genotype (alleles, freq, nloci, geno);
+  
+  haploid_data_t rec_test_data =
+    { geno, nloci, rec_gen_table (nloci, geno, rarr), rmtable (geno, freq)};
+
+#ifdef DEBUG
+  fprintf (stdout, "%i x %i x %i recombination table:\n", geno, geno, geno);
+  rec_test_prtable (&rec_test_data);
+#endif  /* DEBUG */
+
+  double tot = 0.0F;
+  rec_mating (freq, &rec_test_data);
+
+  /* print freq */
+#ifdef DEBUG
+  fprintf (stdout, "Genotype frequencies:\n");
+#endif
+  for (int j = 0; j < geno; j++)
+    {
+#ifdef DEBUG
+      fprintf (stdout, "x[%1x] = %9.8f\n", j, freq[j]);
+#endif
+      tot += freq[j];
+    }
+  /* print alleles */
+  double alleles_new[nloci];
+  genotype_to_allele (alleles_new, freq, nloci, geno);
+  assert (islessequal (tot, 1.0) && isgreaterequal (tot, 1.0));
+
+#ifdef DEBUG
+  fprintf (stdout, "Allele frequencies:\n");
+  for (int j = 0; j < nloci; j++)
+    {
+      fprintf (stdout, "p[%1x] = %9.8f\n", j, alleles_new[j]);
+    }
+#endif	/* DEBUG */
+  check_entries (&rec_test_data);
+  return 0;
+}
+
+int
+main (void)
+{
+  for (int i = 2; i < 0xf; i++)
+    for (double r = 0.0F; r < 0.5; r += 0.1)
+      run_test (i, r);
+  return 0;
+}
