@@ -64,23 +64,10 @@ rec_total (uint j, uint k, uint target, double * r, size_t nloci)
 
   /* number of recombination sites */
   uint njunx = nloci - 1;
-  _Bool maybep = false;
-  double total[2][njunx];
-  for (int p = 0; p < njunx; p++)
-    {
-      /* always initialize! */
-      total[0][p] = 1.0;
-      total[1][p] = 1.0;
-    }
+  double total = 1.0;
 
-  uint p = 0; uint q = 1;
-  /* mask for the junction */
-  uint hamdad = bits_hamming (k, target);
-  uint hammom = bits_hamming (j, target);
-  uint H = hamdad + hammom;
-  H = -fmax (-H, -njunx);
-  
-  while (H > 0)
+  uint p = 0; 
+  for (; p < njunx - 1; p++)
     {
       /* go by pairs of loci */
       uint jmask = 0x3 << p;
@@ -88,51 +75,15 @@ rec_total (uint j, uint k, uint target, double * r, size_t nloci)
       uint jt = j & jmask;
       uint kt = k & jmask;
       int diff = bits_hamming (jt, mt) + bits_hamming (kt, mt);
- 
-      switch (diff)
-	{
-	case 0: break;
-	case 1:
-	  {
-	    total[0][p] = (jt == mt) ? 1.0 - r[p] : r[p];
-	    total[1][p] = (kt == mt) ? 1.0 - r[p] : r[p];
-	    /* we must add this to at the end */
-	    maybep = true;
-	    H--;
-	    break;
-	  }
-	case 2:
-	  {
-	    /* non-recombinant case: */
-	    if ((jt == mt) || (kt == mt))
-	      {
-		total[0][p] = (1 - r[p]);
-		total[1][p] = (1 - r[p]);
-	      }
-	    /* recombinant case: */
-	    else
-	      {
-		total[0][p] = r[p];
-		total[1][p] = r[p];
-	      }
-	    H--;
-	    break;
-	  }
-	default: return 0.0;
-	}
-      p++; q++;
+
+      /* non-recombinant case */
+      if ((diff == 2) && ((jt == mt) || (kt == mt)))
+	total *= (1 - r[p]);
+      /* recombinant case: */
+      else if (diff == 2)
+	total *= r[p];
     }
-  double result[2] = { 1.0, 1.0 };
-  for (int i = 0; i < njunx; i++)
-    {
-      result[0] *= total[0][i];
-      /* if we've hit a MAYBE, we need to add the other possibilities */
-      result[1] *= maybep ? total[1][i] : 0;
-    }
-  /* this is kind of a kludge, but we must have 1.0 in place if we are
-     going to multiply */
-  /* if (isgreaterequal (result[1], 1.0)) result[1] = 0; */
-  return (result[0] + result[1]) / 2.0;
+  return total / 2.0;
 }
 
 void
