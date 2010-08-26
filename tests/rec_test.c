@@ -109,7 +109,7 @@ run_test (size_t nloci, double r)
     { geno, nloci, rec_gen_table (nloci, geno, rarr), rmtable (geno, freq)};
 
 #ifdef DEBUG
-  fprintf (stdout, "%i x %i x %i recombination table:\n", geno, geno, geno);
+  fprintf (stdout, "%i x %i x %i recombination table | r = %f\n", geno, geno, geno, r);
   rec_test_prtable (&rec_test_data);
 #endif  /* DEBUG */
 
@@ -147,7 +147,7 @@ int
 main (void)
 {
   for (int i = 2; i < 0xf; i++)
-    for (double r = 0.0F; r < 0.5; r += 0.1)
+    for (double r = 0.0F; r < 0.6; r += 0.1)
       run_test (i, r);
   return 0;
 }
