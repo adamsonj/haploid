@@ -64,26 +64,58 @@ rec_total (uint j, uint k, uint target, double * r, size_t nloci)
 
   /* number of recombination sites */
   uint njunx = nloci - 1;
-  double total = 1.0;
-
+  size_t neqns = 1 << njunx;
+  double total[neqns];
+  total[0] = 1.0;
+  /* the spot to insert a new entry */
+  size_t slot = 1;
+  for (int i = slot; i < neqns; i++) total[i] = 0.0;
+  size_t maybes = 0;
   uint p = 0; 
-  for (; p < njunx - 1; p++)
+  do
     {
       /* go by pairs of loci */
       uint jmask = 0x3 << p;
       uint mt = target & jmask;
       uint jt = j & jmask;
       uint kt = k & jmask;
+      /* how many bits do we need to change from the parents to make
+	 the offspring? */
       int diff = bits_hamming (jt, mt) + bits_hamming (kt, mt);
 
       /* non-recombinant case */
       if ((diff == 2) && ((jt == mt) || (kt == mt)))
-	total *= (1 - r[p]);
+	for (int i = 0; i < slot; i++) total[i] *= (1 - r[p]);
       /* recombinant case: */
       else if (diff == 2)
-	total *= r[p];
-    }
-  return total / 2.0;
+	for (int i = 0; i < slot; i++) total[i] *= r[p];
+      else if (diff == 1)
+	{
+	  /* expand the array; new entries (slot to slot*2) are old
+	     entries multiplied by r, then multiply old entries (the
+	     first slot of them) by 1-r */
+	  for (int i = 0; i < slot; i++)
+	    {
+	      total[slot + i] = total[i] * r[p];
+	      total[i] *= 1 - r[p];
+	    }
+	  /* we may need to check for this value going over neqns */
+	  slot *= 2;
+	  maybes++;
+	}
+      p++;
+    } while (p < njunx); 
+
+  double result = 0.0;
+  if ((j != target) && (k != target) && (maybes == njunx))
+    /* offspring must be recombinant, so we need to eliminate the
+       possibility of no recombination when every junction is a
+       maybe */
+    total[0] = 0;
+  for (int i = 0; i < neqns; i++)
+    result += total[i];
+    
+  return result / 2.0;
 }
 
 void
