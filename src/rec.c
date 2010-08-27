@@ -54,6 +54,7 @@ rec_total (uint j, uint k, uint target, double * r, size_t nloci)
   /* find the total probability of recombination over extended
      recombination map R, given parents J and K, and offspring
      TARGET */
+  uint H = bits_hamming (j, k);
   /* eliminate confounding cases right away */
   if ((j == k) && (j == target))
     /* only one possibility */
@@ -61,6 +62,8 @@ rec_total (uint j, uint k, uint target, double * r, size_t nloci)
   else if ((j == k) || ((j ^ target) & (k ^ target)))
     /* no recombination is possible */
     return 0.0;
+  else if ((H == 1) && ((j == target) || (k == target)))
+    return 0.5;
 
   /* number of recombination sites */
   uint njunx = nloci - 1;
@@ -106,15 +109,21 @@ rec_total (uint j, uint k, uint target, double * r, size_t nloci)
       p++;
     } while (p < njunx); 
 
-  double result = 0.0;
   if ((j != target) && (k != target) && (maybes == njunx))
     /* offspring must be recombinant, so we need to eliminate the
        possibility of no recombination when every junction is a
        maybe */
-    total[0] = 0;
-  for (int i = 0; i < neqns; i++)
-    result += total[i];
-    
+    total[0] = total[neqns - 1] = 0;
+  else if (maybes == njunx)
+    /* OTOH if one of the parents does equal the target and we have
+       all maybes then we want only the sum of the totally recombinant
+       or totally nonrecombinant (which do not add to 1
+       incidentally!) */
+    for (int i = 1; i < neqns - 1; i++) total[i] = 0.0;
+
+  /* add up the expressions: */
+  double result = 0.0;
+  for (int i = 0; i < neqns; i++) result += total[i];    
   return result / 2.0;
 }
 
