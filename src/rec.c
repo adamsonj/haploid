@@ -49,7 +49,7 @@ rec_more_zygs (uint stem, uint nloci)
 }      
 
 double
-rec_total23 (uint j, uint k, uint target, double * r, size_t nloci)
+rec_total (uint j, uint k, uint target, double * r, size_t nloci)
 {
   /* find the total probability of recombination over extended
      recombination map R, given parents J and K, and offspring
@@ -63,7 +63,7 @@ rec_total23 (uint j, uint k, uint target, double * r, size_t nloci)
     /* no recombination is possible */
     return 0.0;
   else if ((H == 1) && ((j == target) || (k == target)))
-    return 1.0;
+    return 0.5;
 
   /* number of recombination sites */
   uint njunx = nloci - 1;
@@ -124,23 +124,7 @@ rec_total23 (uint j, uint k, uint target, double * r, size_t nloci)
   /* add up the expressions: */
   double result = 0.0;
   for (int i = 0; i < neqns; i++) result += total[i];    
-  return result;
-}
-
-double
-rec_total (uint j, uint k, uint target, double * r, size_t nloci)
-{
-  /* delegate finding recombination probabilities to helper function
-  rec_total23 ()
-  
-This function needs to:
-1. Break up the nloci-wide genome into two- and three-locus genomes
-2. Create new arrays of recombination fractions for the new genomes
-3. Call rec_total23 () with these data
-4. multiply the results
-5. return result/2.0 */
-   
-   return result / 2.0;
+  return result / 2.0;
 }
 
 void
