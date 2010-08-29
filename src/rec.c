@@ -34,69 +34,103 @@
 #include <assert.h>
 #include <stdint.h>
 
+#define PSWITCH(x) pholder = nodeptr->parent;		\
+  nodeptr->parent = nodeptr->other;			\
+  nodeptr->other = pholder;
+typedef struct ctree ctree_t;
+struct ctree
+{
+  uint parent;
+  uint other;
+  double prob;
+  ctree_t * right;
+  ctree_t * left;
+  ctree_t * lastbranch;
+};
+
+ctree_t *
+ctree_new (uint parent, uint other, ctree_t lastbranch)
+{
+  ctree_t * ctree = malloc (sizeof (ctree_t));
+  if (ctree == NULL)
+    error (ENOMEM, ENOMEM, "Null pointer");
+  ctree->parent = parent;
+  ctree->other = other;
+  ctree->lastbranch = lastbranch;
+  return ctree;
+}
+
 double
 rec_iterate (uint j, uint k, uint target, double * r, size_t nloci)
 {
- /* number of recombination sites */
+  /* number of recombination sites */
   uint njunx = nloci - 1;
-  size_t neqns = 1 << njunx;
-  uint sites = 0;
-  double total[neqns];
-  total[0] = 1.0;
-  /* the spot to insert a new entry */
-  size_t slot = 1;
-  for (int i = slot; i < neqns; i++) total[i] = 0.0;
-  size_t maybes = 0;
-  uint p = 0; 
+  /* find the first locus where the parents are different from each
+     other or the target */
+  /* this is roach bait: check for bugs here first */
+  size_t p = bits_ffs ((j ^ target) | (k ^ target)) - 1;
+  ctree_t node;
+  if (bits_isset (j, p) == bits_isset (target, p))
+    node = ctree_new (j, k, NULL);
+  else
+    node = ctree_new (k, j, NULL);
+  ctree_t * nodeptr = node;
   do
     {
       /* go by pairs of loci */
-      uint jmask = 0x3 << p;
-      uint mt = target & jmask;
-      uint jt = j & jmask;
-      uint kt = k & jmask;
+      uint pmask = 0x3 << p;
+      uint tbits = target & pmask;
+      uint pbits = nodeptr->parent & pmask;
+      uint obits = nodeptr->other & pmask;
       /* how many bits do we need to change from the parents to make
 	 the offspring? */
-      int diff = bits_hamming (jt, mt) + bits_hamming (kt, mt);
-      sites += diff ? 1 : 0 ;
+      int diff = bits_hamming (tbits, pbits) + bits_hamming (tbits, obits);
+      uint pholder;		/* placeholder for switching parents */
       /* non-recombinant case */
-      if ((diff == 2) && ((jt == mt) || (kt == mt)))
-	for (int i = 0; i < slot; i++) total[i] *= (1 - r[p]);
+      if ((diff == 2) && ((nodeptr->parent == tbits)))
+	nodeptr->prob *= 1 - r[p];
       /* recombinant case: */
       else if (diff == 2)
-	for (int i = 0; i < slot; i++) total[i] *= r[p];
+	{
+	  nodeptr->prob *= r[p];
+	  /* switch parents */
+	  PSWITCH(void);
+	}
       else if (diff == 1)
 	{
-	  /* expand the array; new entries (slot to slot*2) are old
-	     entries multiplied by r, then multiply old entries (the
-	     first slot of them) by 1-r */
-	  for (int i = 0; i < slot; i++)
+	  /* determine if this is a branch point */
+	  if (bits_hamming (tbits, pbits) == 1)
+	    /* since we know the first of the two loci is equal in the
+	       parent and target, if the Hamming distance arises from
+	       the parent, then we need to switch  */
 	    {
-	      total[slot + i] = total[i] * r[p];
-	      total[i] *= 1 - r[p];
+	      nodeptr->prob *= r[p];
+	      /* switch parents */
+	      PSWITCH(void);
 	    }
-	  /* we may need to check for this value going over neqns */
-	  slot *= 2;
-	  maybes++;
+	  else if (bits_isset (tbits, p) == bits_isset (obits, p))
+	    /* then we're in a non-recombinant junction */
+	    nodeptr->prob *= 1 - r[p];
+	  else			/* branching point */
+	    /* it's a branch point: set up a new pointer as right, a
+	       new pointer as left, and follow the one on the right */
+	    {
+	      /* also set up their probabilities */
+	      nodeptr->right = ctree_new (nodeptr->parent, nodeptr->other, nodeptr);
+	      nodeptr->right->prob = nodeptr->prob * (1 - r[p]);
+	      nodeptr->left = ctree_new (nodeptr->other, nodeptr->parent, nodeptr);
+	      nodeptr->left->prob =  nodeptr->prob * r[p];
+	      nodeptr = nodeptr->right;
+	    }
 	}
       p++;
-    } while (p < njunx); 
-
-  if ((j != target) && (k != target) && (maybes == sites))
-    /* offspring must be recombinant, so we need to eliminate the
-       possibility of no recombination when every junction is a
-       maybe */
-    total[0] = total[slot - 1] = 0;
-  else if (maybes == sites)
-    /* OTOH if one of the parents does equal the target and we have
-       all maybes then we want only the sum of the totally recombinant
-       or totally nonrecombinant (which do not add to 1
-       incidentally!) */
-    for (int i = 1; i < slot - 1; i++) total[i] = 0.0;
+    } while (p < njunx);
+  /* at the end of these iterations we have the rightmost tree, the
+     one that has the fewest possible recombinations */
+  /* now we need to go back and construct all the combinations between
+     this and the left-most tree */
 
   /* add up the expressions: */
-  double result = 0.0;
-  for (int i = 0; i < slot; i++) result += total[i];
   return result;
 }
 
@@ -117,16 +151,7 @@ rec_total (uint j, uint k, uint target, double * r, size_t nloci)
   else if ((H == 1) && ((j == target) || (k == target)))
     return 0.5;
   
-  uint mom = j; uint dad = k; uint baby = target;
-  double result = 1.0;
-  for (size_t loci = nloci; loci > 1; loci -= 2)
-    {
-      if (loci > 2)
-	result *= rec_iterate (mom & 7, dad & 7, baby & 7, r, 3);
-      else
-	result *= rec_iterate (mom & 3, dad & 3, baby & 3, r, 2);
-      mom >>= 2; dad >>= 2; baby >>= 2; r += 2;
-    }
+  double result = rec_iterate (j, k, target, r, nloci); 
  
   return result / 2.0;
 }
