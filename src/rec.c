@@ -34,40 +34,13 @@
 #include <assert.h>
 #include <stdint.h>
 
-uint
-rec_more_zygs (uint stem, uint nloci)
-{
-  /* iterate over the integers (genotypes), &-ing them with stem,
-     returning the total number of zygotes with the stem */
-  int n = 0;
-  /* set up the stem */
-  uint genomask = (1 << nloci) - 1;
-  uint mask = ~stem & genomask;
-  for (int i = 0; i < (1 << nloci); i++, mask &= i) 
-    if ((mask & i) != mask) n++;
-  return n;
-}      
-
 double
-rec_total (uint j, uint k, uint target, double * r, size_t nloci)
+rec_iterate (uint j, uint k, uint target, double * r, size_t nloci)
 {
-  /* find the total probability of recombination over extended
-     recombination map R, given parents J and K, and offspring
-     TARGET */
-  uint H = bits_hamming (j, k);
-  /* eliminate confounding cases right away */
-  if ((j == k) && (j == target))
-    /* only one possibility */
-    return 1.0;
-  else if ((j == k) || ((j ^ target) & (k ^ target)))
-    /* no recombination is possible */
-    return 0.0;
-  else if ((H == 1) && ((j == target) || (k == target)))
-    return 0.5;
-
-  /* number of recombination sites */
+ /* number of recombination sites */
   uint njunx = nloci - 1;
   size_t neqns = 1 << njunx;
+  uint sites = 0;
   double total[neqns];
   total[0] = 1.0;
   /* the spot to insert a new entry */
@@ -85,7 +58,7 @@ rec_total (uint j, uint k, uint target, double * r, size_t nloci)
       /* how many bits do we need to change from the parents to make
 	 the offspring? */
       int diff = bits_hamming (jt, mt) + bits_hamming (kt, mt);
-
+      sites += diff ? 1 : 0 ;
       /* non-recombinant case */
       if ((diff == 2) && ((jt == mt) || (kt == mt)))
 	for (int i = 0; i < slot; i++) total[i] *= (1 - r[p]);
@@ -109,21 +82,52 @@ rec_total (uint j, uint k, uint target, double * r, size_t nloci)
       p++;
     } while (p < njunx); 
 
-  if ((j != target) && (k != target) && (maybes == njunx))
+  if ((j != target) && (k != target) && (maybes == sites))
     /* offspring must be recombinant, so we need to eliminate the
        possibility of no recombination when every junction is a
        maybe */
-    total[0] = total[neqns - 1] = 0;
-  else if (maybes == njunx)
+    total[0] = total[slot - 1] = 0;
+  else if (maybes == sites)
     /* OTOH if one of the parents does equal the target and we have
        all maybes then we want only the sum of the totally recombinant
        or totally nonrecombinant (which do not add to 1
        incidentally!) */
-    for (int i = 1; i < neqns - 1; i++) total[i] = 0.0;
+    for (int i = 1; i < slot - 1; i++) total[i] = 0.0;
 
   /* add up the expressions: */
   double result = 0.0;
-  for (int i = 0; i < neqns; i++) result += total[i];    
+  for (int i = 0; i < slot; i++) result += total[i];
+  return result;
+}
+
+double
+rec_total (uint j, uint k, uint target, double * r, size_t nloci)
+{
+  /* find the total probability of recombination over extended
+     recombination map R, given parents J and K, and offspring
+     TARGET */
+  uint H = bits_hamming (j, k);
+  /* eliminate confounding cases right away */
+  if ((j == k) && (j == target))
+    /* only one possibility */
+    return 1.0;
+  else if ((j == k) || ((j ^ target) & (k ^ target)))
+    /* no recombination is possible */
+    return 0.0;
+  else if ((H == 1) && ((j == target) || (k == target)))
+    return 0.5;
+  
+  uint mom = j; uint dad = k; uint baby = target;
+  double result = 1.0;
+  for (size_t loci = nloci; loci > 1; loci -= 2)
+    {
+      if (loci > 2)
+	result *= rec_iterate (mom & 7, dad & 7, baby & 7, r, 3);
+      else
+	result *= rec_iterate (mom & 3, dad & 3, baby & 3, r, 2);
+      mom >>= 2; dad >>= 2; baby >>= 2; r += 2;
+    }
+ 
   return result / 2.0;
 }
 
