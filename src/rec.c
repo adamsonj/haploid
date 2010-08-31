@@ -34,31 +34,9 @@
 #include <assert.h>
 #include <stdint.h>
 
-#define PSWITCH(x) pholder = nodeptr->parent;		\
-  nodeptr->parent = nodeptr->other;			\
-  nodeptr->other = pholder;
-typedef struct ctree ctree_t;
-struct ctree
-{
-  uint parent;
-  uint other;
-  double prob;
-  ctree_t * right;
-  ctree_t * left;
-  ctree_t * lastbranch;
-};
-
-ctree_t *
-ctree_new (uint parent, uint other, ctree_t lastbranch)
-{
-  ctree_t * ctree = malloc (sizeof (ctree_t));
-  if (ctree == NULL)
-    error (ENOMEM, ENOMEM, "Null pointer");
-  ctree->parent = parent;
-  ctree->other = other;
-  ctree->lastbranch = lastbranch;
-  return ctree;
-}
+#define PSWITCH(x) pholder = parent;		\
+  parent = other;				\
+  other = pholder;
 
 double
 rec_iterate (uint j, uint k, uint target, double * r, size_t nloci)
@@ -69,66 +47,78 @@ rec_iterate (uint j, uint k, uint target, double * r, size_t nloci)
      other or the target */
   /* this is roach bait: check for bugs here first */
   size_t p = bits_ffs ((j ^ target) | (k ^ target)) - 1;
-  ctree_t node;
+  uint parent, other;
   if (bits_isset (j, p) == bits_isset (target, p))
-    node = ctree_new (j, k, NULL);
+    {
+      parent = j;
+      other = k;
+    }
   else
-    node = ctree_new (k, j, NULL);
-  ctree_t * nodeptr = node;
+    {
+      parent = k;
+      other = j;
+    }
+  /* define a dynamically re-sizable array */
+  double * total = calloc (1, sizeof (double));
+  if (total == NULL)
+    error (ENOMEM, ENOMEM, "Null pointer");
+  total[0] = 1.0F;
+  size_t slot = 1;
   do
     {
       /* go by pairs of loci */
       uint pmask = 0x3 << p;
       uint tbits = target & pmask;
-      uint pbits = nodeptr->parent & pmask;
-      uint obits = nodeptr->other & pmask;
+      uint pbits = parent & pmask;
+      uint obits = other & pmask;
       /* how many bits do we need to change from the parents to make
 	 the offspring? */
       int diff = bits_hamming (tbits, pbits) + bits_hamming (tbits, obits);
       uint pholder;		/* placeholder for switching parents */
       /* non-recombinant case */
-      if ((diff == 2) && ((nodeptr->parent == tbits)))
-	nodeptr->prob *= 1 - r[p];
+      if ((diff == 2) && ((pbits == tbits)))
+	for (int i = 0; i < slot; i++) total[i] *= 1 - r[p];
       /* recombinant case: */
       else if (diff == 2)
 	{
-	  nodeptr->prob *= r[p];
+	  for (int i = 0; i < slot; i++) total[i] *= r[p];
 	  /* switch parents */
 	  PSWITCH(void);
 	}
-      else if (diff == 1)
+      else if ((diff == 1) && (bits_hamming (tbits, pbits) == 1))
 	{
 	  /* determine if this is a branch point */
-	  if (bits_hamming (tbits, pbits) == 1)
-	    /* since we know the first of the two loci is equal in the
-	       parent and target, if the Hamming distance arises from
-	       the parent, then we need to switch  */
+	  /* since we know the first of the two loci is equal in the
+	     parent and target, if the Hamming distance arises from
+	     the parent, then we need to switch  */
+	  for (int i = 0; i < slot; i++) total[i] *= r[p];
+	  /* switch parents */
+	  PSWITCH(void);
+	}
+      else if ((diff == 1) && (bits_isset (tbits, p) == bits_isset (obits, p)))
+	/* then we're in a non-recombinant junction */
+	for (int i = 0; i < slot; i++) total[i] *= r[p];
+      else if (diff == 1)	/* branching point */
+	{
+	  total = realloc (total, 2 * slot * sizeof (double));
+	  if (total == NULL)
+	    error (ENOMEM, ENOMEM, "Null pointer");
+	  /* also set up their probabilities */
+	  /* it's a branch point */
+	  for (int i = 0; i < slot; i++)
 	    {
-	      nodeptr->prob *= r[p];
-	      /* switch parents */
-	      PSWITCH(void);
+	      total[slot + i] = total[i] * r[p];
+	      total[i] *= (1 - r[p]);
 	    }
-	  else if (bits_isset (tbits, p) == bits_isset (obits, p))
-	    /* then we're in a non-recombinant junction */
-	    nodeptr->prob *= 1 - r[p];
-	  else			/* branching point */
-	    /* it's a branch point: set up a new pointer as right, a
-	       new pointer as left, and follow the one on the right */
-	    {
-	      /* also set up their probabilities */
-	      nodeptr->right = ctree_new (nodeptr->parent, nodeptr->other, nodeptr);
-	      nodeptr->right->prob = nodeptr->prob * (1 - r[p]);
-	      nodeptr->left = ctree_new (nodeptr->other, nodeptr->parent, nodeptr);
-	      nodeptr->left->prob =  nodeptr->prob * r[p];
-	      nodeptr = nodeptr->right;
-	    }
+	  slot *= 2;
 	}
       p++;
     } while (p < njunx);
-  /* at the end of these iterations we have the rightmost tree, the
-     one that has the fewest possible recombinations */
-  /* now we need to go back and construct all the combinations between
-     this and the left-most tree */
+
+  /* now add up the results */
+  double result = 0.0F;
+  for (int i = 0; i < slot; i++) result += total[i];
+  free (total);
 
   /* add up the expressions: */
   return result;
