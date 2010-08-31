@@ -41,12 +41,16 @@
 double
 rec_iterate (uint j, uint k, uint target, double * r, size_t nloci)
 {
+  /* degenerate condition (to stop recursion); recursion *should* stop
+     when we reach the end of the while loop */
+  if (nloci == 1) return 1.0;
   /* number of recombination sites */
   uint njunx = nloci - 1;
   /* find the first locus where the parents are different from each
      other or the target */
   /* this is roach bait: check for bugs here first */
   size_t p = bits_ffs ((j ^ target) | (k ^ target)) - 1;
+  size_t q = p + 1;
   uint parent, other;
   if (bits_isset (j, p) == bits_isset (target, p))
     {
@@ -58,12 +62,7 @@ rec_iterate (uint j, uint k, uint target, double * r, size_t nloci)
       parent = k;
       other = j;
     }
-  /* define a dynamically re-sizable array */
-  double * total = calloc (1, sizeof (double));
-  if (total == NULL)
-    error (ENOMEM, ENOMEM, "Null pointer");
-  total[0] = 1.0F;
-  size_t slot = 1;
+  double total = 1.0F;
   do
     {
       /* go by pairs of loci */
@@ -77,51 +76,38 @@ rec_iterate (uint j, uint k, uint target, double * r, size_t nloci)
       uint pholder;		/* placeholder for switching parents */
       /* non-recombinant case */
       if ((diff == 2) && ((pbits == tbits)))
-	for (int i = 0; i < slot; i++) total[i] *= 1 - r[p];
+	total *= 1.0 - r[p];
       /* recombinant case: */
       else if (diff == 2)
 	{
-	  for (int i = 0; i < slot; i++) total[i] *= r[p];
+	  total *= r[p];
 	  /* switch parents */
 	  PSWITCH(void);
 	}
       else if ((diff == 1) && (bits_hamming (tbits, pbits) == 1))
 	{
-	  /* determine if this is a branch point */
-	  /* since we know the first of the two loci is equal in the
-	     parent and target, if the Hamming distance arises from
-	     the parent, then we need to switch  */
-	  for (int i = 0; i < slot; i++) total[i] *= r[p];
+	  /* if the difference arises from a difference from the
+	     parent, then we should switch to the other parental
+	     chromosome */
+	  total *= r[p];
 	  /* switch parents */
 	  PSWITCH(void);
 	}
-      else if ((diff == 1) && (bits_isset (tbits, p) == bits_isset (obits, p)))
+      else if ((diff == 1)
+	       && (bits_isset (tbits, q) != bits_isset (obits, q)))
 	/* then we're in a non-recombinant junction */
-	for (int i = 0; i < slot; i++) total[i] *= r[p];
+	total *= 1.0 - r[p];
       else if (diff == 1)	/* branching point */
-	{
-	  total = realloc (total, 2 * slot * sizeof (double));
-	  if (total == NULL)
-	    error (ENOMEM, ENOMEM, "Null pointer");
-	  /* also set up their probabilities */
-	  /* it's a branch point */
-	  for (int i = 0; i < slot; i++)
-	    {
-	      total[slot + i] = total[i] * r[p];
-	      total[i] *= (1 - r[p]);
-	    }
-	  slot *= 2;
-	}
-      p++;
+	/* recursion step */
+	total *= r[p] * rec_iterate (other >> q, parent >> q, target >> q,
+				     &r[q], nloci - q)
+	  + (1 - r[p]) * rec_iterate (parent >> q, other >> q, target >> q,
+				      &r[q], nloci - q);
+      p++; q++;
     } while (p < njunx);
 
-  /* now add up the results */
-  double result = 0.0F;
-  for (int i = 0; i < slot; i++) result += total[i];
-  free (total);
-
-  /* add up the expressions: */
-  return result;
+   /* add up the expressions: */
+  return total;
 }
 
 double
@@ -130,7 +116,6 @@ rec_total (uint j, uint k, uint target, double * r, size_t nloci)
   /* find the total probability of recombination over extended
      recombination map R, given parents J and K, and offspring
      TARGET */
-  uint H = bits_hamming (j, k);
   /* eliminate confounding cases right away */
   if ((j == k) && (j == target))
     /* only one possibility */
@@ -138,7 +123,7 @@ rec_total (uint j, uint k, uint target, double * r, size_t nloci)
   else if ((j == k) || ((j ^ target) & (k ^ target)))
     /* no recombination is possible */
     return 0.0;
-  else if ((H == 1) && ((j == target) || (k == target)))
+  else if ((bits_hamming (j, k) == 1) && ((j == target) || (k == target)))
     return 0.5;
   
   double result = rec_iterate (j, k, target, r, nloci); 
