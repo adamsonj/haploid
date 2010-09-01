@@ -1,5 +1,11 @@
 2010-09-01  Joel James Adamson  <adamsonj@email.unc.edu>
 
+	* tests/rec_test.c (run_test): created a signal handler that
+	prints the sum of the recombination table.  Prior to raising the
+	signal the program prints the allele frequencies that have changed
+	to stderr; the user can still enable verbosity by compiling with
+	-DDEBUG
+
 	* src/rec.c (rec_total): rec_total now recognizes when the two
 	parents have identical lowest bits and adds the results of calling
 	rec_iterate with each parent given first.  

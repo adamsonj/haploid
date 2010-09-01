@@ -32,16 +32,18 @@
 #include "../src/haploid.h"
 #include "../src/sparse.h"
 #include <time.h>
+#include <signal.h>
 
 rtable_t ** rec_table;
-
+haploid_data_t * gdata;
 /* declarations: */
+#define TOL 1e-14
+#define HELL SIGABRT
 void
 rec_test_total (void);
 
 void
 rec_test_prtable (haploid_data_t * data);
-
 
 void
 add_rec_entries (double ** sums, rtable_t ** rec_table, size_t geno)
@@ -75,23 +77,24 @@ check_entries (haploid_data_t * data)
   for (int i = 0; i < geno; i++)
     {
       for (int j = 0; j < geno; j++)
-	{
-#ifdef DEBUG
-	  fprintf (stdout, "%9.8f ", sums[i][j]);
-#endif	/* DEBUG */
-	  /* assert (islessequal (sums[i][j], 1.0) */
-	  /* 	  && isgreaterequal (sums[i][j], 1.0)); */
-	}
-#ifdef DEBUG
+	fprintf (stdout, "%9.8f ", sums[i][j]);
       fprintf (stdout, "\n");
-#endif	/* DEBUG */
     }  
   return 0;
+}
+
+void
+abhandler (int sig)
+{
+  check_entries (gdata);
+  signal (sig, SIG_DFL);
+  raise (sig);
 }
 
 int
 run_test (size_t nloci, double r)
 {
+  signal (SIGABRT, abhandler);
   size_t geno = 1 << nloci;
   double rarr[nloci];
   double alleles[nloci];
@@ -109,7 +112,7 @@ run_test (size_t nloci, double r)
     { geno, nloci, rec_gen_table (nloci, geno, rarr), rmtable (geno, freq)};
 
 #ifdef DEBUG
-  fprintf (stdout, "%i x %i x %i recombination table | r = %f\n", geno, geno, geno, r);
+  fprintf (stdout, "%zu x %zu x %zu recombination table | r = %f\n", geno, geno, geno, r);
   rec_test_prtable (&rec_test_data);
 #endif  /* DEBUG */
 
@@ -130,16 +133,25 @@ run_test (size_t nloci, double r)
   /* print alleles */
   double alleles_new[nloci];
   genotype_to_allele (alleles_new, freq, nloci, geno);
-  /* assert (islessequal (tot, 1.0) && isgreaterequal (tot, 1.0)); */
-
 #ifdef DEBUG
+
   fprintf (stdout, "Allele frequencies:\n");
+#endif	/* DEBUG */
   for (int j = 0; j < nloci; j++)
     {
+#ifdef DEBUG
       fprintf (stdout, "p[%1x] = %9.8f\n", j, alleles_new[j]);
-    }
 #endif	/* DEBUG */
-  check_entries (&rec_test_data);
+      if (isgreater (fabs(alleles_new[j] - alleles[j]), TOL))
+	{
+	  fprintf (stdout, "Change in allele frequency detected: \n"
+		   "Starting frequency: p[%1x] = %9.8f\n"
+		   "New frequency: p[%1x] = %9.8f\n",
+		   j, alleles[j], j, alleles_new[j]);
+	  gdata = &rec_test_data;
+	  raise (HELL);
+	}
+    }
   return 0;
 }
 
