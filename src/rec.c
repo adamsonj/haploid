@@ -44,15 +44,12 @@ rec_iterate (uint j, uint k, uint target, double * r, size_t nloci)
   /* degenerate condition (to stop recursion); recursion *should* stop
      when we reach the end of the while loop */
   if (nloci == 1) return 1.0;
-  /* number of recombination sites */
-  uint njunx = nloci - 1;
+
   /* find the first locus where the parents are different from each
      other or the target */
   /* this is roach bait: check for bugs here first */
-  size_t p = bits_ffs ((j ^ target) | (k ^ target)) - 1;
-  size_t q = p + 1;
   uint parent, other;
-  if (bits_isset (j, p) == bits_isset (target, p))
+  if (bits_isset (j, 0) == bits_isset (target, 0))
     {
       parent = j;
       other = k;
@@ -66,7 +63,7 @@ rec_iterate (uint j, uint k, uint target, double * r, size_t nloci)
   do
     {
       /* go by pairs of loci */
-      uint pmask = 0x3 << p;
+      uint pmask = 3;
       uint tbits = target & pmask;
       uint pbits = parent & pmask;
       uint obits = other & pmask;
@@ -76,11 +73,11 @@ rec_iterate (uint j, uint k, uint target, double * r, size_t nloci)
       uint pholder;		/* placeholder for switching parents */
       /* non-recombinant case */
       if ((diff == 2) && ((pbits == tbits)))
-	total *= 1.0 - r[p];
+	total *= 1.0 - *r;
       /* recombinant case: */
       else if (diff == 2)
 	{
-	  total *= r[p];
+	  total *= *r;
 	  /* switch parents */
 	  PSWITCH(void);
 	}
@@ -89,22 +86,25 @@ rec_iterate (uint j, uint k, uint target, double * r, size_t nloci)
 	  /* if the difference arises from a difference from the
 	     parent, then we should switch to the other parental
 	     chromosome */
-	  total *= r[p];
+	  total *= *r;
 	  /* switch parents */
 	  PSWITCH(void);
 	}
       else if ((diff == 1)
-	       && (bits_isset (tbits, q) != bits_isset (obits, q)))
+	       && (bits_isset (tbits, 1) != bits_isset (obits, 1)))
 	/* then we're in a non-recombinant junction */
-	total *= 1.0 - r[p];
+	total *= 1.0 - *r;
       else if (diff == 1)	/* branching point */
-	/* recursion step */
-	total *= r[p] * rec_iterate (other >> q, parent >> q, target >> q,
-				     &r[q], nloci - q)
-	  + (1 - r[p]) * rec_iterate (parent >> q, other >> q, target >> q,
-				      &r[q], nloci - q);
-      p++; q++;
-    } while (p < njunx);
+	{
+	  /* recursion step */
+	  total *= (*r * rec_iterate (other >> 1, parent >> 1, target >> 1,
+				      r+1, nloci - 1)
+		    + (1 - *r) * rec_iterate (parent >> 1, other >> 1, target >> 1,
+					      r+1, nloci - 1));
+	  break;
+	}
+      parent >>= 1; other >>= 1; target >>= 1; nloci--; 
+    } while (nloci > 1);
 
    /* add up the expressions: */
   return total;
@@ -127,6 +127,8 @@ rec_total (uint j, uint k, uint target, double * r, size_t nloci)
     return 0.5;
   
   double result = rec_iterate (j, k, target, r, nloci); 
+  if ((j & 1) == (k & 1))
+    result += rec_iterate (k, j, target, r, nloci); 
  
   return result / 2.0;
 }

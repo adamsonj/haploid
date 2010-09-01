@@ -1,3 +1,11 @@
+2010-09-01  Joel James Adamson  <adamsonj@email.unc.edu>
+
+	* src/rec.c (rec_total): rec_total now recognizes when the two
+	parents have identical lowest bits and adds the results of calling
+	rec_iterate with each parent given first.  
+	(rec_iterate): recursion now breaks out of while loop; future
+	version may do away with loop altogether
+
 2010-08-23  Joel J. Adamson  <adamsonj@email.unc.edu>
 
 	* tests/rec_test3.c: now compartmentalized into functions; main ()
