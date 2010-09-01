@@ -1,5 +1,9 @@
 2010-09-01  Joel James Adamson  <adamsonj@email.unc.edu>
 
+	* doc/haploid.texi (Mating tables): removed section on
+	recombination algorithm; if someone is interested they can look at
+	the source code
+
 	* tests/rec_test.c (run_test): created a signal handler that
 	prints the sum of the recombination table.  Prior to raising the
 	signal the program prints the allele frequencies that have changed

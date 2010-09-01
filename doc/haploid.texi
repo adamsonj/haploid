@@ -67,7 +67,6 @@ Features
 
 * Recombination tables::        
 * Mating tables::               
-* Recombination algorithm::     
 
 Representation
 
@@ -168,7 +167,7 @@ calculates them when they are not 1.0 or 0.0.
 
 When a single recombination scheme is needed for a particular problem,
 the lookup table need only be calculated once (at the beginning of the
-simulation).  However, I believe the algorithm is fast enough that you
+simulation).  However, the algorithm should be fast enough that you
 could use it to represent evolving recombination.  Please inform the
 developers if you successfully use the library for this purpose.
 @cindex diploid, simulating diploidy
@@ -182,7 +181,6 @@ populations.
 @menu
 * Recombination tables::        
 * Mating tables::               
-* Recombination algorithm::     
 @end menu
 
 @node Recombination tables, Mating tables, Features, Features
@@ -228,7 +226,7 @@ produces the offspring genotype frequencies given a mating table.  You
 may be able to use this data structure to your advantage, but its
 implementation is hidden from the user.
 
-@node Mating tables, Recombination algorithm, Recombination tables, Features
+@node Mating tables,  , Recombination tables, Features
 @section Mating tables
 @cindex mating table
 @cindex sexual selection
@@ -245,67 +243,10 @@ You can simulate random mating by making the entries of the mating table
 equal to the products of the male and female frequencies.
 
 @code{rec_mating ()} calculates new offspring frequencies by finding the
-Kronecker (or ``direct'') product of the mating table and the
-recombination table entry for a particular offspring and summing the
-entries of the result.  Before returning the vector of offspring
-probabilities @code{rec_mating ()} divides each new frequency by the
-total of the new frequencies.
-
-@node Recombination algorithm,  , Mating tables, Features
-@section Recombination algorithm
-@cindex recombination, algorithm
-Haploid's second feature is the algorithm that calculates the entries of
-the recombination table.  The algorithm for choosing to make an entry is
-contained in a loop-nest within the function @code{rec_gen_table ()}, in
-the file @file{src/rec.c}.  This explanation is just an aid in reading
-the source code: users only need to call @code{rec_gen_table ()} with
-appropriate arguments.
-
-The algorithm loops over the possible offspring, from 0 to the number of
-given genotypes minus one; then the algorithm loops over mothers and
-then fathers (arbitrarily designated).  First the algorithm checks if
-there is already an entry in the table for transposed parents, if so it
-makes a new entry with the same value.  The result is symmetry, which
-corresponds to no bias in recombination based on parent of origin.  If
-the mother, father and offspring all have the same genotype, then there
-is only one possible offspring, and a new entry is made with a value of
-1.  Further (or prior) loops with equal parent genotypes will produce no
-entries (corresponding to the value zero).  
-
-If one parent matches the offspring, and recombination can possibly
-produce the target offspring, then the value of the new entry is
-@math{0.5}.  If recombination is not possible (i.e. any recombination
-will produce non-target offspring) then the probability of the target
-offspring is the probability of no recombination at any loci:
-
-@math{R(jk \rightarrow i) = ({1 \over 2}) \Pi_I (1 - r_I)}
-
-where @math{r_I} is the probability of recombination between a locus in
-genome partition @math{I \subset L}, and a locus in @math{J \subset L}
-such that @math{I \cap J = \emptyset}.
-
-If neither parent matches, we first find if we can construct the
-offspring genotype from the parents using recombination (by comparing
-the differences between the offspring and one parent, then checking the
-other parent at all the differing sites).  Only if this test is
-successful do we calculate the probability of recombinant offspring.
-
-The function @code{rec_total ()} (found in @file{src/rec.c}) computes
-the probability of recombinant offspring by iterating across partitions
-of the genome that contain the first locus.  For each partition we
-evaluate
-
-@math{R (j_Ij_J, k_Ik_J \rightarrow i_Ii_J)
-        = (\delta_{{i_I}{j_I}} \delta_{{i_J}{k_J}}) r_I
-          + (\delta_{{i_I}{k_I}} \delta_{{i_J}{j_J}}) r_I}
-
-only if @math{\delta_{{i_I}{j_I}} = \delta_{{i_J}{k_J}} = 1}, where
-@math{\delta_{i_I j_J}} is a Kronecker @math{\delta}.  If that's true
-then the target offspring can be formed by recombination at the site
-defining @math{I} and @math{J}.  The total probability is the sum of
-these values:
-
-@math{R(jk \rightarrow i) = \sum_I R (j_Ij_J, k_Ik_J \rightarrow i_Ii_J)}
+Hadamard product of the mating table and the recombination table entry
+for a particular offspring and summing the entries of the result.
+Before returning the vector of offspring probabilities @code{rec_mating
+()} divides each new frequency by the total of the new frequencies.
 
 @node Representation, Simulation functions, Features, Top
 @chapter Representation
