@@ -35,6 +35,7 @@ AC_PROG_CC
 # the user must user "CFLAGS='-std=gnu99 -O3 -Wall -pedantic'"
 
 # AC_PROG_CC_C99
+
 AC_PROG_CPP
 AC_PROG_INSTALL
 AC_PROG_LN_S
@@ -50,6 +51,12 @@ AC_CHECK_HEADERS([stdlib.h math.h limits.h string.h limits.h error.h omp.h time.
 
 # OpenMP:
 AC_OPENMP
+# C99 features used in haploid
+# check for variable length-arrays
+AC_C_VARARRAYS 
+# check for boolean data type
+AM_STDBOOL_H
+
 # enable per-target CFLAGS
 AM_PROG_CC_C_O
 
