@@ -34,6 +34,7 @@
 #include <stdlib.h>
 #include <time.h>
 #include <limits.h>
+#include <assert.h>
 
 #define GENO 4
 #define TRIALS 256
@@ -124,6 +125,7 @@ nrm_iterate (double * freqs, haploid_data_t * data)
   /* do it! */
   do
     {
+      double denom = 0.0F;
 
       for (int j = 0; j < geno; j++)
 	{
@@ -132,16 +134,20 @@ nrm_iterate (double * freqs, haploid_data_t * data)
 	  /* adjust mating table */
 	  for (int i = 0; i < geno; i++)
 	    {
-	      if ((bits_isset(i,0) == bits_isset(j,0))
-		  && bits_isset(i,1) == bits_isset(j,1))
+	      if (i == j)
 		factor = 1.0 - err;
 	      else
 		factor = err;
 	      
 	      mtable[i][j] = (freqs[i]*freqs[j]) * factor;
+	      denom += mtable[i][j];
 	    }
 	}
-
+      
+      assert (isgreater (denom, 0));
+      for (int i = 0; i < geno; i++)
+	for (int j = 0; j < geno; j++)
+	  mtable[i][j] /= denom;
       /* mating */
       rec_mating (freqs, data);
 
