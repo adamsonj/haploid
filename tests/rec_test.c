@@ -158,7 +158,7 @@ run_test (size_t nloci, double r)
 int
 main (void)
 {
-  for (int i = 2; i < 0xf; i++)
+  for (int i = 0; i < 0xf; i++)
     for (double r = 0.0F; r < 0.6; r += 0.1)
       run_test (i, r);
   return 0;
