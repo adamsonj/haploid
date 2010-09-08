@@ -125,8 +125,6 @@ nrm_iterate (double * freqs, haploid_data_t * data)
   /* do it! */
   do
     {
-      double denom = 0.0F;
-
       for (int j = 0; j < geno; j++)
 	{
 	  /* save old frequencies */
@@ -140,14 +138,9 @@ nrm_iterate (double * freqs, haploid_data_t * data)
 		factor = err;
 	      
 	      mtable[i][j] = (freqs[i]*freqs[j]) * factor;
-	      denom += mtable[i][j];
 	    }
 	}
       
-      assert (isgreater (denom, 0));
-      for (int i = 0; i < geno; i++)
-	for (int j = 0; j < geno; j++)
-	  mtable[i][j] /= denom;
       /* mating */
       rec_mating (freqs, data);
 
