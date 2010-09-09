@@ -130,15 +130,15 @@ rm_iterate (haploid_data_t * rm_data, double * alleles, double D)
       snck = snprintf (dest, remain, prec,
 		       ld_from_geno (NLOCI, GENO, genotypes));
       remain += snck;
-      rtot += snck;
+      rtot   += snck;
       remain -= snck;
-      dest += snck;
-      D *= (1 - r);
-      snck = snprintf (dest, remain, precn, D);		       
+      dest   += snck;
+      D	     *= (1 - r);
+      snck    = snprintf (dest, remain, precn, D);		       
       remain += snck;
-      rtot += snck;
+      rtot   += snck;
       remain -= snck;
-      dest += snck;
+      dest   += snck;
     } while (sim_stop_ck (old, genotypes, GENO, 1e-9));
   
   return realloc (output, rtot);
