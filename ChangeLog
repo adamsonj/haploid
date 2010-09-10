@@ -1,3 +1,8 @@
+2010-09-10  Joel James Adamson  <adamsonj@email.unc.edu>
+
+	* src/rec.c (rtable_new): fixed this function which was using
+	malloc instead of sparse_new_elt to create new sparse matrix nodes
+
 2010-09-01  Joel James Adamson  <adamsonj@email.unc.edu>
 
 	* doc/haploid.texi (Mating tables): removed section on

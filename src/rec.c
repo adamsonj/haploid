@@ -139,23 +139,20 @@ rtable_new (rtable_t * rtable, double val, uint i, uint j)
   /* if the incoming rtable is NULL, then we need to create a fresh
      rtable object */
   if (rtable == NULL)
-    {
-      rtable = malloc (sizeof (rtable_t));
-      if (rtable == NULL)
-	error (0, ENOMEM, "Null pointer\n");	
-    }
+    rtable = sparse_new_elt (NULL, val, NULL);
   /* otherwise we need to create a new one and link it in to the old
      one, then advance it by one */
   rtable->val = val;
   rtable->indices[0] = i;
   rtable->indices[1] = j;
   /* set up the next link in the chain */
-  rtable_t * new = malloc (sizeof (rtable_t));
-  new->indices = calloc (2, sizeof (uint));
-  if ((new == NULL) || (new->indices == NULL))
+  int * indices = calloc (2, sizeof (int));
+  if (indices == NULL)
+    /* if you don't have enough space for two integers, we might as
+       well give up: */
     error (0, ENOMEM, "Null pointer\n");
-  else
-    rtable->next = new;
+  rtable_t * new = sparse_new_elt (indices, 0, NULL);
+  rtable->next = new;
 }
 
 rtable_t **
