@@ -46,7 +46,6 @@
 #include "../src/sparse.h"
 #include <string.h>
 #include <time.h>
-#include <omp.h>
 
 char prec[] = "%9.8f ";
 
@@ -71,7 +70,6 @@ main (void)
   double rprob = 0.25;
   rtable_t ** rtable =  rec_gen_table(NLOCI, GENO, &rprob);
  
-#pragma omp parallel for shared(W, rprob, rtable)
   for (int i = 0; i < TRIALS; i++)
     {
       size_t snck;
@@ -169,7 +167,6 @@ main (void)
       snprintf (dest, remain, "\n");
       dest += 1;
       remain -= 1;
-#pragma omp critical(prfinal)
       {
 	fprintf (stdout, outstr);
 	fprintf (stdout, "\n");

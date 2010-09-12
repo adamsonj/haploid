@@ -45,9 +45,9 @@ AC_PROG_LIBTOOL
 # Checks for libraries.
 # FIXME: Replace `main' with a function in `-lm':
 AC_CHECK_LIB([m], [pow])
-AC_CHECK_LIB([gomp], [omp_get_num_threads])
+
 # Checks for header files.
-AC_CHECK_HEADERS([stdlib.h math.h limits.h string.h limits.h error.h omp.h time.h])
+AC_CHECK_HEADERS([stdlib.h math.h limits.h string.h limits.h error.h time.h])
 
 # OpenMP:
 AC_OPENMP

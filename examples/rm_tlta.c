@@ -34,7 +34,6 @@
 #include <error.h>
 #include <time.h>
 #include <limits.h>
-#include <omp.h>
 
 #define NLOCI 2
 #define GENO 4
@@ -60,7 +59,7 @@ main (void)
   rm_data->geno = GENO;
   rm_data->nloci = NLOCI;
   srand48 (time (0));
-#pragma omp parallel for
+
   for (int i = 0; i < TRIALS; i++)
     {
       double allele[NLOCI];
@@ -74,7 +73,7 @@ main (void)
 	D = drand48 () / 10.0F;
 
       char * output = rm_iterate (rm_data, allele, D);
-#pragma omp critical(pr)
+
       {
 	fprintf (stdout, output);
 	free (output);

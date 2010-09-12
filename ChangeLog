@@ -1,3 +1,7 @@
+2010-09-11  Joel J. Adamson  <adamsonj@email.unc.edu>
+
+	* removing OpenMP from examples and tests
+
 2010-09-10  Joel James Adamson  <adamsonj@email.unc.edu>
 
 	* src/rec.c (rtable_new): fixed this function which was using

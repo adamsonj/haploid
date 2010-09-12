@@ -54,7 +54,6 @@ main (void)
   double r = 0.25;
   srand48 (time (0));
 
-#pragma omp parallel for
   for (int i = 0; i < TRIALS; i++)
     {
       haploid_data_t * nrm_data = malloc (sizeof (haploid_data_t));
@@ -89,7 +88,7 @@ main (void)
       /* print genotype frequencies and LD */
       char * output;
       output = nrm_iterate (freqs, nrm_data);
-#pragma omp critical(pr)
+
       fprintf (stdout, output);
       free (output);
     }
