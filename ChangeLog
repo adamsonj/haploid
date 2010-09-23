@@ -1,3 +1,8 @@
+2010-09-23  Joel James Adamson  <adamsonj@email.unc.edu>
+
+	* configure.ac: specified CFLAGS here so we don't have to set it
+	at the command line during configure
+
 2010-09-11  Joel J. Adamson  <adamsonj@email.unc.edu>
 
 	* removing OpenMP from examples and tests
