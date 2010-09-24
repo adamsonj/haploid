@@ -20,7 +20,7 @@
 # along with haploid.  If not, see <http://www.gnu.org/licenses/>.
 # 
 AC_PREREQ([2.59])
-AC_INIT([haploid], [svn], [haploid-users@nongnu.org])
+AC_INIT([haploid], [svn], [haploid-users@nongnu.org],,[http://haploid.nongnu.org])
 AM_INIT_AUTOMAKE(haploid,svn)
 AC_CONFIG_MACRO_DIR([m4])
 AC_CONFIG_SRCDIR([src/rec.c])
@@ -31,7 +31,7 @@ AC_PREFIX_DEFAULT(/usr)
 # 
 AC_PROG_AWK
 AC_PROG_CC
-AC_SUBST(CFLAGS, ["-std=gnu99 -O3"])
+AC_SUBST(CFLAGS, ["-std=gnu99"])
 
 # check for c99; this does not work on Autoconf lower than 2.62, so
 # the user must user "CFLAGS='-std=gnu99 -O3 -Wall -pedantic'"
