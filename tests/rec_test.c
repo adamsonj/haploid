@@ -33,6 +33,7 @@
 #include "../src/sparse.h"
 #include <time.h>
 #include <signal.h>
+#include <omp.h>
 
 rtable_t ** rec_table;
 haploid_data_t * gdata;
@@ -48,19 +49,20 @@ rec_test_prtable (haploid_data_t * data);
 void
 add_rec_entries (double ** sums, rtable_t ** rec_table, size_t geno)
 {
-  /* add the entries in the array of recombination tables rec_table;
-     enter the sums into a matrix sums; this is to check that all
+  /* add the entries in the array of recombination tables REC_TABLE;
+     enter the sums into a matrix SUMS; this is to check that all
      entries add to 1.0 over range of the entire array (the entries in
-     each table are probabilities and therefore over thesample space
+     each table are probabilities and therefore over the sample space
      of mated pairs must add to 1) */
   for (int i = 0; i < geno; i++)
-    for (int j = 0; j < geno; j++)
-      {
-	sums[i][j] = 0.0;
-	for (int k = 0; k < geno; k++)
-	  sums[i][j] += sparse_get_val (rec_table[k], i, j);
-      }
-  /* this will allow us to see which ones have problems */
+    {
+      for (int j = 0; j < geno; j++)
+	{
+	  sums[i][j] = 0.0;
+	  for (int k = 0; k < geno; k++)
+	    sums[i][j] += sparse_get_val (rec_table[k], i, j);
+	}
+    }
 }
 
 int
@@ -145,8 +147,8 @@ run_test (size_t nloci, double r)
       if (isgreater (fabs(alleles_new[j] - alleles[j]), TOL))
 	{
 	  fprintf (stdout, "Change in allele frequency detected: \n"
-		   "Starting frequency: p[%1x] = %9.8f\n"
-		   "New frequency: p[%1x] = %9.8f\n",
+		   "Starting frequency: p[%1x] = %54.53f\n"
+		   "New frequency: p[%1x] = %54.53f\n",
 		   j, alleles[j], j, alleles_new[j]);
 	  gdata = &rec_test_data;
 	  raise (HELL);

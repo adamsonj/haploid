@@ -38,6 +38,7 @@ LDADD = -lm libhaploid.la
 check_PROGRAMS = sim_stop pop_ck sparse_test diseq rec_test  
 noinst_PROGRAMS = nrm rm_tlta tlta
 rec_test_SOURCES = tests/rec_test.c tests/prtable.c
+rec_test_CFLAGS = $(AM_CFLAGS) $(OPENMP_CFLAGS)
 sim_stop_SOURCES = tests/sim_stop.c
 pop_ck_SOURCES = tests/pop_ck.c
 sparse_test_SOURCES = tests/sparse_test.c

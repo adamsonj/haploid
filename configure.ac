@@ -30,13 +30,10 @@ AC_PREFIX_DEFAULT(/usr)
 # Checks for programs.
 # 
 AC_PROG_AWK
-AC_PROG_CC
-AC_SUBST(CFLAGS, ["-std=gnu99"])
-
 # check for c99; this does not work on Autoconf lower than 2.62, so
 # the user must user "CFLAGS='-std=gnu99 -O3 -Wall -pedantic'"
-
-# AC_PROG_CC_C99
+AC_PROG_CC_C99
+dnl AC_SUBST(CFLAGS, ["-std=gnu99"])
 
 AC_PROG_CPP
 AC_PROG_INSTALL
@@ -44,12 +41,15 @@ AC_PROG_LN_S
 AC_PROG_MAKE_SET
 AC_PROG_LIBTOOL
 
+dnl OPENMP
+AC_OPENMP
+
 # Checks for libraries.
-# FIXME: Replace `main' with a function in `-lm':
 AC_CHECK_LIB([m], [pow])
+AC_CHECK_LIB([gomp], [omp_get_thread_num])
 
 # Checks for header files.
-AC_CHECK_HEADERS([stdlib.h math.h limits.h string.h limits.h error.h time.h])
+AC_CHECK_HEADERS([stdlib.h math.h limits.h string.h limits.h error.h time.h omp.h])
 
 # C99 features used in haploid
 # check for variable length-arrays
