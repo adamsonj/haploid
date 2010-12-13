@@ -1,3 +1,10 @@
+2010-12-13  Joel James Adamson  <adamsonj@email.unc.edu>
+
+	* src/spec_func.c (gen_mean): removed a lot of crap comments that
+	didn't make sense; placed i declaration inside for loop
+	(euclid_dist): replaced call to pow () with multiplication (see
+	bug #31865); removed fabs (really shouldn't be necessary!)
+
 2010-09-24  Joel James Adamson  <adamsonj@email.unc.edu>
 
 	* configure.ac (CFLAGS): removed -O3 from CFLAGS, as this

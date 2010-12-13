@@ -33,18 +33,9 @@ double
 gen_mean (double * props, double * vals, int len)
 {
   /* calculate a generalized mean given an array of values and
-     probabilities */
-  int i;
-  /*
-
-    calculate the length of props and vals; raise an error if
-
-    a. length(props) != length(vals)
-    b. result is an array greater than the size of a single double
-
-  */
+     probabilities */     
   double mean = 0.0;
-  for (i = 0; i < len; i++)
+  for (int i = 0; i < len; i++)
     mean += props[i] * vals[i];
   /* return the mean */
   return mean;
@@ -54,17 +45,14 @@ static inline double
 euclid_dist (double * array1, double * array2, int len)
 {
   /* a simple Euclidean distance function */
-  int i;
-  double sqrdiff;
   double diffarray[len];
   double eudiff = 0.0;
-  for (i = 0; i < len; i++)
+  for (int i = 0; i < len; i++)
     {
       diffarray[i] = array1[i] - array2[i];
-      eudiff += pow (diffarray[i], 2);
+      eudiff += diffarray[i] * diffarray[i];
     }
-  sqrdiff = fabs (sqrt (eudiff));
-  return sqrdiff;
+  return sqrt (eudiff);
 }
 
 int
