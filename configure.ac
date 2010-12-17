@@ -20,8 +20,8 @@
 # along with haploid.  If not, see <http://www.gnu.org/licenses/>.
 # 
 AC_PREREQ([2.59])
-AC_INIT([haploid], [svn], [haploid-users@nongnu.org],,[http://haploid.nongnu.org])
-AM_INIT_AUTOMAKE(haploid,svn)
+AC_INIT([haploid], [git], [haploid-users@nongnu.org],,[http://haploid.nongnu.org])
+AM_INIT_AUTOMAKE(haploid,git)
 AC_CONFIG_MACRO_DIR([m4])
 AC_CONFIG_SRCDIR([src/rec.c])
 AC_CONFIG_HEADERS([config.h])

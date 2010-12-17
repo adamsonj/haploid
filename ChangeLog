@@ -1,3 +1,7 @@
+2010-12-17  Joel James Adamson  <adamsonj@email.unc.edu>
+
+	* configure.ac: changed version to "git"
+
 2010-12-13  Joel James Adamson  <adamsonj@email.unc.edu>
 
 	* src/spec_func.c (gen_mean): removed a lot of crap comments that

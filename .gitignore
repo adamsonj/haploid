@@ -98,3 +98,5 @@ INSTALL
 *.pgs
 *.rn
 *.rns
+*.tar.gz
+*.sig
