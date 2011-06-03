@@ -19,7 +19,7 @@
 # You should have received a copy of the GNU General Public License
 # along with haploid.  If not, see <http://www.gnu.org/licenses/>.
 # 
-AC_PREREQ([2.59])
+AC_PREREQ([2.62])
 AC_INIT([haploid], [git], [haploid-users@nongnu.org],,[http://haploid.nongnu.org])
 AM_INIT_AUTOMAKE(haploid,git)
 AC_CONFIG_MACRO_DIR([m4])
@@ -41,15 +41,11 @@ AC_PROG_LN_S
 AC_PROG_MAKE_SET
 AC_PROG_LIBTOOL
 
-dnl OPENMP
-AC_OPENMP
-
 # Checks for libraries.
 AC_CHECK_LIB([m], [pow])
-AC_CHECK_LIB([gomp], [omp_get_thread_num])
 
 # Checks for header files.
-AC_CHECK_HEADERS([stdlib.h math.h limits.h string.h limits.h error.h time.h omp.h])
+AC_CHECK_HEADERS([stdlib.h math.h limits.h string.h limits.h error.h time.h]) 
 
 # C99 features used in haploid
 # check for variable length-arrays
