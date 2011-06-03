@@ -98,3 +98,27 @@ ld_from_geno (size_t nloci, size_t geno, double * geno_freqs)
     subtrahend *= fdim(1.0, alleles[i]);
   return fdim(minuend, subtrahend);
 }
+
+double
+ld_sub_geno (double * genofreqs, uint loci, size_t ngeno)
+{
+  /* GENOFREQS is a vector of genotype frequencies; LOCI is the
+     genotype (a mask) that has both alleles in the "on" position;
+     NGENO is the number of elements of GENOFREQS */
+  /* get "sub-genotype" frequency */
+  double subgeno_freq = 0.0F;
+  uint nloci = log2(ngeno);
+  double alleles[nloci];
+  genotype_to_allele (alleles, genofreqs, nloci, ngeno);
+  for (int i = 0; i < ngeno; i++)
+    if ((i & loci) == loci) subgeno_freq += genofreqs[i];
+  /* now find the allele frequencies of each "on" allele at the
+     requested loci */
+  /* which allele frequencies do we want from ALLELES? */
+  /* find all the set bits of LOCI */
+    double subtrahend = 1.0F;
+  for (int i = 0; i < nloci; i++)
+    if (bits_isset (loci, i))
+      subtrahend *= alleles[i];
+  return subgeno_freq - subtrahend;  
+}

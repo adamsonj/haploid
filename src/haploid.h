@@ -84,6 +84,9 @@ genotype_to_allele (double * allele_freqs, double * geno_freqs,
 double
 ld_from_geno (size_t nloci, size_t geno, double * geno_freqs);
 
+double
+ld_sub_geno (double * genofreqs, uint loci, size_t ngeno);
+
 /* mating.c */
 double **
 rmtable (size_t geno, double * freq);
