@@ -68,7 +68,7 @@ main (void)
 
   /* initialize recombination table: */
   double rprob = 0.25;
-  rtable_t ** rtable =  rec_gen_table(NLOCI, GENO, &rprob);
+  rtable_t ** rtable =  rec_gen_table(&rprob, GENO);
  
   for (int i = 0; i < TRIALS; i++)
     {

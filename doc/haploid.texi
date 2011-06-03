@@ -405,7 +405,7 @@ contexts.
 @end deftypefn
 
 @deftypefn {Library Function} double ld_from_geno@
-(size_t nloci, size_t geno, double * geno_freqs)
+(double * geno_freqs, size_t geno)
 
 @code{ld_from_geno} calculates linkage disequilibrium by subtracting
 from the value stored at @var{geno_freqs} from the product of the allele
@@ -475,7 +475,7 @@ needed for a simulation.
 @end deftp
 
 @deftypefn {Library Function} rtable_t rec_gen_table @
-(int nloci, int geno, double * r)
+(double * r, size_t geno)
 
 @code{rec_gen_table} returns a recombination table with entries
 corresponding to the probability of producing the @math{k}-th genotype
@@ -485,8 +485,9 @@ describing the probability of producing a specific offspring genotype.
 @var{r} is a pointer to the recombination map (an array of recombination
 probabilities between adjacent sites).  @var{r} should have
 @math{@var{nloci} - 1} entries (or the first @math{@var{nloci} - 1}
-entries will be used).  The usual C programming caveats apply:
-if this array does not contain enough entries, it will probably contain
+entries will be used), where @var{nloci} is the number of loci (the
+@math{\log_2} of @var{geno}).  The usual C programming caveats apply: if
+this array does not contain enough entries, it will probably contain
 junk and you will get unexpected results!
 @end deftypefn
 

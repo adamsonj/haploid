@@ -156,7 +156,7 @@ rtable_new (rtable_t * rtable, double val, uint i, uint j)
 }
 
 rtable_t **
-rec_gen_table (size_t nloci, size_t geno, double * r)
+rec_gen_table (double * r, size_t geno)
 {
   /* first create rtable: an array of sparse matrices of length GENO */
   sparse_elt_t ** rtable = malloc (geno * sizeof (sparse_elt_t *));
@@ -166,6 +166,7 @@ rec_gen_table (size_t nloci, size_t geno, double * r)
   /* iterate over offspring entries, using endptr to keep track of
      position in the kth entry of rec_table, which is an array of
      GENO  */
+  size_t nloci = (size_t) log2 (geno);
   for (uint target = 0; target< geno; target++)
     {   
       rtable[target] = sparse_new_elt (NULL, 0.0, NULL);

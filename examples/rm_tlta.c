@@ -55,7 +55,7 @@ main (void)
   haploid_data_t * rm_data = malloc (sizeof (haploid_data_t));
   if (rm_data == NULL)
     error (ENOMEM, ENOMEM, "Null pointer");
-  rm_data->rec_table = rec_gen_table (NLOCI, GENO, &r);
+  rm_data->rec_table = rec_gen_table (&r, GENO);
   rm_data->geno = GENO;
   rm_data->nloci = NLOCI;
   srand48 (time (0));
@@ -127,7 +127,7 @@ rm_iterate (haploid_data_t * rm_data, double * alleles, double D)
 		   "Failed write to buffer by %zu bytes", remain - snck);
 	}
       snck = snprintf (dest, remain, prec,
-		       ld_from_geno (NLOCI, GENO, genotypes));
+		       ld_from_geno (genotypes, GENO));
       remain += snck;
       rtot   += snck;
       remain -= snck;

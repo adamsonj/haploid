@@ -70,7 +70,7 @@ void
 rec_mating (double * freqs, haploid_data_t * data);
 
 rtable_t **
-rec_gen_table (size_t nloci, size_t geno, double * r);
+rec_gen_table (double * r, size_t geno);
 
 /* geno_func.c */
 void
@@ -82,7 +82,7 @@ genotype_to_allele (double * allele_freqs, double * geno_freqs,
 		    size_t nloci, size_t geno);
 
 double
-ld_from_geno (size_t nloci, size_t geno, double * geno_freqs);
+ld_from_geno (double * genofreqs, size_t geno);
 
 double
 ld_sub_geno (double * genofreqs, uint loci, size_t ngeno);

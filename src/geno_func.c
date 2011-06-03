@@ -83,16 +83,17 @@ genotype_to_allele (double * allele_freqs, double * geno_freqs,
 }
 
 double
-ld_from_geno (size_t nloci, size_t geno, double * geno_freqs)
+ld_from_geno (double * genofreqs, size_t geno)
 {
-  /* takes a single argument geno_freqs and calculates the linkage
+  /* takes a single argument genofreqs and calculates the linkage
      disequilibrium by finding the difference between the first
      element and the product of the allele frequencies making up that
      least-significant genotype */
+  size_t nloci = (uint) log2 (geno);
   double alleles[nloci];
   /* assume diallelic loci and calculate the genotype frequencies */
-  genotype_to_allele (alleles, geno_freqs, nloci, geno);
-  double minuend = *geno_freqs;
+  genotype_to_allele (alleles, genofreqs, nloci, geno);
+  double minuend = *genofreqs;
   double subtrahend = 1.0;
   for (int i = 0; i < nloci; i++)
     subtrahend *= fdim(1.0, alleles[i]);
@@ -107,7 +108,7 @@ ld_sub_geno (double * genofreqs, uint loci, size_t ngeno)
      NGENO is the number of elements of GENOFREQS */
   /* get "sub-genotype" frequency */
   double subgeno_freq = 0.0F;
-  uint nloci = log2(ngeno);
+  uint nloci = (uint) log2(ngeno);
   double alleles[nloci];
   genotype_to_allele (alleles, genofreqs, nloci, ngeno);
   for (int i = 0; i < ngeno; i++)

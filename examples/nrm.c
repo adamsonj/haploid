@@ -63,7 +63,7 @@ main (void)
       /* populate the structure */
       nrm_data->geno = geno;
       nrm_data->nloci = nloci;
-      nrm_data->rec_table = rec_gen_table (nloci, geno, &r);
+      nrm_data->rec_table = rec_gen_table (&r, geno);
   
       /* generate an assortative mating table: */
       double ** mtable = malloc (geno * sizeof (double *));
@@ -165,7 +165,7 @@ nrm_iterate (double * freqs, haploid_data_t * data)
 
       /* print LD and a newline */    
       snck = snprintf (dest, remain, "%-#9.8f\n",
-		       ld_from_geno (nloci, geno, freqs));
+		       ld_from_geno (freqs, geno));
       dest += snck;
       remain -= snck;
       rtot += snck;
