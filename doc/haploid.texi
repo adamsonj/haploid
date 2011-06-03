@@ -504,7 +504,7 @@ all new relative frequencies are found, @code{rec_mating} divides each
 new entry by the total sum of the new entries.
 @end deftypefn
 
-@deftypefn {Library Function} double ** rmtable (int geno, double * freq)
+@deftypefn {Library Function} double ** rmtable (double * freq, size_t geno)
 
 @code{rmtable} returns a mating table to reflect random mating,
 i.e. products of the entries in @var{freq}.  @var{geno} provides the

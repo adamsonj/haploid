@@ -35,7 +35,7 @@
 #include <math.h>
 
 double **
-rmtable (size_t geno, double * freq)
+rmtable (double * freq, size_t geno)
 {
   /* random mating table */
   double ** table = malloc (geno * sizeof (double *));

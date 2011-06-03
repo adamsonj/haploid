@@ -1,3 +1,21 @@
+2011-06-03  Joel James Adamson  <adamsonj@email.unc.edu>
+
+	* src/mating.c (rmtable): changed order of arguments so that array
+	comes first, then its length
+
+	* src/geno_func.c (ld_from_geno): did away with nloci argument; we
+	only need to pass in the length of arrays that we are passing in;
+	in this case we only need the number of genotypes; also changed
+	order of arguments so that array comes first and length comes next
+	(ld_sub_geno): added this function that calculates linkage
+	disequilibrium from a subset of the genome
+
+	* src/rec.c (rec_gen_table): did away with nloci argument; we only
+	need to pass in the length of arrays that we are passing in; in
+	this case we only need the number of genotypes; changed order of
+	arguments so that array comes first and length comes next as per
+	convention
+
 2010-12-17  Joel James Adamson  <adamsonj@email.unc.edu>
 
 	* configure.ac: changed version to "git"
