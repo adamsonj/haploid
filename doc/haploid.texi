@@ -410,14 +410,25 @@ contexts.
 @code{ld_from_geno} calculates linkage disequilibrium by subtracting
 from the value stored at @var{geno_freqs} from the product of the allele
 frequencies.  In other words, it is equivalent to
-@end deftypefn
 
 @math{f(x) - \Pi_{i=0}^{n} (1 - f(x_i))}
 
 where @math{f(x)} is the frequency of genotype @math{x}, and
 @math{f(x_i)} is the frequency of the allele at the @math{i}-th
 position.
+@end deftypefn
 
+@deftypefn {Library Function} double ld_sub_geno@
+(double * genofreqs, uint loci, size_t ngeno)
+
+@code{ld_sub_geno} calculates linkage disequilibrium between loci in a
+specified subset of the genome in the sense of
+Nagylaki@footnote{Nagylaki, Thomas H.  1993.  The Evolution of
+Multilocus Systems under Weak Selection.  Genetics 134(2): 627–647.}.
+@var{genofreqs} is an array of genotype frequencies, @var{loci} is a
+genotype with positive alleles in the alleles of interest and
+@var{ngeno} is the number of genotypes (the length of @var{genofreqs}).
+@end deftypefn
 
 @node Compound Objects,  , Genotypes, Representation
 @section Compound Objects
